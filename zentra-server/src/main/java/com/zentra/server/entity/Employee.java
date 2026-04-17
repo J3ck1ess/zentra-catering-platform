@@ -11,7 +11,7 @@ public class Employee {
 
     private Long id;
     private Long merchantId;
-    private String userName;
+    private String username;
     private String password;
     private String name;
     private String role;

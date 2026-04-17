@@ -9,4 +9,5 @@ Zentra is a web-based catering SaaS platform designed with a scalable multi-modu
 
 ## Current Progress
 - Project structure initialized
-- Employee query API implemented (Controller → Service → Mapper)
+- Employee query API implemented
+- Employee CRUD (getById, getAll, create) completed

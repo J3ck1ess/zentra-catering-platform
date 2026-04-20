@@ -1,8 +1,10 @@
 package com.zentra.server.service.impl;
 
+import com.zentra.server.dto.LoginResponse;
 import com.zentra.server.entity.Employee;
 import com.zentra.server.mapper.EmployeeMapper;
 import com.zentra.server.service.EmployeeService;
+import com.zentra.server.utils.JwtUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -46,5 +48,33 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setMerchantId(1L);
 
         employeeMapper.insert(employee);
+    }
+
+    @Override
+    public LoginResponse login(Employee employee) {
+
+        // Query database
+        Employee dbEmployee = employeeMapper.findByUsername(employee.getUsername());
+
+        // Check if the username exists
+        if (dbEmployee == null) {
+            throw new RuntimeException("User not found");
+        }
+
+        // Check if the password is correct
+        if (!dbEmployee.getPassword().equals(employee.getPassword())) {
+            throw new RuntimeException("Incorrect password");
+        }
+
+        // Verification status
+        if (dbEmployee.getStatus() == 0) {
+            throw new RuntimeException("Account disabled");
+        }
+
+        // Generate token
+        String token = JwtUtil.generateToken(dbEmployee.getId());
+
+        // Return DTO
+        return new LoginResponse(token, dbEmployee.getId());
     }
 }

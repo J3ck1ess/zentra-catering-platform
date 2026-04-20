@@ -1,5 +1,7 @@
 package com.zentra.server.service;
 
+import com.zentra.server.context.UserContext;
+import com.zentra.server.dto.LoginResponse;
 import com.zentra.server.entity.Employee;
 
 import java.util.List;
@@ -25,4 +27,14 @@ public interface EmployeeService {
      * Create employee
      */
     void create(Employee employee);
+
+    /**
+     * Login
+     */
+    LoginResponse login(Employee employee);
+
+    /**
+     * Get current user id
+     */
+    Long userId = UserContext.getCurrentUser();
 }

@@ -1,6 +1,8 @@
 package com.zentra.server.controller;
 
 import com.zentra.common.result.Result;
+import com.zentra.server.context.UserContext;
+import com.zentra.server.dto.LoginResponse;
 import com.zentra.server.entity.Employee;
 import com.zentra.server.service.EmployeeService;
 import org.springframework.web.bind.annotation.*;
@@ -52,5 +54,23 @@ public class EmployeeController {
     public Result<String> createEmployee(@RequestBody Employee employee) {
         employeeService.create(employee);
         return Result.success("Employee created successfully");
-        }
+    }
+
+    /**
+     * Login
+     */
+    @PostMapping("/employee/login")
+    public Result<LoginResponse> login(@RequestBody Employee employee) {
+
+        return Result.success(employeeService.login(employee));
+    }
+
+    /**
+     * Get current user id
+     */
+    @GetMapping("/test/user")
+    public Result<Long> getCurrentUser() {
+        Long userId = UserContext.getCurrentUser();
+        return Result.success(userId);
+    }
 }

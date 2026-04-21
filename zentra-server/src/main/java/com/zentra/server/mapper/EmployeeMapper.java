@@ -8,7 +8,7 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 /**
- * Mapper for Employee table operations
+ * Mapper interface for Employee table operations
  */
 @Mapper
 public interface EmployeeMapper {

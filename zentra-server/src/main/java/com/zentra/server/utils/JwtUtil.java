@@ -29,8 +29,6 @@ public class JwtUtil {
                 .compact();
     }
 
-
-
     /**
      * Parse JWT token and return claims
      *

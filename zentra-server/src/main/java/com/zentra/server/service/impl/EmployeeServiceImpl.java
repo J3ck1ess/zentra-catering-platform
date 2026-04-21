@@ -15,7 +15,7 @@ import java.util.List;
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
 
-    public final EmployeeMapper employeeMapper;
+    private final EmployeeMapper employeeMapper;
 
     public EmployeeServiceImpl(EmployeeMapper employeeMapper) {
         this.employeeMapper = employeeMapper;

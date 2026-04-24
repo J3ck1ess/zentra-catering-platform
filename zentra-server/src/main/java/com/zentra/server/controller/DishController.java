@@ -2,9 +2,12 @@ package com.zentra.server.controller;
 
 import com.zentra.common.result.PageResult;
 import com.zentra.common.result.Result;
+import com.zentra.server.dto.DishCreateDTO;
 import com.zentra.server.dto.DishDTO;
+import com.zentra.server.dto.DishQueryDTO;
 import com.zentra.server.entity.Dish;
 import com.zentra.server.service.DishService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,42 +27,32 @@ public class DishController {
 
     /**
      * Create a new dish
-     * @param dish
+     *
+     * @param dto
      * @return
      */
     @PostMapping
-    public Result<Void> create(@RequestBody Dish dish) {
-        dishService.create(dish);
-        if (dish.getName() == null || dish.getPrice() == null){
-            throw new RuntimeException("Invalid dish data");
-        }
+    public Result<Void> create(@Valid @RequestBody DishCreateDTO dto) {
+
+        dishService.create(dto);
+
         return Result.success();
     }
 
     /**
      * Get dishes with pagination and optional filters
      *
-     * @param page page number
-     * @param pageSize page size
-     * @param categoryId optional category filter
-     * @param status optional status filter
-     * @return paginated dish list
+     * @param query
+     * @return
      */
     @GetMapping
-    public Result<PageResult<DishDTO>> list(
-
-            @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer pageSize,
-            @RequestParam(required = false) Long categoryId,
-            @RequestParam(required = false) Integer status
-    ) {
-        return Result.success(
-                dishService.list(page, pageSize, categoryId, status)
-        );
+    public Result<PageResult<DishDTO>> list(@Valid DishQueryDTO query) {
+        return Result.success(dishService.list(query));
     }
 
     /**
      * Delete dish by id
+     *
      * @param id
      * @return
      */

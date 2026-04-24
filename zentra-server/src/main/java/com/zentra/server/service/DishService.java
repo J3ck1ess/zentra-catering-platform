@@ -1,7 +1,9 @@
 package com.zentra.server.service;
 
 import com.zentra.common.result.PageResult;
+import com.zentra.server.dto.DishCreateDTO;
 import com.zentra.server.dto.DishDTO;
+import com.zentra.server.dto.DishQueryDTO;
 import com.zentra.server.entity.Dish;
 
 import java.util.List;
@@ -11,9 +13,9 @@ import java.util.List;
  */
 public interface DishService {
 
-    void create(Dish dish);
+    void create(DishCreateDTO dto);
 
-    PageResult<DishDTO> list(Integer page, Integer pageSize, Long categoryId, Integer status);
+    PageResult<DishDTO> list(DishQueryDTO query);
 
     void delete(Long id);
 }

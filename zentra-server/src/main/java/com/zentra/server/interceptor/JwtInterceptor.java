@@ -49,6 +49,8 @@ public class JwtInterceptor implements HandlerInterceptor {
             throw new RuntimeException("Invalid or expired token");
         }
 
+        System.out.println("Authorization: " + request.getHeader("Authorization"));
+
         // Allow request to proceed
         return true;
     }

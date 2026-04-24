@@ -12,24 +12,22 @@ public class GlobalExceptionHandler {
 
     /**
      * Handle runtime exceptions
-     *
-     * @param e exception
-     * @return standardized error response
      */
     @ExceptionHandler(RuntimeException.class)
     public Result<String> handleRuntimeException(RuntimeException e) {
 
-        return Result.error(401, e.getMessage());
+        e.printStackTrace();
+
+        return Result.error(500, e.getMessage());
     }
 
     /**
      * Handle generic exceptions
-     *
-     * @param e exception
-     * @return standardized error response
      */
     @ExceptionHandler(Exception.class)
     public Result<String> handleException(Exception e) {
+
+        e.printStackTrace();
 
         return Result.error(500, "Internal server error");
     }

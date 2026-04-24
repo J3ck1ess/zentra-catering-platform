@@ -14,8 +14,9 @@ Zentra is a web-based catering SaaS platform designed with a scalable multi-modu
 - Project structure initialized
 - Employee module implemented
 - Employee CRUD (getById, getAll, create) completed
-- JWT-based authentication system implemented 
+- JWT-based authentication system implemented
 - Category module implemented (CRUD + sorting)
+- Dish module implemented with pagination, DTO, and join query optimization
 
 ## Authentication Module (JWT)
 
@@ -42,9 +43,9 @@ zentra-catering-platform
 ├── zentra-common     # Common utilities (Result, constants)  
 ├── zentra-server     # Core backend service (Controller, Service, JWT, Interceptor)  
 ├── zentra-admin      # Admin frontend (future)  
-├── zentra-user       # User frontend (future)  
+├── zentra-user       # User frontend (future)
 
 ## Next Steps
-- Implement product module (Dish)
+- Order module (orders + order_item)
 - Add role-based access control (admin / staff)
 - Order and payment system

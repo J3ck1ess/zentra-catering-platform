@@ -94,7 +94,6 @@ public class DishServiceImpl implements DishService {
     @Override
     public void update(DishUpdateDTO dto) {
 
-        // Query original data
         Dish dish = new Dish();
 
         dish.setId(dto.getId());

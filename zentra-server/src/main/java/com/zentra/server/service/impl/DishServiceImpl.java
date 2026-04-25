@@ -5,6 +5,7 @@ import com.zentra.server.context.UserContext;
 import com.zentra.server.dto.DishCreateDTO;
 import com.zentra.server.dto.DishDTO;
 import com.zentra.server.dto.DishQueryDTO;
+import com.zentra.server.dto.DishUpdateDTO;
 import com.zentra.server.entity.Dish;
 import com.zentra.server.mapper.DishMapper;
 import com.zentra.server.service.DishService;
@@ -85,5 +86,24 @@ public class DishServiceImpl implements DishService {
         }
 
         dishMapper.deleteById(id);
+    }
+
+    /**
+     * Update dish by id
+     */
+    @Override
+    public void update(DishUpdateDTO dto) {
+
+        // Query original data
+        Dish dish = new Dish();
+
+        dish.setId(dto.getId());
+        dish.setName(dto.getName());
+        dish.setPrice(dto.getPrice());
+        dish.setCategoryId(dto.getCategoryId());
+        dish.setStatus(dto.getStatus());
+
+        // Update database
+        dishMapper.update(dish);
     }
 }

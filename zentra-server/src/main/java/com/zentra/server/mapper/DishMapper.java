@@ -67,4 +67,15 @@ public interface DishMapper {
      */
     @Delete("DELETE FROM dish WHERE id = #{id}")
     void deleteById(Long id);
+
+    /**
+     * Find dish by id
+     */
+    @Select("SELECT * FROM dish WHERE id = #{id}")
+    Dish findById(Long id);
+
+    /**
+     * Update dish by id
+     */
+    void update(Dish dish);
 }

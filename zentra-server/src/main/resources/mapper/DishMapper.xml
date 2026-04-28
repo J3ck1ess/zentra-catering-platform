@@ -25,6 +25,7 @@
         </set>
 
         WHERE id = #{id}
+        AND merchant_id = #{merchantId}
 
     </update>
 

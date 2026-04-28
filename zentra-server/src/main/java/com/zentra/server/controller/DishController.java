@@ -62,6 +62,9 @@ public class DishController {
 
     /**
      * Update dish by id
+     *
+     * @param dto
+     * @return
      */
     @PutMapping
     public Result<Void> update(@Valid @RequestBody DishUpdateDTO dto) {

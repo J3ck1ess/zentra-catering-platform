@@ -44,6 +44,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void create(Employee employee) {
 
         // Set default values
+        // TODO Temporary set
         employee.setStatus(1);
         employee.setMerchantId(1L);
 

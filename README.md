@@ -18,6 +18,16 @@ Zentra is a web-based catering SaaS platform designed with a scalable multi-modu
 - Category module implemented (CRUD + sorting)
 - Dish module implemented with full CRUD, pagination, DTO, join query, validation, and dynamic update support
 
+## 🔧 Optimization & Refactoring
+- Refactored **Category module** with DTO layer (Create / Update / Query) and dynamic SQL for flexible querying
+- Implemented **multi-tenant data isolation** using `merchant_id` across all CRUD operations
+- Added **business validation** (e.g., prevent deleting category when it is used by dishes)
+- Introduced **unified exception handling** via `GlobalExceptionHandler`
+- Created **AssertUtil** to standardize validation and database operation checks (e.g., affected rows)
+- Aligned **Dish module** with Category design to ensure consistency, security, and maintainability
+
+> These improvements enhance code maintainability, data security, and align the project with enterprise-level backend design practices.
+
 ## Authentication Module (JWT)
 
 This project implements a stateless authentication system using JSON Web Token (JWT).

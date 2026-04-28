@@ -46,6 +46,7 @@ public class JwtInterceptor implements HandlerInterceptor {
 
         } catch (Exception e) {
             // Token is invalid or expired
+            e.printStackTrace();
             throw new RuntimeException("Invalid or expired token");
         }
 

@@ -17,6 +17,7 @@ public interface DishMapper {
      */
     @Insert("INSERT INTO dish(name, price, category_id, status, merchant_id)" +
             "VALUES(#{name}, #{price}, #{categoryId}, #{status}, #{merchantId})")
+    @Options(useGeneratedKeys = true, keyProperty = "id")
     void insert(Dish dish);
 
     /**
@@ -65,8 +66,15 @@ public interface DishMapper {
     /**
      * Delete dish by id
      */
-    @Delete("DELETE FROM dish WHERE id = #{id}")
-    void deleteById(Long id);
+    @Delete("""
+        DELETE FROM dish 
+        WHERE id = #{id}
+        AND merchant_id = #{merchantId}
+    """)
+    int deleteById(
+            @Param("id") Long id,
+            @Param("merchantId") Long merchantId
+    );
 
     /**
      * Find dish by id
@@ -75,7 +83,18 @@ public interface DishMapper {
     Dish findById(Long id);
 
     /**
+     * Count dishes by category id
+     */
+    @Select("""
+            SELECT COUNT(*)
+            FROM dish
+            WHERE category_id = #{categoryId}
+            AND merchant_id = #{merchantId}
+            """)
+    int countByCategoryId(Long categoryId, Long merchantId);
+
+    /**
      * Update dish by id
      */
-    void update(Dish dish);
+    int update(Dish dish);
 }

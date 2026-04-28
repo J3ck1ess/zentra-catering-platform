@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handle illegal argument exceptions
+     * Handle IllegalArgumentException
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public Result<String> handleIllegalArgumentException(IllegalArgumentException e) {
@@ -54,6 +54,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public Result<String> handleException(Exception e) {
+
+        e.printStackTrace();
 
         // Fallback error (avoid exposing internal details)
         return Result.error(500, "Internal server error");

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zentra.server.mapper.OrderMapper">
+
+    <insert id="insert"
+            parameterType="com.zentra.server.entity.Order"
+            useGeneratedKeys="true"
+            keyProperty="id">
+
+        INSERT INTO orders
+            (merchant_id, order_number, total_amount, status)
+        VALUES
+            (#{merchantId}, #{orderNumber}, #{totalAmount}, #{status})
+
+    </insert>
+
+</mapper>

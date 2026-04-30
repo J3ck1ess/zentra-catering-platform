@@ -79,8 +79,14 @@ public interface DishMapper {
     /**
      * Find dish by id
      */
-    @Select("SELECT * FROM dish WHERE id = #{id}")
-    Dish findById(Long id);
+    @Select("""
+        SELECT * FROM dish
+        WHERE id = #{id}
+        AND merchant_id = #{merchantId}
+        """)
+    Dish findById(@Param("id") Long id,
+                  @Param("merchantId") Long merchantId
+    );
 
     /**
      * Count dishes by category id

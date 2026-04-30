@@ -36,20 +36,6 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handle authentication / token related exceptions
-     */
-    @ExceptionHandler(RuntimeException.class)
-    public Result<String> handleRuntimeException(RuntimeException e) {
-
-        // JWT interceptor throws RuntimeException for invalid token
-        if (e.getMessage() != null && e.getMessage().contains("token")) {
-            return Result.error(401, e.getMessage());
-        }
-
-        return Result.error(500, e.getMessage());
-    }
-
-    /**
      * Handle all other exceptions
      */
     @ExceptionHandler(Exception.class)

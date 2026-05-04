@@ -41,6 +41,7 @@ The Order module supports full order lifecycle including creation, querying, and
 - Order pagination query support
 - Order detail query with one-to-many item mapping
 - Multi-tenant isolation using merchant_id
+- Order status flow control with state transition validation
 
 ### Workflow
 1. Client submits order items (dishId + quantity)
@@ -49,6 +50,19 @@ The Order module supports full order lifecycle including creation, querying, and
 4. Order is created in `orders` table
 5. Order items are stored in `order_item` table
 6. All operations are wrapped in a transaction
+
+### Status Flow
+
+The order module implements a state transition control mechanism to ensure that order status changes follow predefined business rules.
+
+Allowed transitions:
+- PENDING → PAID
+- PENDING → CANCELLED
+- PAID → COMPLETED
+
+Invalid transitions (e.g., COMPLETED → PAID) are rejected at the service layer.
+
+The state flow is implemented using a centralized transition map to ensure consistency and maintainability.
 
 ### Query Design
 - Pagination query using `LIMIT + OFFSET`

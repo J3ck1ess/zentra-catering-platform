@@ -61,5 +61,19 @@ public class OrderController {
         return Result.success(orderService.getById(id));
     }
 
+    /**
+     * Update order status
+     *
+     * @param id
+     * @param status
+     */
+    @PatchMapping("/{id}/status")
+    public Result<Void> updateStatus(@PathVariable Long id,
+                                     @RequestParam Integer status) {
+
+        orderService.updateStatus(id, status);
+        return Result.success();
+    }
+
 
 }

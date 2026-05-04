@@ -44,5 +44,14 @@ public interface OrderMapper {
             @Param("merchantId") Long merchantId
     );
 
+    /**
+     * Update order status
+     */
+    int updateStatus(
+            @Param("id") Long id,
+            @Param("merchantId") Long merchantId,
+            @Param("status") Integer status
+    );
+
 
 }

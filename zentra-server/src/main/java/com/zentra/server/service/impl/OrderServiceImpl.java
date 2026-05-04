@@ -1,6 +1,7 @@
 package com.zentra.server.service.impl;
 
 import com.zentra.common.constant.OrderStatus;
+import com.zentra.common.constant.OrderStatusFlow;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.util.AssertUtil;
 import com.zentra.server.context.UserContext;
@@ -185,5 +186,34 @@ public class OrderServiceImpl implements OrderService {
 
         dto.setItems(itemDTOs);
         return dto;
+    }
+
+    /**
+     * Update order status
+     *
+     * @param orderId
+     * @param newStatus
+     */
+    @Override
+    public void updateStatus(Long orderId, Integer newStatus) {
+
+        Long merchantId = UserContext.getCurrentUser();
+
+        // Get order
+        Order order = orderMapper.findById(orderId, merchantId);
+        AssertUtil.notNull(order, "Order not found");
+
+        Integer oldStatus = order.getStatus();
+
+        // Verify status transition
+        if (!OrderStatusFlow.canTransfer(oldStatus, newStatus)) {
+            throw new IllegalArgumentException(
+                    "Invalid status transition: " + oldStatus + " -> " + newStatus
+            );
+        }
+
+        // Update status
+        int rows = orderMapper.updateStatus(orderId, merchantId, newStatus);
+        AssertUtil.checkRows(rows, "Update failed");
     }
 }

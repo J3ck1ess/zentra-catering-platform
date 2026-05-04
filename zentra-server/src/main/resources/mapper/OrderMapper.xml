@@ -61,4 +61,11 @@
         AND o.merchant_id = #{merchantId}
     </select>
 
+    <update id="updateStatus">
+        UPDATE orders
+        SET status = #{status}
+        WHERE id = #{id}
+        AND merchant_id = #{merchantId}
+    </update>
+
 </mapper>

@@ -14,4 +14,5 @@ public interface OrderService {
 
     OrderDetailDTO getById(Long id);
 
+    void updateStatus(Long id, Integer status);
 }

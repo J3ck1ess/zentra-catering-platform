@@ -4,14 +4,14 @@ import java.util.List;
 
 public class OrderCreateDTO {
 
-    private List<OrderItemDTO> items;
+    private List<OrderItemCreateDTO> items;
 
     // Getter and Setter
-    public List<OrderItemDTO> getItems() {
+    public List<OrderItemCreateDTO> getItems() {
         return items;
     }
 
-    public void setItems(List<OrderItemDTO> items) {
+    public void setItems(List<OrderItemCreateDTO> items) {
         this.items = items;
     }
 }

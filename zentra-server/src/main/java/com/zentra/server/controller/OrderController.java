@@ -1,14 +1,15 @@
 package com.zentra.server.controller;
 
 
+import com.zentra.common.result.PageResult;
 import com.zentra.common.result.Result;
 import com.zentra.server.dto.OrderCreateDTO;
+import com.zentra.server.dto.OrderDetailDTO;
+import com.zentra.server.dto.OrderPageDTO;
+import com.zentra.server.dto.OrderQueryDTO;
 import com.zentra.server.service.OrderService;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Controller for Order
@@ -34,6 +35,30 @@ public class OrderController {
 
         orderService.create(dto);
         return Result.success();
+    }
+
+    /**
+     * Get orders with pagination and optional filters
+     *
+     * @param query
+     * @return
+     */
+    @GetMapping
+    public Result<PageResult<OrderPageDTO>> list(@Valid OrderQueryDTO query) {
+
+        return Result.success(orderService.list(query));
+    }
+
+    /**
+     * Get order details by id
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public Result<OrderDetailDTO> getById(@PathVariable Long id) {
+
+        return Result.success(orderService.getById(id));
     }
 
 

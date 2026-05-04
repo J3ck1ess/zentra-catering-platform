@@ -1,9 +1,10 @@
 package com.zentra.server.service.impl;
 
+import com.zentra.common.constant.OrderStatus;
+import com.zentra.common.result.PageResult;
 import com.zentra.common.util.AssertUtil;
 import com.zentra.server.context.UserContext;
-import com.zentra.server.dto.OrderCreateDTO;
-import com.zentra.server.dto.OrderItemDTO;
+import com.zentra.server.dto.*;
 import com.zentra.server.entity.Dish;
 import com.zentra.server.entity.Order;
 import com.zentra.server.entity.OrderItem;
@@ -11,6 +12,7 @@ import com.zentra.server.mapper.DishMapper;
 import com.zentra.server.mapper.OrderItemMapper;
 import com.zentra.server.mapper.OrderMapper;
 import com.zentra.server.service.OrderService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,7 +57,7 @@ public class OrderServiceImpl implements OrderService {
         List<Dish> dishes = new ArrayList<>();
 
         // Validate each order item
-        for (OrderItemDTO item : dto.getItems()) {
+        for (OrderItemCreateDTO item : dto.getItems()) {
 
             if (item.getQuantity() == null || item.getQuantity() <= 0) {
                 throw new IllegalArgumentException("Invalid quantity");
@@ -73,7 +75,7 @@ public class OrderServiceImpl implements OrderService {
         for (int i = 0; i < dishes.size(); i++) {
 
             Dish dish = dishes.get(i);
-            OrderItemDTO item = dto.getItems().get(i);
+            OrderItemCreateDTO item = dto.getItems().get(i);
 
             BigDecimal amount = dish.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
 
@@ -85,7 +87,7 @@ public class OrderServiceImpl implements OrderService {
 
         order.setMerchantId(merchantId);
         order.setTotalAmount(totalAmount);
-        order.setStatus(1); // Pending
+        order.setStatus(OrderStatus.PENDING); // Pending
 
         order.setOrderNumber(String.valueOf(System.currentTimeMillis()));
 
@@ -96,7 +98,7 @@ public class OrderServiceImpl implements OrderService {
 
             // Get dish and order item
             Dish dish = dishes.get(i);
-            OrderItemDTO item = dto.getItems().get(i);
+            OrderItemCreateDTO item = dto.getItems().get(i);
             BigDecimal amount = dish.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
 
             OrderItem orderItem = new OrderItem();
@@ -112,5 +114,76 @@ public class OrderServiceImpl implements OrderService {
             orderItemMapper.insert(orderItem);
 
         }
+    }
+
+    /**
+     * Query orders with pagination
+     *
+     * @param query
+     * @return
+     */
+    @Override
+    public PageResult<OrderPageDTO> list(OrderQueryDTO query) {
+
+        Long merchantId = UserContext.getCurrentUser();
+
+        Integer page = query.getPage();
+        Integer pageSize = query.getPageSize();
+        int offset = (page - 1) * pageSize;
+
+        // Query data
+        List<Order> orders = orderMapper.findPage(
+                query.getStatus(),
+                merchantId,
+                offset,
+                pageSize
+        );
+
+        List<OrderPageDTO> list = orders.stream().map(order -> {
+            OrderPageDTO dto = new OrderPageDTO();
+            BeanUtils.copyProperties(order, dto);
+            return dto;
+        }).toList();
+
+        // Query total count
+        Long total = orderMapper.count(
+                query.getStatus(),
+                merchantId
+        );
+
+        return new PageResult<>(total, list);
+    }
+
+    /**
+     * Get order by id
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public OrderDetailDTO getById(Long id) {
+
+        Long merchantId = UserContext.getCurrentUser();
+
+        // Get order
+        Order order = orderMapper.findById(id, merchantId);
+        AssertUtil.notNull(order, "Order not found");
+
+        // Get order items
+        List<OrderItem> items = orderItemMapper.findByOrderId(order.getId());
+
+        // Order -> DTO
+        OrderDetailDTO dto = new OrderDetailDTO();
+        BeanUtils.copyProperties(order, dto);
+
+        // Order items -> DTO
+        List<OrderItemDTO> itemDTOs = items.stream().map(item -> {
+            OrderItemDTO itemDTO = new OrderItemDTO();
+            BeanUtils.copyProperties(item, itemDTO);
+            return itemDTO;
+        }).toList();
+
+        dto.setItems(itemDTOs);
+        return dto;
     }
 }

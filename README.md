@@ -31,13 +31,15 @@ Zentra is a web-based catering SaaS platform designed with a scalable multi-modu
 
 ## Order Module
 
-The Order module supports full order creation with transactional consistency and item-level snapshot storage.
+The Order module supports full order lifecycle including creation, querying, and detailed retrieval with transactional consistency and item-level snapshot storage.
 
 ### Features
 - Create orders with multiple dishes
 - Transactional operation (orders + order_item)
 - Server-side total amount calculation (prevent tampering)
 - Snapshot design (store dish name and price at order time)
+- Order pagination query support
+- Order detail query with one-to-many item mapping
 - Multi-tenant isolation using merchant_id
 
 ### Workflow
@@ -47,6 +49,11 @@ The Order module supports full order creation with transactional consistency and
 4. Order is created in `orders` table
 5. Order items are stored in `order_item` table
 6. All operations are wrapped in a transaction
+
+### Query Design
+- Pagination query using `LIMIT + OFFSET`
+- Order detail retrieval using two-step query (order + order_item)
+- One-to-many data assembled in Service layer using DTO nesting
 
 ## Authentication Module (JWT)
 

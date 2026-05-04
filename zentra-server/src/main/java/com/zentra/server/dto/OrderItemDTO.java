@@ -1,16 +1,14 @@
 package com.zentra.server.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
+import java.math.BigDecimal;
 
 public class OrderItemDTO {
 
-    @NotNull(message = "dish id cannot be null")
     private Long dishId;
-
-    @NotNull(message = "quantity cannot be null")
-    @Min(value = 1, message = "quantity must be greater than 0 or equal to 1")
+    private String dishName;
+    private BigDecimal price;
     private Integer quantity;
+    private BigDecimal amount;
 
     // Getter and Setter
     public Long getDishId() {
@@ -21,11 +19,35 @@ public class OrderItemDTO {
         this.dishId = dishId;
     }
 
+    public String getDishName() {
+        return dishName;
+    }
+
+    public void setDishName(String dishName) {
+        this.dishName = dishName;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
     public Integer getQuantity() {
         return quantity;
     }
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
     }
 }

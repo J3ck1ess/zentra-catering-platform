@@ -20,7 +20,7 @@ public interface CategoryMapper {
     void insert(Category category);
 
     /**
-     * Query all categories
+     * Query categories with pagination
      */
     @Select("""
             SELECT *

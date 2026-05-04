@@ -17,4 +17,48 @@
 
     </insert>
 
+    <select id="findPage" resultType="com.zentra.server.entity.Order">
+
+        SELECT
+            o.id,
+            o.order_number,
+            o.total_amount,
+            o.status,
+            o.created_at
+        FROM orders o
+        WHERE o.merchant_id = #{merchantId}
+
+        <if test="status != null">
+            AND o.status = #{status}
+        </if>
+
+        ORDER BY o.created_at DESC
+        LIMIT #{offset}, #{pageSize}
+
+    </select>
+
+    <select id="count" resultType="java.lang.Long">
+
+        SELECT COUNT(*)
+        FROM orders
+        WHERE merchant_id = #{merchantId}
+
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+
+    </select>
+
+    <select id="findById" resultType="com.zentra.server.entity.Order">
+        SELECT
+            o.id,
+            o.order_number,
+            o.total_amount,
+            o.status,
+            o.created_at
+        FROM orders o
+        WHERE o.id = #{id}
+        AND o.merchant_id = #{merchantId}
+    </select>
+
 </mapper>

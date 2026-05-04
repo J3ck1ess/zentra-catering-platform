@@ -53,6 +53,7 @@ public class CategoryServiceImpl implements CategoryService {
      * Query categories with pagination
      *
      * @param query
+     * @return PageResult<CategoryDTO>
      */
     @Override
     public PageResult<CategoryDTO> list(CategoryQueryDTO query) {

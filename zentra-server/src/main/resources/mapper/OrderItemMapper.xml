@@ -15,4 +15,17 @@
 
     </insert>
 
+    <select id="findByOrderId" resultType="com.zentra.server.entity.OrderItem">
+
+        SELECT
+            oi.dish_id,
+            oi.dish_name,
+            oi.price,
+            oi.quantity,
+            oi.amount
+        FROM order_item oi
+        WHERE oi.order_id = #{orderId}
+
+    </select>
+
 </mapper>

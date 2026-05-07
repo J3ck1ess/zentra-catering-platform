@@ -36,7 +36,6 @@ public class CategoryController {
     public Result<Void> create(@Valid @RequestBody CategoryCreateDTO dto) {
 
         categoryService.create(dto);
-
         return Result.success();
     }
 
@@ -48,7 +47,21 @@ public class CategoryController {
      */
     @GetMapping
     public Result<PageResult<CategoryDTO>> list(@Valid CategoryQueryDTO query) {
+
         return Result.success(categoryService.list(query));
+    }
+
+    /**
+     * Update category
+     *
+     * @param dto
+     * @return
+     */
+    @PatchMapping
+    public Result<Void> update(@Valid @RequestBody CategoryUpdateDTO dto) {
+
+        categoryService.update(dto);
+        return Result.success();
     }
 
     /**
@@ -59,19 +72,8 @@ public class CategoryController {
      */
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
-        categoryService.deleteById(id);
-        return Result.success();
-    }
 
-    /**
-     * Update category by id
-     *
-     * @param dto
-     * @return
-     */
-    @PutMapping
-    public Result<Void> update(@Valid @RequestBody CategoryUpdateDTO dto) {
-        categoryService.update(dto);
+        categoryService.deleteById(id);
         return Result.success();
     }
 }

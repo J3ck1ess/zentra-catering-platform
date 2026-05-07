@@ -10,12 +10,14 @@ import java.math.BigDecimal;
 public class OrderItem {
 
     private Long id;
+    private Long merchantId;
     private Long orderId;
     private Long dishId;
     private String dishName;
     private BigDecimal price;
     private Integer quantity;
     private BigDecimal amount;
+
 
     // Getter and Setter
     public Long getId() {
@@ -24,6 +26,14 @@ public class OrderItem {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getMerchantId() {
+        return merchantId;
+    }
+
+    public void setMerchantId(Long merchantId) {
+        this.merchantId = merchantId;
     }
 
     public Long getOrderId() {

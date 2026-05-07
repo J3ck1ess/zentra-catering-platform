@@ -1,5 +1,7 @@
 package com.zentra.common.constant;
 
+import java.util.Set;
+
 /**
  * Order status constants
  */
@@ -24,6 +26,26 @@ public class OrderStatus {
      * Cancelled
      */
     public static final int CANCELLED = 4;
+
+    /**
+     * Valid status set
+     */
+
+    private static final Set<Integer> VALID_STATUS = Set.of(
+
+            PENDING,
+            PAID,
+            COMPLETED,
+            CANCELLED
+    );
+
+    /**
+     * Check whether status is valid
+     */
+    public static boolean isValid(Integer status) {
+
+        return VALID_STATUS.contains(status);
+    }
 
     private OrderStatus() {
         // prevent instantiation

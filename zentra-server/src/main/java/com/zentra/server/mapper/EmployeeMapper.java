@@ -3,6 +3,7 @@ package com.zentra.server.mapper;
 import com.zentra.server.entity.Employee;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -14,33 +15,63 @@ import java.util.List;
 public interface EmployeeMapper {
 
     /**
-     * Query employee by username
-     * @param username login username
-     * @return Employee entity
-     */
-    @Select("SELECT * FROM employee WHERE username = #{username}")
-    Employee findByUsername(String username);
-
-    /**
-     * Query employee by id
-     * @param id employee id
-     * @return Employee entity
-     */
-    @Select("SELECT * FROM employee WHERE id = #{id}")
-    Employee findById(Long id);
-
-    /**
-     * Query all employees
-     * @return Array of Employee entities
-     */
-    @Select("SELECT * FROM employee")
-    List<Employee> findAll();
-
-    /**
      * Insert employee
-     * @param employee employee entity
      */
-    @Insert("INSERT INTO employee (merchant_id, username, password, name, role, status) " +
-            "VALUES (#{merchantId}, #{username}, #{password}, #{name}, #{role}, #{status})")
-    void insert(Employee employee);
+    int insert(Employee employee);
+
+    /**
+     * Query employee list with pagination
+     */
+    List<Employee> findPage(
+            @Param("username") String username,
+            @Param("status") Integer status,
+            @Param("merchantId") Long merchantId,
+            @Param("offset") Integer offset,
+            @Param("pageSize") Integer pageSize
+    );
+
+    /**
+     * Query employee by id with tenant isolation
+     */
+    Employee findById(
+            @Param("id") Long id,
+            @Param("merchantId") Long merchantId
+    );
+
+    /**
+     * Query employee by username with tenant isolation
+     */
+    Employee findByUsername(
+            @Param("username") String username,
+            @Param("merchantId") Long merchantId
+    );
+
+    /**
+     * Query employee by username for login
+     */
+    Employee findByUsernameOnly(
+            @Param("username") String username
+    );
+
+    /**
+     * Count employees
+     */
+    Long count(
+            @Param("username") String username,
+            @Param("status") Integer status,
+            @Param("merchantId") Long merchantId
+    );
+
+    /**
+     * Update employee
+     */
+    int update(Employee employee);
+
+    /**
+     * Delete employee by id
+     */
+    int deleteById(
+            @Param("id") Long id,
+            @Param("merchantId") Long merchantId
+    );
 }

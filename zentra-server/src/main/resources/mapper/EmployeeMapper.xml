@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zentra.server.mapper.EmployeeMapper">
+
+    <!-- ========================================= -->
+    <!-- Result Mapping -->
+    <!-- ========================================= -->
+    <resultMap id="EmployeeResultMap" type="com.zentra.server.entity.Employee">
+
+        <id property="id" column="id"/>
+
+        <result property="merchantId" column="merchant_id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="name" column="name"/>
+        <result property="role" column="role"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+
+    </resultMap>
+
+    <!-- ========================================= -->
+    <!-- Insert employee -->
+    <!-- ========================================= -->
+    <insert id="insert"
+            parameterType="com.zentra.server.entity.Employee"
+            useGeneratedKeys="true"
+            keyProperty="id">
+
+        INSERT INTO employee (
+            merchant_id,
+            username,
+            password,
+            name,
+            role,
+            status
+        )
+        VALUES (
+                   #{merchantId},
+                   #{username},
+                   #{password},
+                   #{name},
+                   #{role},
+                   #{status}
+               )
+
+    </insert>
+
+    <!-- ========================================= -->
+    <!-- Query employee list with pagination -->
+    <!-- ========================================= -->
+    <select id="findPage"
+            resultMap="EmployeeResultMap">
+
+        SELECT
+            id,
+            merchant_id,
+            username,
+            password,
+            name,
+            role,
+            status,
+            created_at,
+            updated_at
+        FROM employee
+        WHERE merchant_id = #{merchantId}
+
+        <!-- Optional fuzzy search by username -->
+        <if test="username != null and username != ''">
+            AND username LIKE CONCAT('%', #{username}, '%')
+        </if>
+
+        <!-- Optional status filter -->
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+
+        ORDER BY created_at DESC
+
+        LIMIT #{offset}, #{pageSize}
+
+    </select>
+
+    <!-- ========================================= -->
+    <!-- Query employee by id -->
+    <!-- ========================================= -->
+    <select id="findById"
+            resultMap="EmployeeResultMap">
+
+        SELECT
+            id,
+            merchant_id,
+            username,
+            password,
+            name,
+            role,
+            status,
+            created_at,
+            updated_at
+        FROM employee
+        WHERE id = #{id}
+          AND merchant_id = #{merchantId}
+
+    </select>
+
+    <!-- ========================================= -->
+    <!-- Query employee by username -->
+    <!-- ========================================= -->
+    <select id="findByUsername"
+            resultMap="EmployeeResultMap">
+
+        SELECT
+            id,
+            merchant_id,
+            username,
+            password,
+            name,
+            role,
+            status,
+            created_at,
+            updated_at
+        FROM employee
+        WHERE username = #{username}
+          AND merchant_id = #{merchantId}
+
+    </select>
+
+    <!-- ========================================= -->
+    <!-- Query employee by username for login -->
+    <!-- ========================================= -->
+    <select id="findByUsernameOnly"
+            resultMap="EmployeeResultMap">
+
+        SELECT
+            id,
+            merchant_id,
+            username,
+            password,
+            name,
+            role,
+            status,
+            created_at,
+            updated_at
+        FROM employee
+        WHERE username = #{username}
+
+    </select>
+
+    <!-- ========================================= -->
+    <!-- Count employees -->
+    <!-- ========================================= -->
+    <select id="count"
+            resultType="long">
+
+        SELECT COUNT(*)
+        FROM employee
+        WHERE merchant_id = #{merchantId}
+
+        <!-- Optional fuzzy search by username -->
+        <if test="username != null and username != ''">
+            AND username LIKE CONCAT('%', #{username}, '%')
+        </if>
+
+        <!-- Optional status filter -->
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+
+    </select>
+
+    <!-- ========================================= -->
+    <!-- Update employee -->
+    <!-- ========================================= -->
+    <update id="update"
+            parameterType="com.zentra.server.entity.Employee">
+
+        UPDATE employee
+
+        <set>
+
+            <!-- Update username -->
+            <if test="username != null">
+                username = #{username},
+            </if>
+
+            <!-- Update employee name -->
+            <if test="name != null">
+                name = #{name},
+            </if>
+
+            <!-- Update role -->
+            <if test="role != null">
+                role = #{role},
+            </if>
+
+            <!-- Update employee status -->
+            <if test="status != null">
+                status = #{status},
+            </if>
+
+            <!-- Auto update timestamp -->
+            updated_at = NOW()
+
+        </set>
+
+        WHERE id = #{id}
+        AND merchant_id = #{merchantId}
+
+    </update>
+
+    <!-- ========================================= -->
+    <!-- Delete employee by id -->
+    <!-- ========================================= -->
+    <delete id="deleteById">
+
+        DELETE FROM employee
+        WHERE id = #{id}
+          AND merchant_id = #{merchantId}
+
+    </delete>
+
+</mapper>

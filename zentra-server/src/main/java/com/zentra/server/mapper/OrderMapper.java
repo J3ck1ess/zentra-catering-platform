@@ -16,7 +16,7 @@ public interface OrderMapper {
     /**
      * Insert a new order
      */
-    void insert(Order order);
+    int insert(Order order);
 
     /**
      * Query orders with pagination

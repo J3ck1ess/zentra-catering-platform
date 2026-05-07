@@ -11,11 +11,25 @@ import com.zentra.server.dto.DishUpdateDTO;
  */
 public interface DishService {
 
+    /**
+     * Create dish
+     */
     void create(DishCreateDTO dto);
 
+    /**
+     * Query dishes with pagination
+     */
     PageResult<DishDTO> list(DishQueryDTO query);
 
-    void delete(Long id);
-
+    /**
+     * Update dish
+     */
     void update(DishUpdateDTO dto);
+
+    /**
+     * Delete dish by id
+     */
+    void deleteById(Long id);
+
+
 }

@@ -1,10 +1,12 @@
 package com.zentra.server.controller;
 
+import com.zentra.common.result.PageResult;
 import com.zentra.common.result.Result;
 import com.zentra.server.context.UserContext;
-import com.zentra.server.dto.LoginResponse;
+import com.zentra.server.dto.*;
 import com.zentra.server.entity.Employee;
 import com.zentra.server.service.EmployeeService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.List;
  * Controller for Employee APIs
  */
 @RestController
+@RequestMapping("/employee")
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -22,55 +25,89 @@ public class EmployeeController {
     }
 
     /**
-     * Get employee by username
+     * Create a new employee
+     *
+     * @param dto
+     * @return
      */
-    @GetMapping("/employee")
-    public Result<Employee> getEmployee(@RequestParam String username) {
-        Employee employee = employeeService.getByUsername(username);
-        return Result.success(employee);
+    @PostMapping
+    public Result<Void> createEmployee(@Valid @RequestBody EmployeeCreateDTO dto) {
+
+        employeeService.create(dto);
+        return Result.success();
+    }
+
+    /**
+     * Get employees with pagination and optional filters
+     *
+     * @param query
+     * @return
+     */
+    @GetMapping
+    public Result<PageResult<EmployeeDTO>> list(@Valid EmployeeQueryDTO query) {
+
+        return Result.success(employeeService.list(query));
     }
 
     /**
      * Get employee by id
+     *
+     * @param id
+     * @return
      */
-    @GetMapping("/employee/{id}")
-    public Result<Employee> getEmployeeById(@PathVariable Long id) {
-        Employee employee = employeeService.getById(id);
-        return Result.success(employee);
+    @GetMapping("/{id}")
+    public Result<EmployeeDTO> getById(@PathVariable Long id) {
+
+        return Result.success(employeeService.getById(id));
     }
 
     /**
-     * Get all employees
+     * Get employee by username
+     *
+     * @param username
+     * @return
      */
-    @GetMapping("/employees")
-    public Result<List<Employee>> getAllEmployees() {
-        return Result.success(employeeService.getAll());
-    }
+    @GetMapping("/search")
+    public Result<EmployeeDTO> getByUsername(@RequestParam String username) {
 
-    /**
-     * Create a new employee
-     */
-    @PostMapping("/employee")
-    public Result<String> createEmployee(@RequestBody Employee employee) {
-        employeeService.create(employee);
-        return Result.success("Employee created successfully");
+        return Result.success(employeeService.getByUsername(username));
     }
 
     /**
      * Login
+     *
+     * @param dto
+     * @return
      */
-    @PostMapping("/employee/login")
-    public Result<LoginResponse> login(@RequestBody Employee employee) {
+    @PostMapping("/login")
+    public Result<LoginResponse> login(@Valid @RequestBody EmployeeLoginDTO dto) {
 
-        return Result.success(employeeService.login(employee));
+        return Result.success(employeeService.login(dto));
     }
 
     /**
-     * Get current user id
+     * Update employee
+     *
+     * @param dto
+     * @return
      */
-    @GetMapping("/test/user")
-    public Result<Long> getCurrentUser() {
-        Long userId = UserContext.getCurrentUser();
-        return Result.success(userId);
+    @PatchMapping
+    public Result<Void> update(@Valid @RequestBody EmployeeUpdateDTO dto) {
+
+        employeeService.update(dto);
+        return Result.success();
+    }
+
+    /**
+     * Delete employee by id
+     *
+     * @param id
+     * @return
+     */
+    @DeleteMapping("/{id}")
+    public Result<Void> delete(@PathVariable Long id) {
+
+        employeeService.deleteById(id);
+        return Result.success();
     }
 }

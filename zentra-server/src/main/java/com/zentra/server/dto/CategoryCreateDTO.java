@@ -1,10 +1,11 @@
 package com.zentra.server.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class CategoryCreateDTO {
 
-    @NotNull(message = "name cannot be null")
+    @NotBlank(message = "name cannot be blank")
     private String name;
 
     @NotNull(message = "type cannot be null")

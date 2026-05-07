@@ -5,26 +5,71 @@
 
 <mapper namespace="com.zentra.server.mapper.OrderItemMapper">
 
-    <insert id="insert"
-            parameterType="com.zentra.server.entity.OrderItem">
+    <!-- ========================================= -->
+    <!-- Result Mapping -->
+    <!-- ========================================= -->
+    <resultMap id="OrderItemResultMap"
+               type="com.zentra.server.entity.OrderItem">
 
-        INSERT INTO order_item
-            (order_id, dish_id, dish_name, price, quantity, amount)
-        VALUES
-            (#{orderId}, #{dishId}, #{dishName}, #{price}, #{quantity}, #{amount})
+        <id property="id" column="id"/>
+
+        <result property="merchantId" column="merchant_id"/>
+        <result property="orderId" column="order_id"/>
+        <result property="dishId" column="dish_id"/>
+        <result property="dishName" column="dish_name"/>
+        <result property="price" column="price"/>
+        <result property="quantity" column="quantity"/>
+        <result property="amount" column="amount"/>
+
+    </resultMap>
+
+    <!-- ========================================= -->
+    <!-- Insert order item -->
+    <!-- ========================================= -->
+    <insert id="insert"
+            parameterType="com.zentra.server.entity.OrderItem"
+            useGeneratedKeys="true"
+            keyProperty="id">
+
+        INSERT INTO order_item (
+            merchant_id,
+            order_id,
+            dish_id,
+            dish_name,
+            price,
+            quantity,
+            amount
+        )
+        VALUES (
+                   #{merchantId},
+                   #{orderId},
+                   #{dishId},
+                   #{dishName},
+                   #{price},
+                   #{quantity},
+                   #{amount}
+               )
 
     </insert>
 
-    <select id="findByOrderId" resultType="com.zentra.server.entity.OrderItem">
+    <!-- ========================================= -->
+    <!-- Query order items by order id -->
+    <!-- ========================================= -->
+    <select id="findByOrderId"
+            resultMap="OrderItemResultMap">
 
         SELECT
-            oi.dish_id,
-            oi.dish_name,
-            oi.price,
-            oi.quantity,
-            oi.amount
-        FROM order_item oi
-        WHERE oi.order_id = #{orderId}
+            id,
+            merchant_id,
+            order_id,
+            dish_id,
+            dish_name,
+            price,
+            quantity,
+            amount
+        FROM order_item
+        WHERE order_id = #{orderId}
+        AND merchant_id = #{merchantId}
 
     </select>
 

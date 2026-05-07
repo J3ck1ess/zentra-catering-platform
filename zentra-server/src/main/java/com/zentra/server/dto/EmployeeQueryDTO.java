@@ -3,9 +3,9 @@ package com.zentra.server.dto;
 import jakarta.validation.constraints.Min;
 
 /**
- * Query object for dish list
+ * Query DTO for employee list
  */
-public class DishQueryDTO {
+public class EmployeeQueryDTO {
 
     /**
      * Page number (must be >= 1)
@@ -20,9 +20,9 @@ public class DishQueryDTO {
     private Integer pageSize = 10;
 
     /**
-     * Optional category filter
+     * Optional username filter
      */
-    private Long categoryId;
+    private String username;
 
     /**
      * Optional status filter
@@ -46,12 +46,12 @@ public class DishQueryDTO {
         this.pageSize = pageSize;
     }
 
-    public Long getCategoryId() {
-        return categoryId;
+    public String getUsername() {
+        return username;
     }
 
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public Integer getStatus() {

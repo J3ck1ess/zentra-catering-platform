@@ -5,28 +5,195 @@
 
 <mapper namespace="com.zentra.server.mapper.DishMapper">
 
-    <update id="update">
+    <!-- ========================================= -->
+    <!-- Result Mapping -->
+    <!-- ========================================= -->
+    <resultMap id="DishResultMap"
+               type="com.zentra.server.entity.Dish">
+
+        <id property="id" column="id"/>
+
+        <result property="name" column="name"/>
+        <result property="price" column="price"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="status" column="status"/>
+        <result property="merchantId" column="merchant_id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+
+    </resultMap>
+
+    <!-- ========================================= -->
+    <!-- Insert dish -->
+    <!-- ========================================= -->
+    <insert id="insert"
+            parameterType="com.zentra.server.entity.Dish"
+            useGeneratedKeys="true"
+            keyProperty="id">
+
+        INSERT INTO dish (
+            name,
+            price,
+            category_id,
+            status,
+            merchant_id
+        )
+        VALUES (
+                   #{name},
+                   #{price},
+                   #{categoryId},
+                   #{status},
+                   #{merchantId}
+               )
+
+    </insert>
+
+    <!-- ========================================= -->
+    <!-- Query dishes with pagination -->
+    <!-- ========================================= -->
+    <select id="findPage"
+            resultMap="DishResultMap">
+
+        SELECT
+            d.id,
+            d.name,
+            d.price,
+            d.category_id,
+            d.status,
+            d.merchant_id,
+            d.created_at,
+            d.updated_at,
+            c.name AS category_name
+        FROM dish d
+
+        LEFT JOIN category c
+        ON d.category_id = c.id
+        AND c.merchant_id = d.merchant_id
+
+        WHERE d.merchant_id = #{merchantId}
+
+        <!-- Optional category filter -->
+        <if test="categoryId != null">
+            AND d.category_id = #{categoryId}
+        </if>
+
+        <!-- Optional status filter -->
+        <if test="status != null">
+            AND d.status = #{status}
+        </if>
+
+        ORDER BY d.id DESC
+
+        LIMIT #{offset}, #{pageSize}
+
+    </select>
+
+    <!-- ========================================= -->
+    <!-- Count total dishes -->
+    <!-- ========================================= -->
+    <select id="count"
+            resultType="java.lang.Long">
+
+        SELECT COUNT(*)
+        FROM dish d
+        WHERE d.merchant_id = #{merchantId}
+
+        <!-- Optional category filter -->
+        <if test="categoryId != null">
+            AND d.category_id = #{categoryId}
+        </if>
+
+        <!-- Optional status filter -->
+        <if test="status != null">
+            AND d.status = #{status}
+        </if>
+
+    </select>
+
+    <!-- ========================================= -->
+    <!-- Find dish by id -->
+    <!-- ========================================= -->
+    <select id="findById"
+            resultMap="DishResultMap">
+
+        SELECT
+            id,
+            name,
+            price,
+            category_id,
+            status,
+            merchant_id,
+            created_at,
+            updated_at
+        FROM dish
+        WHERE id = #{id}
+          AND merchant_id = #{merchantId}
+
+    </select>
+
+    <!-- ========================================= -->
+    <!-- Count dishes by category id -->
+    <!-- ========================================= -->
+    <select id="countByCategoryId"
+            resultType="int">
+
+        SELECT COUNT(*)
+        FROM dish
+        WHERE category_id = #{categoryId}
+          AND merchant_id = #{merchantId}
+
+    </select>
+
+    <!-- ========================================= -->
+    <!-- Update dish -->
+    <!-- ========================================= -->
+    <update id="update"
+            parameterType="com.zentra.server.entity.Dish">
 
         UPDATE dish
 
         <set>
+
+            <!-- Update dish name -->
             <if test="name != null">
                 name = #{name},
             </if>
+
+            <!-- Update dish price -->
             <if test="price != null">
                 price = #{price},
             </if>
+
+            <!-- Update category -->
             <if test="categoryId != null">
                 category_id = #{categoryId},
             </if>
+
+            <!-- Update dish status -->
             <if test="status != null">
                 status = #{status},
             </if>
+
+            <!-- Auto update timestamp -->
+            updated_at = NOW()
+
         </set>
 
         WHERE id = #{id}
         AND merchant_id = #{merchantId}
 
     </update>
+
+    <!-- ========================================= -->
+    <!-- Delete dish by id -->
+    <!-- ========================================= -->
+    <delete id="deleteById">
+
+        DELETE FROM dish
+        WHERE id = #{id}
+          AND merchant_id = #{merchantId}
+
+    </delete>
 
 </mapper>

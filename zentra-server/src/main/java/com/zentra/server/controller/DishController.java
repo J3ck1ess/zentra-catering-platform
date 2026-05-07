@@ -33,7 +33,6 @@ public class DishController {
     public Result<Void> create(@Valid @RequestBody DishCreateDTO dto) {
 
         dishService.create(dto);
-
         return Result.success();
     }
 
@@ -45,7 +44,21 @@ public class DishController {
      */
     @GetMapping
     public Result<PageResult<DishDTO>> list(@Valid DishQueryDTO query) {
+
         return Result.success(dishService.list(query));
+    }
+
+    /**
+     * Update dish by id
+     *
+     * @param dto
+     * @return
+     */
+    @PatchMapping
+    public Result<Void> update(@Valid @RequestBody DishUpdateDTO dto) {
+
+        dishService.update(dto);
+        return Result.success();
     }
 
     /**
@@ -56,19 +69,9 @@ public class DishController {
      */
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
-        dishService.delete(id);
+
+        dishService.deleteById(id);
         return Result.success();
     }
 
-    /**
-     * Update dish by id
-     *
-     * @param dto
-     * @return
-     */
-    @PutMapping
-    public Result<Void> update(@Valid @RequestBody DishUpdateDTO dto) {
-        dishService.update(dto);
-        return Result.success();
-    }
 }

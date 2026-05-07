@@ -1,5 +1,6 @@
 package com.zentra.server.service.impl;
 
+import com.zentra.common.constant.DishStatus;
 import com.zentra.common.constant.OrderStatus;
 import com.zentra.common.constant.OrderStatusFlow;
 import com.zentra.common.result.PageResult;
@@ -18,8 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Order service implementation
@@ -55,7 +57,7 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("Order items cannot be empty");
         }
 
-        List<Dish> dishes = new ArrayList<>();
+        Map<Long, Dish> dishMap = new HashMap<>();
 
         // Validate each order item
         for (OrderItemCreateDTO item : dto.getItems()) {
@@ -67,18 +69,25 @@ public class OrderServiceImpl implements OrderService {
             Dish dish = dishMapper.findById(item.getDishId(), merchantId);
             AssertUtil.notNull(dish, "Dish not found");
 
-            dishes.add(dish);
+            // Check dish status
+            if (dish.getStatus().equals(DishStatus.DISABLED)) {
+                throw new IllegalArgumentException("Dish is disabled");
+            }
+
+            dishMap.put(dish.getId(), dish);
         }
 
         // Calculate total amount
         BigDecimal totalAmount = BigDecimal.ZERO;
 
-        for (int i = 0; i < dishes.size(); i++) {
+        for (OrderItemCreateDTO item : dto.getItems()) {
 
-            Dish dish = dishes.get(i);
-            OrderItemCreateDTO item = dto.getItems().get(i);
+            Dish dish = dishMap.get(item.getDishId());
 
-            BigDecimal amount = dish.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+            BigDecimal amount =
+                    dish.getPrice().multiply(
+                            BigDecimal.valueOf(item.getQuantity())
+                    );
 
             totalAmount = totalAmount.add(amount);
         }
@@ -90,21 +99,27 @@ public class OrderServiceImpl implements OrderService {
         order.setTotalAmount(totalAmount);
         order.setStatus(OrderStatus.PENDING); // Pending
 
+        // TODO: Generate order number
         order.setOrderNumber(String.valueOf(System.currentTimeMillis()));
 
-        orderMapper.insert(order);
+        int orderRows = orderMapper.insert(order);
+        AssertUtil.checkRows(orderRows, "Failed to create order");
 
         // Insert Order Items
-        for (int i = 0; i < dishes.size(); i++) {
+        for (OrderItemCreateDTO item : dto.getItems()) {
 
             // Get dish and order item
-            Dish dish = dishes.get(i);
-            OrderItemCreateDTO item = dto.getItems().get(i);
-            BigDecimal amount = dish.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+            Dish dish = dishMap.get(item.getDishId());
+
+            BigDecimal amount =
+                    dish.getPrice().multiply(
+                            BigDecimal.valueOf(item.getQuantity())
+                    );
 
             OrderItem orderItem = new OrderItem();
 
             // Set order item properties
+            orderItem.setMerchantId(merchantId);
             orderItem.setOrderId(order.getId());
             orderItem.setDishId(dish.getId());
             orderItem.setDishName(dish.getName());
@@ -112,7 +127,8 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setQuantity(item.getQuantity());
             orderItem.setAmount(amount);
 
-            orderItemMapper.insert(orderItem);
+            int orderItemRows = orderItemMapper.insert(orderItem);
+            AssertUtil.checkRows(orderItemRows, "Failed to create order item");
 
         }
     }
@@ -133,14 +149,14 @@ public class OrderServiceImpl implements OrderService {
         int offset = (page - 1) * pageSize;
 
         // Query data
-        List<Order> orders = orderMapper.findPage(
+        List<Order> list = orderMapper.findPage(
                 query.getStatus(),
                 merchantId,
                 offset,
                 pageSize
         );
 
-        List<OrderPageDTO> list = orders.stream().map(order -> {
+        List<OrderPageDTO> records = list.stream().map(order -> {
             OrderPageDTO dto = new OrderPageDTO();
             BeanUtils.copyProperties(order, dto);
             return dto;
@@ -152,7 +168,7 @@ public class OrderServiceImpl implements OrderService {
                 merchantId
         );
 
-        return new PageResult<>(total, list);
+        return new PageResult<>(total, records);
     }
 
     /**
@@ -171,7 +187,11 @@ public class OrderServiceImpl implements OrderService {
         AssertUtil.notNull(order, "Order not found");
 
         // Get order items
-        List<OrderItem> items = orderItemMapper.findByOrderId(order.getId());
+        List<OrderItem> items =
+                orderItemMapper.findByOrderId(
+                        order.getId(),
+                        merchantId
+                );
 
         // Order -> DTO
         OrderDetailDTO dto = new OrderDetailDTO();
@@ -199,6 +219,12 @@ public class OrderServiceImpl implements OrderService {
 
         Long merchantId = UserContext.getCurrentUser();
 
+        // Validate new status
+        if (!OrderStatus.isValid(newStatus)) {
+
+            throw new IllegalArgumentException("Invalid order status");
+        }
+
         // Get order
         Order order = orderMapper.findById(orderId, merchantId);
         AssertUtil.notNull(order, "Order not found");
@@ -207,8 +233,12 @@ public class OrderServiceImpl implements OrderService {
 
         // Verify status transition
         if (!OrderStatusFlow.canTransfer(oldStatus, newStatus)) {
+
             throw new IllegalArgumentException(
-                    "Invalid status transition: " + oldStatus + " -> " + newStatus
+                    "Invalid status transition: "
+                            + oldStatus
+                            + " -> "
+                            + newStatus
             );
         }
 

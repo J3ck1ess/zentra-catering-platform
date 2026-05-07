@@ -15,11 +15,23 @@ import java.util.List;
  */
 public interface CategoryService {
 
+    /**
+     * Create category
+     */
     void create (CategoryCreateDTO dto);
 
+    /**
+     * Query categories with pagination
+     */
     PageResult<CategoryDTO> list(CategoryQueryDTO query);
 
-    void deleteById(Long id);
-
+    /**
+     * Update category
+     */
     void update(CategoryUpdateDTO dto);
+
+    /**
+     * Delete category by id
+     */
+    void deleteById(Long id);
 }

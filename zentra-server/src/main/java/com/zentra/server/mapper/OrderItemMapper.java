@@ -15,10 +15,13 @@ public interface OrderItemMapper {
     /**
      * Insert order item
      */
-    void insert(OrderItem orderItem);
+    int insert(OrderItem orderItem);
 
     /**
      * Query order items by order id
      */
-    List<OrderItem> findByOrderId(@Param("orderId") Long orderId);
+    List<OrderItem> findByOrderId(
+            @Param("orderId") Long orderId,
+            @Param("merchantId") Long merchantId
+    );
 }

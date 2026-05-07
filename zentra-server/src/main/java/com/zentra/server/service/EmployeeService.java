@@ -1,40 +1,49 @@
 package com.zentra.server.service;
 
+import com.zentra.common.result.PageResult;
 import com.zentra.server.context.UserContext;
-import com.zentra.server.dto.LoginResponse;
+import com.zentra.server.dto.*;
 import com.zentra.server.entity.Employee;
 
 import java.util.List;
 
+/**
+ * Service interface for employee logic
+ */
 public interface EmployeeService {
-
-    /**
-     * Get employee by username
-     */
-    Employee getByUsername(String username);
-
-    /**
-     * Get employee by id
-     */
-    Employee getById(Long id);
-
-    /**
-     * Get all employees
-     */
-    List<Employee> getAll();
 
     /**
      * Create employee
      */
-    void create(Employee employee);
+    void create(EmployeeCreateDTO dto);
+
+    /**
+     * Query employees with pagination
+     */
+    PageResult<EmployeeDTO> list(EmployeeQueryDTO query);
+
+    /**
+     * Get employee by id
+     */
+    EmployeeDTO getById(Long id);
+
+    /**
+     * Get employee by username
+     */
+    EmployeeDTO getByUsername(String username);
 
     /**
      * Login
      */
-    LoginResponse login(Employee employee);
+    LoginResponse login(EmployeeLoginDTO dto);
 
     /**
-     * Get current user id
+     * Update employee
      */
-    Long userId = UserContext.getCurrentUser();
+    void update(EmployeeUpdateDTO dto);
+
+    /**
+     * Delete employee by id
+     */
+    void deleteById(Long id);
 }

@@ -1,12 +1,20 @@
 package com.zentra.server.service.impl;
 
-import com.zentra.server.dto.LoginResponse;
+import com.zentra.common.constant.EmployeeStatus;
+import com.zentra.common.result.PageResult;
+import com.zentra.common.util.AssertUtil;
+import com.zentra.server.context.UserContext;
+import com.zentra.server.dto.*;
 import com.zentra.server.entity.Employee;
+import com.zentra.server.entity.User;
 import com.zentra.server.mapper.EmployeeMapper;
 import com.zentra.server.service.EmployeeService;
 import com.zentra.server.utils.JwtUtil;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 
+import javax.management.Query;
 import java.util.List;
 
 /**
@@ -21,61 +29,192 @@ public class EmployeeServiceImpl implements EmployeeService {
         this.employeeMapper = employeeMapper;
     }
 
+    /**
+     * Create employee
+     *
+     * @param dto
+     */
     @Override
-    public Employee getByUsername(String username) {
-        return employeeMapper.findByUsername(username);
+    public void create(EmployeeCreateDTO dto) {
+
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(dto, employee);
+
+        // Encrypt password
+        String encryptedPassword = DigestUtils.md5DigestAsHex(
+                dto.getPassword().getBytes()
+        );
+
+        employee.setPassword(encryptedPassword);
+
+        employee.setStatus(EmployeeStatus.ACTIVE);
+        employee.setMerchantId(UserContext.getCurrentUser());
+
+        int rows = employeeMapper.insert(employee);
+        AssertUtil.checkRows(rows, "Failed to create employee");
     }
 
+    /**
+     * Query employees with pagination
+     *
+     * @param query
+     * @return
+     */
     @Override
-    public Employee getById(Long id) {
-        Employee employee = employeeMapper.findById(id);
-        if (employee == null) {
-            throw new RuntimeException("employee not found");
-        }
-        return employee;
+    public PageResult<EmployeeDTO> list(EmployeeQueryDTO query) {
+
+        Long merchantId = UserContext.getCurrentUser();
+
+        Integer page = query.getPage();
+        Integer pageSize = query.getPageSize();
+        int offset = (page - 1) * pageSize;
+
+        List<Employee> list = employeeMapper.findPage(
+                query.getUsername(),
+                query.getStatus(),
+                merchantId,
+                offset,
+                pageSize
+        );
+
+        // Convert Entity -> DTO
+        List<EmployeeDTO> records = list.stream().map(employee -> {
+
+            EmployeeDTO dto = new EmployeeDTO();
+            BeanUtils.copyProperties(employee, dto);
+
+            return dto;
+        }).toList();
+
+        Long total = employeeMapper.count(
+                query.getUsername(),
+                query.getStatus(),
+                merchantId
+        );
+
+        return new PageResult<>(total, records);
     }
 
+    /**
+     * Get employee by id
+     *
+     * @param id
+     * @return
+     */
     @Override
-    public List<Employee> getAll() {
-        return employeeMapper.findAll();
+    public EmployeeDTO getById(Long id) {
+
+        Long merchantId = UserContext.getCurrentUser();
+
+        Employee employee = employeeMapper.findById(id, merchantId);
+        AssertUtil.notNull(employee, "Employee not found");
+
+        EmployeeDTO dto = new EmployeeDTO();
+        BeanUtils.copyProperties(employee, dto);
+
+        return dto;
     }
 
+    /**
+     * Get employee by username
+     *
+     * @param username
+     * @return
+     */
     @Override
-    public void create(Employee employee) {
+    public EmployeeDTO getByUsername(String username) {
 
-        // Set default values
-        // TODO Temporary set
-        employee.setStatus(1);
-        employee.setMerchantId(1L);
+        Long merchantId = UserContext.getCurrentUser();
 
-        employeeMapper.insert(employee);
+        Employee employee = employeeMapper.findByUsername(username, merchantId);
+        AssertUtil.notNull(employee, "Employee not found");
+
+        EmployeeDTO dto = new EmployeeDTO();
+        BeanUtils.copyProperties(employee, dto);
+
+        return dto;
     }
 
+    /**
+     * Login employee
+     *
+     * @param dto
+     * @return
+     */
     @Override
-    public LoginResponse login(Employee employee) {
+    public LoginResponse login(EmployeeLoginDTO dto) {
 
         // Query database
-        Employee dbEmployee = employeeMapper.findByUsername(employee.getUsername());
+        Employee dbEmployee = employeeMapper.findByUsernameOnly(
+                dto.getUsername()
+        );
 
-        // Check if the username exists
-        if (dbEmployee == null) {
-            throw new RuntimeException("User not found");
+        // Check if the user exists
+        AssertUtil.notNull(dbEmployee, "User not found");
+
+        // Verify account status
+        if (dbEmployee.getStatus().equals(EmployeeStatus.DISABLED)) {
+            throw new IllegalArgumentException("Account disabled");
         }
 
-        // Check if the password is correct
-        if (!dbEmployee.getPassword().equals(employee.getPassword())) {
-            throw new RuntimeException("Incorrect password");
-        }
+        // Verify password
+        String encryptedPassword = DigestUtils.md5DigestAsHex(
+                dto.getPassword().getBytes()
+        );
 
-        // Verification status
-        if (dbEmployee.getStatus() == 0) {
-            throw new RuntimeException("Account disabled");
+        if (!dbEmployee.getPassword().equals(encryptedPassword)) {
+            throw new IllegalArgumentException("Incorrect password");
         }
 
         // Generate token
         String token = JwtUtil.generateToken(dbEmployee.getId());
 
-        // Return DTO
         return new LoginResponse(token, dbEmployee.getId());
+    }
+
+    /**
+     * Update employee
+     *
+     * @param dto
+     */
+    @Override
+    public void update(EmployeeUpdateDTO dto) {
+
+        AssertUtil.notNull(dto.getId(), "Employee id cannot be null");
+
+        if (dto.getUsername() == null
+                && dto.getName() == null
+                && dto.getRole() == null
+                && dto.getStatus() == null) {
+
+            throw new IllegalArgumentException("No fields to update");
+        }
+
+        // Convert DTO -> Entity
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(dto, employee);
+
+        employee.setMerchantId(UserContext.getCurrentUser());
+
+        // Execute update
+        int rows = employeeMapper.update(employee);
+        AssertUtil.checkRows(rows, "Employee not found or no permission");
+    }
+
+    /**
+     * Delete employee by id
+     *
+     * @param id
+     */
+    @Override
+    public void deleteById(Long id) {
+
+        AssertUtil.notNull(id, "Employee id cannot be null");
+
+        Long merchantId = UserContext.getCurrentUser();
+
+        // Execute delete
+        int rows = employeeMapper.deleteById(id, merchantId);
+        AssertUtil.checkRows(rows, "Employee not found or no permission");
     }
 }

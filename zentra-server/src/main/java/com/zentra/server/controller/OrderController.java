@@ -1,12 +1,8 @@
 package com.zentra.server.controller;
 
-
 import com.zentra.common.result.PageResult;
 import com.zentra.common.result.Result;
-import com.zentra.server.dto.OrderCreateDTO;
-import com.zentra.server.dto.OrderDetailDTO;
-import com.zentra.server.dto.OrderPageDTO;
-import com.zentra.server.dto.OrderQueryDTO;
+import com.zentra.server.dto.*;
 import com.zentra.server.service.OrderService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -65,15 +61,16 @@ public class OrderController {
      * Update order status
      *
      * @param id
-     * @param status
+     * @param dto
      */
     @PatchMapping("/{id}/status")
-    public Result<Void> updateStatus(@PathVariable Long id,
-                                     @RequestParam Integer status) {
+    public Result<Void> updateStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody OrderStatusUpdateDTO dto
+    ) {
 
-        orderService.updateStatus(id, status);
+        orderService.updateStatus(id, dto.getStatus());
         return Result.success();
     }
-
 
 }

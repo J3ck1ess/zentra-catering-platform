@@ -2,6 +2,7 @@ package com.zentra.server.dto;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
@@ -10,9 +11,10 @@ public class DishUpdateDTO {
     @NotNull(message = "dish id cannot be null")
     private Long id;
 
+    @Size(min = 1, message = "name cannot be empty")
     private String name;
 
-    @DecimalMin(value = "0.0", message = "price must be greater than 0")
+    @DecimalMin(value = "0.01", message = "price must be greater than 0.01")
     private BigDecimal price;
 
     private Long categoryId;

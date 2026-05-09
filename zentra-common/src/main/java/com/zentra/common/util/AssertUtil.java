@@ -19,4 +19,13 @@ public class AssertUtil {
             throw new IllegalArgumentException(message);
         }
     }
+
+    /**
+     * Check object null
+     */
+    public static void isNull(Object obj, String message) {
+        if (obj != null) {
+            throw new IllegalArgumentException(message);
+        }
+    }
 }

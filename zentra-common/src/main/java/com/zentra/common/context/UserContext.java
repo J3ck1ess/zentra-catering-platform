@@ -1,4 +1,4 @@
-package com.zentra.server.context;
+package com.zentra.common.context;
 
 /**
  * Utility class for storing and retrieving current user information

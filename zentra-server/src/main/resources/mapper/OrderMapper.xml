@@ -14,6 +14,7 @@
         <id property="id" column="id"/>
 
         <result property="merchantId" column="merchant_id"/>
+        <result property="userId" column="user_id"/>
         <result property="orderNumber" column="order_number"/>
         <result property="totalAmount" column="total_amount"/>
         <result property="status" column="status"/>
@@ -32,16 +33,18 @@
 
         INSERT INTO orders (
             merchant_id,
+            user_id,
             order_number,
             total_amount,
             status
         )
         VALUES (
-                   #{merchantId},
-                   #{orderNumber},
-                   #{totalAmount},
-                   #{status}
-               )
+            #{merchantId},
+            #{userId},
+            #{orderNumber},
+            #{totalAmount},
+            #{status}
+        )
 
     </insert>
 
@@ -54,6 +57,7 @@
         SELECT
             id,
             merchant_id,
+            user_id,
             order_number,
             total_amount,
             status,
@@ -99,6 +103,7 @@
         SELECT
             id,
             merchant_id,
+            user_id,
             order_number,
             total_amount,
             status,
@@ -107,6 +112,52 @@
         FROM orders
         WHERE id = #{id}
           AND merchant_id = #{merchantId}
+
+    </select>
+
+    <!-- ========================================= -->
+    <!-- Query current user's orders -->
+    <!-- ========================================= -->
+    <select id="findUserOrders"
+            resultMap="OrderResultMap">
+
+        SELECT
+            id,
+            merchant_id,
+            user_id,
+            order_number,
+            total_amount,
+            status,
+            created_at,
+            updated_at
+        FROM orders
+        WHERE user_id = #{userId}
+
+        <!-- Optional order status filter -->
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+
+        ORDER BY created_at DESC, id DESC
+
+        LIMIT #{offset}, #{pageSize}
+
+    </select>
+
+    <!-- ========================================= -->
+    <!-- Count current user's orders -->
+    <!-- ========================================= -->
+    <select id="countUserOrders"
+            resultType="java.lang.Long">
+
+        SELECT COUNT(*)
+        FROM orders
+        WHERE user_id = #{userId}
+
+        <!-- Optional order status filter -->
+        <if test="status != null">
+            AND status = #{status}
+        </if>
 
     </select>
 

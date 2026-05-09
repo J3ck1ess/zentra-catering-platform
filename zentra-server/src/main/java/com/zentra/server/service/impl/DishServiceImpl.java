@@ -3,7 +3,7 @@ package com.zentra.server.service.impl;
 import com.zentra.common.constant.DishStatus;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.util.AssertUtil;
-import com.zentra.server.context.UserContext;
+import com.zentra.common.context.UserContext;
 import com.zentra.server.dto.*;
 import com.zentra.server.entity.Category;
 import com.zentra.server.entity.Dish;

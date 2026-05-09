@@ -1,11 +1,7 @@
 package com.zentra.server.service;
 
 import com.zentra.common.result.PageResult;
-import com.zentra.server.context.UserContext;
 import com.zentra.server.dto.*;
-import com.zentra.server.entity.Employee;
-
-import java.util.List;
 
 /**
  * Service interface for employee logic

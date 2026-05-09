@@ -45,6 +45,24 @@ public interface OrderMapper {
     );
 
     /**
+     * Find user orders with pagination
+     */
+    List<Order> findUserOrders(
+            @Param("userId") Long userId,
+            @Param("status") Integer status,
+            @Param("offset") Integer offset,
+            @Param("pageSize") Integer pageSize
+    );
+
+    /**
+     * Count user orders
+     */
+    Long countUserOrders(
+            @Param("userId") Long userId,
+            @Param("status") Integer status
+    );
+
+    /**
      * Update order status
      */
     int updateStatus(
@@ -52,6 +70,5 @@ public interface OrderMapper {
             @Param("merchantId") Long merchantId,
             @Param("status") Integer status
     );
-
 
 }

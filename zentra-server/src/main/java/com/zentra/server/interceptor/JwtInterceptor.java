@@ -1,6 +1,6 @@
 package com.zentra.server.interceptor;
 
-import com.zentra.server.context.UserContext;
+import com.zentra.common.context.UserContext;
 import com.zentra.server.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;

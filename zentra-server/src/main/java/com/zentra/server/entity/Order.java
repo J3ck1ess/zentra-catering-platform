@@ -12,6 +12,7 @@ public class Order {
 
     private Long id;
     private Long merchantId;
+    private Long userId;
     private String orderNumber;
     private BigDecimal totalAmount;
     private Integer status;
@@ -33,6 +34,14 @@ public class Order {
 
     public void setMerchantId(Long merchantId) {
         this.merchantId = merchantId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getOrderNumber() {

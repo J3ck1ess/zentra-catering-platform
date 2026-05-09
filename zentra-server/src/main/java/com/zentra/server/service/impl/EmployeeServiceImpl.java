@@ -3,10 +3,10 @@ package com.zentra.server.service.impl;
 import com.zentra.common.constant.EmployeeStatus;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.util.AssertUtil;
-import com.zentra.server.context.UserContext;
+import com.zentra.common.context.UserContext;
+import com.zentra.common.util.PasswordUtil;
 import com.zentra.server.dto.*;
 import com.zentra.server.entity.Employee;
-import com.zentra.server.entity.User;
 import com.zentra.server.mapper.EmployeeMapper;
 import com.zentra.server.service.EmployeeService;
 import com.zentra.server.utils.JwtUtil;
@@ -14,7 +14,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
-import javax.management.Query;
 import java.util.List;
 
 /**
@@ -41,11 +40,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         BeanUtils.copyProperties(dto, employee);
 
         // Encrypt password
-        String encryptedPassword = DigestUtils.md5DigestAsHex(
-                dto.getPassword().getBytes()
+        employee.setPassword(
+                PasswordUtil.encode(dto.getPassword())
         );
-
-        employee.setPassword(encryptedPassword);
 
         employee.setStatus(EmployeeStatus.ACTIVE);
         employee.setMerchantId(UserContext.getCurrentUser());
@@ -162,7 +159,11 @@ public class EmployeeServiceImpl implements EmployeeService {
                 dto.getPassword().getBytes()
         );
 
-        if (!dbEmployee.getPassword().equals(encryptedPassword)) {
+        if (!PasswordUtil.matches(
+                dto.getPassword(),
+                dbEmployee.getPassword()
+        )) {
+
             throw new IllegalArgumentException("Incorrect password");
         }
 

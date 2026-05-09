@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zentra.server.mapper.UserMapper">
+
+    <!-- ========================================= -->
+    <!-- Result Mapping -->
+    <!-- ========================================= -->
+    <resultMap id="UserResultMap"
+               type="com.zentra.server.entity.User">
+
+        <id property="id" column="id"/>
+
+        <result property="merchantId" column="merchant_id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="nickname" column="nickname"/>
+        <result property="phone" column="phone"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+
+    </resultMap>
+
+    <!-- ========================================= -->
+    <!-- Insert user -->
+    <!-- ========================================= -->
+    <insert id="insert"
+            parameterType="com.zentra.server.entity.User"
+            useGeneratedKeys="true"
+            keyProperty="id">
+
+        INSERT INTO user (
+            merchant_id,
+            username,
+            password,
+            nickname,
+            phone,
+            status
+        )
+        VALUES (
+                   #{merchantId},
+                   #{username},
+                   #{password},
+                   #{nickname},
+                   #{phone},
+                   #{status}
+               )
+
+    </insert>
+
+    <!-- ========================================= -->
+    <!-- Find user by username -->
+    <!-- ========================================= -->
+    <select id="findByUsername"
+            resultMap="UserResultMap">
+
+        SELECT
+            id,
+            merchant_id,
+            username,
+            password,
+            nickname,
+            phone,
+            status,
+            created_at,
+            updated_at
+        FROM user
+        WHERE username = #{username}
+          AND merchant_id = #{merchantId}
+
+    </select>
+
+    <!-- ========================================= -->
+    <!-- Find user by id -->
+    <!-- ========================================= -->
+    <select id="findById"
+            resultMap="UserResultMap">
+
+        SELECT
+            id,
+            merchant_id,
+            username,
+            password,
+            nickname,
+            phone,
+            status,
+            created_at,
+            updated_at
+        FROM user
+        WHERE id = #{id}
+          AND merchant_id = #{merchantId}
+
+    </select>
+
+</mapper>

@@ -14,6 +14,7 @@ The project focuses on enterprise-style backend architecture, including DTO laye
 - MySQL
 - MyBatis
 - JWT Authentication
+- BCrypt Password Hashing
 - Jakarta Validation
 
 ---
@@ -47,7 +48,10 @@ The system includes multiple enterprise-oriented backend patterns:
 - Server-side amount calculation
 - Business constraint validation
 - Affected-row validation (`checkRows`)
-- Constant-based status management
+- Constant-based status management 
+- JWT-based authentication workflow
+- BCrypt password hashing
+- User-order business association
 
 ---
 
@@ -93,6 +97,16 @@ The system includes multiple enterprise-oriented backend patterns:
 - Tenant isolation
 - Order item tenant isolation
 
+### User Module
+- User registration
+- User login authentication
+- BCrypt password hashing
+- JWT token generation
+- User profile query
+- User order history query
+- User-order association
+- Protected API access control
+
 ---
 
 ## Authentication Module (JWT)
@@ -108,10 +122,12 @@ This project implements a stateless authentication system using JSON Web Token (
 - ThreadLocal-based user context
 - Unified exception handling
 - Structured API response with DTO
+- BCrypt password hashing
+- User and employee authentication support
 
 ### Workflow
 
-1. User logs in via `/employee/login`
+1. User or employee logs in via authentication APIs
 2. Server validates credentials and generates JWT token
 3. Client sends token in `Authorization` header (`Bearer token`)
 4. Interceptor validates token before accessing protected APIs
@@ -167,7 +183,8 @@ The flow is implemented using a centralized transition map to ensure maintainabi
 
 ### Multi-Tenant Isolation
 
-All business queries include `merchant_id` restrictions to ensure tenant-level data isolation.
+All business queries include `merchant_id` restrictions to ensure tenant-level data isolation.  
+User-level order ownership is enforced using `user_id` association.
 
 ### Validation Strategy
 
@@ -178,6 +195,7 @@ Validation is implemented at multiple layers:
 - Affected-row validation using `AssertUtil.checkRows()`
 - Status transition validation
 - Ownership validation
+- Password hashing using BCrypt
 
 ### Exception Handling
 
@@ -191,8 +209,8 @@ Global exception handling is implemented via `GlobalExceptionHandler`.
 zentra-catering-platform
 ├── zentra-common     # Common utilities, constants, Result wrapper
 ├── zentra-server     # Core backend service
-├── zentra-admin      # Admin frontend (future)
-├── zentra-user       # User frontend (future)
+├── zentra-admin      # Admin-side frontend (future)
+├── zentra-user       # User-side frontend (future)
 ```
 
 ---
@@ -208,6 +226,8 @@ zentra-catering-platform
 - MyBatis interceptor for automatic tenant injection
 - Order payment workflow
 - Employee permission management
+- Unified authentication context (AuthContext)
+- JWT role/type differentiation
 
 ---
 
@@ -221,3 +241,4 @@ This project is designed not only as a CRUD practice project, but also as a back
 - Maintainable layered architecture
 - Transactional business workflows
 - Secure API development
+- Real-world authentication and authorization architecture

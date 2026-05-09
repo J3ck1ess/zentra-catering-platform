@@ -4,7 +4,7 @@ import com.zentra.common.constant.CategoryStatus;
 import com.zentra.common.constant.CategoryType;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.util.AssertUtil;
-import com.zentra.server.context.UserContext;
+import com.zentra.common.context.UserContext;
 import com.zentra.server.dto.CategoryCreateDTO;
 import com.zentra.server.dto.CategoryDTO;
 import com.zentra.server.dto.CategoryQueryDTO;
@@ -49,7 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new IllegalArgumentException("Invalid category type");
         }
 
-        // Convert DTO to entity
+        // Convert DTO -> Entity
         Category category = new Category();
         BeanUtils.copyProperties(dto, category);
 

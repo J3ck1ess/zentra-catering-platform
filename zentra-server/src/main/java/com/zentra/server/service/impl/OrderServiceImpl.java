@@ -5,7 +5,7 @@ import com.zentra.common.constant.OrderStatus;
 import com.zentra.common.constant.OrderStatusFlow;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.util.AssertUtil;
-import com.zentra.server.context.UserContext;
+import com.zentra.common.context.UserContext;
 import com.zentra.server.dto.*;
 import com.zentra.server.entity.Dish;
 import com.zentra.server.entity.Order;
@@ -49,8 +49,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void create(OrderCreateDTO dto) {
 
-        // Set merchant ID from current user context
-        Long merchantId = UserContext.getCurrentUser();
+        // Set user ID from current user context
+        Long userId = UserContext.getCurrentUser();
+
+        // TODO Dynamic merchant resolution
+        Long merchantId = 1L;
 
         // Validate order items
         if (dto.getItems() == null || dto.getItems().isEmpty()) {
@@ -96,6 +99,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = new Order();
 
         order.setMerchantId(merchantId);
+        order.setUserId(userId);
         order.setTotalAmount(totalAmount);
         order.setStatus(OrderStatus.PENDING); // Pending
 

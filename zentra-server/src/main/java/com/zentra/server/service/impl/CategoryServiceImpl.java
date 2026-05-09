@@ -2,9 +2,9 @@ package com.zentra.server.service.impl;
 
 import com.zentra.common.constant.CategoryStatus;
 import com.zentra.common.constant.CategoryType;
+import com.zentra.common.context.AuthContext;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.util.AssertUtil;
-import com.zentra.common.context.UserContext;
 import com.zentra.server.dto.CategoryCreateDTO;
 import com.zentra.server.dto.CategoryDTO;
 import com.zentra.server.dto.CategoryQueryDTO;
@@ -56,8 +56,7 @@ public class CategoryServiceImpl implements CategoryService {
         // Default category status
         category.setStatus(CategoryStatus.ENABLED);
 
-        // Set merchant ID from current user context
-        category.setMerchantId(UserContext.getCurrentUser());
+        category.setMerchantId(AuthContext.getCurrentMerchantId());
 
         int rows = categoryMapper.insert(category);
         AssertUtil.checkRows(rows, "Failed to create category");
@@ -72,7 +71,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public PageResult<CategoryDTO> list(CategoryQueryDTO query) {
 
-        Long merchantId = UserContext.getCurrentUser();
+        Long merchantId = AuthContext.getCurrentMerchantId();
 
         // Calculate offset
         Integer page = query.getPage();
@@ -147,7 +146,7 @@ public class CategoryServiceImpl implements CategoryService {
         BeanUtils.copyProperties(dto, category);
 
         // Set merchant ID from current user context
-        category.setMerchantId(UserContext.getCurrentUser());
+        category.setMerchantId(AuthContext.getCurrentMerchantId());
 
         int rows = categoryMapper.update(category);
         AssertUtil.checkRows(rows, "Category not found or no permission");
@@ -166,7 +165,7 @@ public class CategoryServiceImpl implements CategoryService {
         AssertUtil.notNull(id, "Category id cannot be null");
 
         // TODO MyBatis Interceptor
-        Long merchantId = UserContext.getCurrentUser();
+        Long merchantId = AuthContext.getCurrentMerchantId();
 
         // Check if there are dishes associated with this category
         int count = dishMapper.countByCategoryId(id, merchantId);

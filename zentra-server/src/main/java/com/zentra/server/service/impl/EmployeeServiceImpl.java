@@ -1,18 +1,19 @@
 package com.zentra.server.service.impl;
 
+import com.zentra.common.auth.AuthInfo;
 import com.zentra.common.constant.EmployeeStatus;
+import com.zentra.common.constant.UserType;
+import com.zentra.common.context.AuthContext;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.util.AssertUtil;
-import com.zentra.common.context.UserContext;
 import com.zentra.common.util.PasswordUtil;
 import com.zentra.server.dto.*;
 import com.zentra.server.entity.Employee;
 import com.zentra.server.mapper.EmployeeMapper;
 import com.zentra.server.service.EmployeeService;
-import com.zentra.server.utils.JwtUtil;
+import com.zentra.common.util.JwtUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
 
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         );
 
         employee.setStatus(EmployeeStatus.ACTIVE);
-        employee.setMerchantId(UserContext.getCurrentUser());
+        employee.setMerchantId(AuthContext.getCurrentMerchantId());
 
         int rows = employeeMapper.insert(employee);
         AssertUtil.checkRows(rows, "Failed to create employee");
@@ -60,7 +61,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public PageResult<EmployeeDTO> list(EmployeeQueryDTO query) {
 
-        Long merchantId = UserContext.getCurrentUser();
+        Long merchantId = AuthContext.getCurrentMerchantId();
 
         Integer page = query.getPage();
         Integer pageSize = query.getPageSize();
@@ -101,7 +102,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeDTO getById(Long id) {
 
-        Long merchantId = UserContext.getCurrentUser();
+        Long merchantId = AuthContext.getCurrentMerchantId();
 
         Employee employee = employeeMapper.findById(id, merchantId);
         AssertUtil.notNull(employee, "Employee not found");
@@ -121,7 +122,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeDTO getByUsername(String username) {
 
-        Long merchantId = UserContext.getCurrentUser();
+        Long merchantId = AuthContext.getCurrentMerchantId();
 
         Employee employee = employeeMapper.findByUsername(username, merchantId);
         AssertUtil.notNull(employee, "Employee not found");
@@ -155,10 +156,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         // Verify password
-        String encryptedPassword = DigestUtils.md5DigestAsHex(
-                dto.getPassword().getBytes()
-        );
-
         if (!PasswordUtil.matches(
                 dto.getPassword(),
                 dbEmployee.getPassword()
@@ -167,8 +164,14 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new IllegalArgumentException("Incorrect password");
         }
 
-        // Generate token
-        String token = JwtUtil.generateToken(dbEmployee.getId());
+        // Generate JWT token
+        AuthInfo authInfo = new AuthInfo(
+                dbEmployee.getId(),
+                dbEmployee.getMerchantId(),
+                UserType.EMPLOYEE
+        );
+
+        String token = JwtUtil.generateToken(authInfo);
 
         return new LoginResponse(token, dbEmployee.getId());
     }
@@ -195,7 +198,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = new Employee();
         BeanUtils.copyProperties(dto, employee);
 
-        employee.setMerchantId(UserContext.getCurrentUser());
+        employee.setMerchantId(AuthContext.getCurrentMerchantId());
 
         // Execute update
         int rows = employeeMapper.update(employee);
@@ -212,7 +215,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         AssertUtil.notNull(id, "Employee id cannot be null");
 
-        Long merchantId = UserContext.getCurrentUser();
+        Long merchantId = AuthContext.getCurrentMerchantId();
 
         // Execute delete
         int rows = employeeMapper.deleteById(id, merchantId);

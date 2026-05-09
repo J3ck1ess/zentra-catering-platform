@@ -106,6 +106,8 @@ The system includes multiple enterprise-oriented backend patterns:
 - User order history query
 - User-order association
 - Protected API access control
+- Multi-user authentication architecture
+- ThreadLocal-based authentication context
 
 ---
 
@@ -124,6 +126,9 @@ This project implements a stateless authentication system using JSON Web Token (
 - Structured API response with DTO
 - BCrypt password hashing
 - User and employee authentication support
+- AuthContext-based authentication architecture
+- Multi-user identity support (`USER` / `EMPLOYEE`)
+- Interceptor-based API authorization control
 
 ### Workflow
 
@@ -132,6 +137,7 @@ This project implements a stateless authentication system using JSON Web Token (
 3. Client sends token in `Authorization` header (`Bearer token`)
 4. Interceptor validates token before accessing protected APIs
 5. User identity is stored in ThreadLocal and accessible throughout request lifecycle
+6. API access is restricted based on user identity type
 
 ---
 
@@ -207,7 +213,7 @@ Global exception handling is implemented via `GlobalExceptionHandler`.
 
 ```text
 zentra-catering-platform
-├── zentra-common     # Common utilities, constants, Result wrapper
+├── zentra-common     # Common utilities, auth, context, constants, Result wrapper
 ├── zentra-server     # Core backend service
 ├── zentra-admin      # Admin-side frontend (future)
 ├── zentra-user       # User-side frontend (future)
@@ -226,8 +232,9 @@ zentra-catering-platform
 - MyBatis interceptor for automatic tenant injection
 - Order payment workflow
 - Employee permission management
-- Unified authentication context (AuthContext)
-- JWT role/type differentiation
+- Fine-grained RBAC permission system
+- Annotation-based permission control
+- Redis-based token blacklist
 
 ---
 

@@ -3,9 +3,9 @@ package com.zentra.server.service.impl;
 import com.zentra.common.constant.DishStatus;
 import com.zentra.common.constant.OrderStatus;
 import com.zentra.common.constant.OrderStatusFlow;
+import com.zentra.common.context.AuthContext;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.util.AssertUtil;
-import com.zentra.common.context.UserContext;
 import com.zentra.server.dto.*;
 import com.zentra.server.entity.Dish;
 import com.zentra.server.entity.Order;
@@ -49,11 +49,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void create(OrderCreateDTO dto) {
 
-        // Set user ID from current user context
-        Long userId = UserContext.getCurrentUser();
+        // Set user ID
+        Long userId = AuthContext.getCurrentUserId();
 
-        // TODO Dynamic merchant resolution
-        Long merchantId = 1L;
+        // Set merchant ID
+        Long merchantId = AuthContext.getCurrentMerchantId();
 
         // Validate order items
         if (dto.getItems() == null || dto.getItems().isEmpty()) {
@@ -146,7 +146,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public PageResult<OrderPageDTO> list(OrderQueryDTO query) {
 
-        Long merchantId = UserContext.getCurrentUser();
+        Long merchantId = AuthContext.getCurrentMerchantId();
 
         Integer page = query.getPage();
         Integer pageSize = query.getPageSize();
@@ -184,7 +184,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDetailDTO getById(Long id) {
 
-        Long merchantId = UserContext.getCurrentUser();
+        Long merchantId = AuthContext.getCurrentMerchantId();
 
         // Get order
         Order order = orderMapper.findById(id, merchantId);
@@ -221,7 +221,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void updateStatus(Long orderId, Integer newStatus) {
 
-        Long merchantId = UserContext.getCurrentUser();
+        Long merchantId = AuthContext.getCurrentMerchantId();
 
         // Validate new status
         if (!OrderStatus.isValid(newStatus)) {

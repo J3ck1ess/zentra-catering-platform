@@ -1,7 +1,9 @@
 package com.zentra.server.service.impl;
 
+import com.zentra.common.auth.AuthInfo;
 import com.zentra.common.constant.UserStatus;
-import com.zentra.common.context.UserContext;
+import com.zentra.common.constant.UserType;
+import com.zentra.common.context.AuthContext;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.util.AssertUtil;
 import com.zentra.common.util.PasswordUtil;
@@ -11,7 +13,7 @@ import com.zentra.server.entity.User;
 import com.zentra.server.mapper.OrderMapper;
 import com.zentra.server.mapper.UserMapper;
 import com.zentra.server.service.UserService;
-import com.zentra.server.utils.JwtUtil;
+import com.zentra.common.util.JwtUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -40,8 +42,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void register(UserRegisterDTO dto) {
 
-        // TODO Dynamic merchant resolution
-        Long merchantId = 1L;
+        Long merchantId = AuthContext.getCurrentMerchantId();
 
         // Check username duplication
         User existUser = userMapper.findByUsername(
@@ -72,8 +73,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public LoginResponse login(UserLoginDTO dto) {
 
-        // TODO Dynamic merchant resolution
-        Long merchantId = 1L;
+        Long merchantId = AuthContext.getCurrentMerchantId();
 
         // Query user
         User user = userMapper.findByUsername(
@@ -99,7 +99,13 @@ public class UserServiceImpl implements UserService {
         }
 
         // Generate JWT token
-        String token = JwtUtil.generateToken(user.getId());
+        AuthInfo authInfo = new AuthInfo(
+                user.getId(),
+                user.getMerchantId(),
+                UserType.USER
+        );
+
+        String token = JwtUtil.generateToken(authInfo);
 
         return new LoginResponse(token, user.getId());
     }
@@ -113,10 +119,10 @@ public class UserServiceImpl implements UserService {
     public UserDTO getProfile() {
 
         // Current Logged-in user
-        Long userId = UserContext.getCurrentUser();
+        Long userId = AuthContext.getCurrentUserId();
 
-        // TODO Dynamic merchant resolution
-        Long merchantId = 1L;
+        // Get merchant ID
+        Long merchantId = AuthContext.getCurrentMerchantId();
 
         // Query user
         User user = userMapper.findById(
@@ -141,7 +147,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public PageResult<OrderPageDTO> getMyOrders(OrderQueryDTO query) {
 
-        Long userId = UserContext.getCurrentUser();
+        Long userId = AuthContext.getCurrentUserId();
 
         Integer page = query.getPage();
         Integer pageSize = query.getPageSize();

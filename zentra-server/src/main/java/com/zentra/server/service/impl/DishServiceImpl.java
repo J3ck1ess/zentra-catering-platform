@@ -1,9 +1,9 @@
 package com.zentra.server.service.impl;
 
 import com.zentra.common.constant.DishStatus;
+import com.zentra.common.context.AuthContext;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.util.AssertUtil;
-import com.zentra.common.context.UserContext;
 import com.zentra.server.dto.*;
 import com.zentra.server.entity.Category;
 import com.zentra.server.entity.Dish;
@@ -38,7 +38,7 @@ public class DishServiceImpl implements DishService {
     @Override
     public void create(DishCreateDTO dto) {
 
-        Long merchantId = UserContext.getCurrentUser();
+        Long merchantId = AuthContext.getCurrentMerchantId();
 
         // Validate category
         Category category = categoryMapper.findById(
@@ -69,7 +69,7 @@ public class DishServiceImpl implements DishService {
     @Override
     public PageResult<DishDTO> list(DishQueryDTO query) {
 
-        Long merchantId = UserContext.getCurrentUser();
+        Long merchantId = AuthContext.getCurrentMerchantId();
 
         // Calculate offset
         Integer page = query.getPage();
@@ -122,7 +122,7 @@ public class DishServiceImpl implements DishService {
             throw new IllegalArgumentException("No fields to update");
         }
 
-        Long merchantId = UserContext.getCurrentUser();
+        Long merchantId = AuthContext.getCurrentMerchantId();
 
         // Validate category
         if (dto.getCategoryId() != null) {
@@ -164,7 +164,7 @@ public class DishServiceImpl implements DishService {
         // Validate input parameter
         AssertUtil.notNull(id, "Dish id cannot be null");
 
-        Long merchantId = UserContext.getCurrentUser();
+        Long merchantId = AuthContext.getCurrentMerchantId();
 
         // Delete dish with merchant scope restriction
         int rows = dishMapper.deleteById(id, merchantId);

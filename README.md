@@ -129,6 +129,7 @@ This project implements a stateless authentication system using JSON Web Token (
 - AuthContext-based authentication architecture
 - Multi-user identity support (`USER` / `EMPLOYEE`)
 - Interceptor-based API authorization control
+- API access isolation based on authenticated user type
 
 ### Workflow
 
@@ -223,7 +224,6 @@ zentra-catering-platform
 
 ## Future Improvements
 
-- Role-based access control (RBAC)
 - Admin/User frontend implementation
 - Payment integration
 - Redis caching

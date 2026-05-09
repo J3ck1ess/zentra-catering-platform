@@ -31,4 +31,11 @@ public interface UserMapper {
             @Param("merchantId") Long merchantId
     );
 
+    /**
+     * Find user by username
+     */
+    User findByUsernameOnly(
+            @Param("username") String username
+    );
+
 }

@@ -37,6 +37,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void create(EmployeeCreateDTO dto) {
 
+        // Check username duplication
+        Employee existEmployee = employeeMapper.findByUsername(
+                dto.getUsername(),
+                AuthContext.getCurrentMerchantId()
+        );
+
+        AssertUtil.isNull(existEmployee, "Username already exists");
+
         Employee employee = new Employee();
         BeanUtils.copyProperties(dto, employee);
 
@@ -148,7 +156,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         );
 
         // Check if the user exists
-        AssertUtil.notNull(dbEmployee, "User not found");
+        AssertUtil.notNull(dbEmployee, "Username or password incorrect");
 
         // Verify account status
         if (dbEmployee.getStatus().equals(EmployeeStatus.DISABLED)) {
@@ -161,7 +169,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 dbEmployee.getPassword()
         )) {
 
-            throw new IllegalArgumentException("Incorrect password");
+            throw new IllegalArgumentException("Username or password incorrect");
         }
 
         // Generate JWT token

@@ -42,7 +42,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public void register(UserRegisterDTO dto) {
 
-        Long merchantId = AuthContext.getCurrentMerchantId();
+        /**
+         * Temporary fixed merchant ID
+         *
+         * TODO: Replace with dynamic tenant binding in future
+         */
+        Long merchantId = 1L;
 
         // Check username duplication
         User existUser = userMapper.findByUsername(
@@ -73,15 +78,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public LoginResponse login(UserLoginDTO dto) {
 
-        Long merchantId = AuthContext.getCurrentMerchantId();
-
         // Query user
-        User user = userMapper.findByUsername(
-
-                dto.getUsername(),
-                merchantId
+        User user = userMapper.findByUsernameOnly(
+                dto.getUsername()
         );
-        AssertUtil.notNull(user, "User not found");
+        AssertUtil.notNull(user, "Username or password incorrect");
 
         // Check user status
         if (user.getStatus().equals(UserStatus.DISABLED)) {
@@ -95,7 +96,7 @@ public class UserServiceImpl implements UserService {
                 user.getPassword()
         )) {
 
-            throw new IllegalArgumentException("Incorrect password");
+            throw new IllegalArgumentException("Username or password incorrect");
         }
 
         // Generate JWT token

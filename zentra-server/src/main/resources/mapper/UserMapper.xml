@@ -95,4 +95,23 @@
 
     </select>
 
+    <!-- ========================================= -->
+    <!-- Find user by username -->
+    <!-- ========================================= -->
+    <select id="findByUsernameOnly"
+            resultMap="UserResultMap">
+
+        SELECT
+            id,
+            merchant_id,
+            username,
+            password,
+            status,
+            created_at,
+            updated_at
+        FROM user
+        WHERE username = #{username}
+
+    </select>
+
 </mapper>

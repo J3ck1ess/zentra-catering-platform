@@ -1,9 +1,8 @@
 package com.zentra.server.service.impl;
 
-import com.zentra.common.constant.DishStatus;
-import com.zentra.common.constant.OrderStatus;
-import com.zentra.common.constant.OrderStatusFlow;
+import com.zentra.common.constant.*;
 import com.zentra.common.context.AuthContext;
+import com.zentra.common.exception.BusinessException;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.util.AssertUtil;
 import com.zentra.server.dto.*;
@@ -57,7 +56,11 @@ public class OrderServiceImpl implements OrderService {
 
         // Validate order items
         if (dto.getItems() == null || dto.getItems().isEmpty()) {
-            throw new IllegalArgumentException("Order items cannot be empty");
+
+            throw new BusinessException(
+                    ErrorCode.ORDER_ITEMS_EMPTY,
+                    ErrorMessage.ORDER_ITEMS_EMPTY
+            );
         }
 
         Map<Long, Dish> dishMap = new HashMap<>();
@@ -65,16 +68,23 @@ public class OrderServiceImpl implements OrderService {
         // Validate each order item
         for (OrderItemCreateDTO item : dto.getItems()) {
 
-            if (item.getQuantity() == null || item.getQuantity() <= 0) {
-                throw new IllegalArgumentException("Invalid quantity");
-            }
-
-            Dish dish = dishMapper.findById(item.getDishId(), merchantId);
-            AssertUtil.notNull(dish, "Dish not found");
+            Dish dish = dishMapper.findById(
+                    item.getDishId(),
+                    merchantId
+            );
+            AssertUtil.notNull(
+                    dish,
+                    ErrorCode.DISH_NOT_FOUND,
+                    ErrorMessage.DISH_NOT_FOUND
+            );
 
             // Check dish status
             if (dish.getStatus().equals(DishStatus.DISABLED)) {
-                throw new IllegalArgumentException("Dish is disabled");
+
+                throw new BusinessException(
+                        ErrorCode.DISH_DISABLED,
+                        ErrorMessage.DISH_DISABLED
+                );
             }
 
             dishMap.put(dish.getId(), dish);
@@ -101,13 +111,17 @@ public class OrderServiceImpl implements OrderService {
         order.setMerchantId(merchantId);
         order.setUserId(userId);
         order.setTotalAmount(totalAmount);
-        order.setStatus(OrderStatus.PENDING); // Pending
+        order.setStatus(OrderStatus.PENDING);
 
         // TODO: Generate order number
         order.setOrderNumber(String.valueOf(System.currentTimeMillis()));
 
         int orderRows = orderMapper.insert(order);
-        AssertUtil.checkRows(orderRows, "Failed to create order");
+        AssertUtil.checkRows(
+                orderRows,
+                ErrorCode.ORDER_CREATE_FAILED,
+                ErrorMessage.ORDER_CREATE_FAILED
+        );
 
         // Insert Order Items
         for (OrderItemCreateDTO item : dto.getItems()) {
@@ -132,7 +146,11 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setAmount(amount);
 
             int orderItemRows = orderItemMapper.insert(orderItem);
-            AssertUtil.checkRows(orderItemRows, "Failed to create order item");
+            AssertUtil.checkRows(
+                    orderItemRows,
+                    ErrorCode.ORDER_ITEM_CREATE_FAILED,
+                    ErrorMessage.ORDER_ITEM_CREATE_FAILED
+            );
 
         }
     }
@@ -187,26 +205,41 @@ public class OrderServiceImpl implements OrderService {
         Long merchantId = AuthContext.getCurrentMerchantId();
 
         // Get order
-        Order order = orderMapper.findById(id, merchantId);
-        AssertUtil.notNull(order, "Order not found");
+        Order order = orderMapper.findById(
+                id,
+                merchantId
+        );
 
-        // Get order items
+        // Check order existence
+        AssertUtil.notNull(
+                order,
+                ErrorCode.ORDER_NOT_FOUND,
+                ErrorMessage.ORDER_NOT_FOUND
+        );
+
+        // Query order items
         List<OrderItem> items =
                 orderItemMapper.findByOrderId(
                         order.getId(),
                         merchantId
                 );
 
-        // Order -> DTO
+        // Convert Order -> DTO
         OrderDetailDTO dto = new OrderDetailDTO();
         BeanUtils.copyProperties(order, dto);
 
-        // Order items -> DTO
-        List<OrderItemDTO> itemDTOs = items.stream().map(item -> {
-            OrderItemDTO itemDTO = new OrderItemDTO();
-            BeanUtils.copyProperties(item, itemDTO);
-            return itemDTO;
-        }).toList();
+        // Convert OrderItems -> DTO
+        List<OrderItemDTO> itemDTOs =
+                items.stream().map(item -> {
+
+                    OrderItemDTO itemDTO =
+                            new OrderItemDTO();
+
+                    BeanUtils.copyProperties(item, itemDTO);
+
+                    return itemDTO;
+
+                }).toList();
 
         dto.setItems(itemDTOs);
         return dto;
@@ -226,28 +259,47 @@ public class OrderServiceImpl implements OrderService {
         // Validate new status
         if (!OrderStatus.isValid(newStatus)) {
 
-            throw new IllegalArgumentException("Invalid order status");
+            throw new BusinessException(
+                    ErrorCode.ORDER_STATUS_INVALID,
+                    ErrorMessage.ORDER_STATUS_INVALID
+            );
         }
 
         // Get order
-        Order order = orderMapper.findById(orderId, merchantId);
-        AssertUtil.notNull(order, "Order not found");
+        Order order = orderMapper.findById(
+                orderId,
+                merchantId
+        );
+
+        // Check order existence
+        AssertUtil.notNull(
+                order,
+                ErrorCode.ORDER_NOT_FOUND,
+                ErrorMessage.ORDER_NOT_FOUND
+        );
 
         Integer oldStatus = order.getStatus();
 
         // Verify status transition
         if (!OrderStatusFlow.canTransfer(oldStatus, newStatus)) {
 
-            throw new IllegalArgumentException(
-                    "Invalid status transition: "
-                            + oldStatus
-                            + " -> "
-                            + newStatus
+            throw new BusinessException(
+                    ErrorCode.ORDER_STATUS_TRANSITION_INVALID,
+                    ErrorMessage.ORDER_STATUS_TRANSITION_INVALID
             );
         }
 
         // Update status
-        int rows = orderMapper.updateStatus(orderId, merchantId, newStatus);
-        AssertUtil.checkRows(rows, "Update failed");
+        int rows = orderMapper.updateStatus(
+                orderId,
+                merchantId,
+                newStatus
+        );
+
+        AssertUtil.checkRows(
+                rows,
+                ErrorCode.ORDER_UPDATE_FAILED,
+                ErrorMessage.ORDER_UPDATE_FAILED
+        );
     }
 }

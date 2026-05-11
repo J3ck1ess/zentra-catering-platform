@@ -1,9 +1,10 @@
 package com.zentra.common.util;
 
 import com.zentra.common.auth.AuthInfo;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.zentra.common.constant.ErrorCode;
+import com.zentra.common.constant.ErrorMessage;
+import com.zentra.common.exception.BusinessException;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
@@ -25,8 +26,12 @@ public class JwtUtil {
      */
     private static final String SECRET_KEY = "zentra-secret-key-1234567890123456";
 
-    private static final SecretKey KEY = Keys.hmacShaKeyFor(
-            SECRET_KEY.getBytes(StandardCharsets.UTF_8)
+    private static final SecretKey KEY =
+
+            Keys.hmacShaKeyFor(
+                    SECRET_KEY.getBytes(
+                            StandardCharsets.UTF_8
+                    )
     );
 
     /**
@@ -51,19 +56,39 @@ public class JwtUtil {
      */
     public static AuthInfo parseToken(String token) {
 
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(KEY)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(KEY)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
 
-        Long userId = ((Number) claims.get("userId")).longValue();
+            Long userId = ((Number) claims.get("userId")).longValue();
 
-        Long merchantId = ((Number) claims.get("merchantId")).longValue();
+            Long merchantId = ((Number) claims.get("merchantId")).longValue();
 
-        String userType = (String) claims.get("userType");
+            String userType = (String) claims.get("userType");
 
-        return new AuthInfo(userId, merchantId, userType);
+            return new AuthInfo(
+                    userId,
+                    merchantId,
+                    userType
+            );
+
+        } catch (ExpiredJwtException e) {
+
+            throw new BusinessException(
+                    ErrorCode.TOKEN_EXPIRED,
+                    ErrorMessage.TOKEN_EXPIRED
+            );
+
+        } catch (JwtException e) {
+
+            throw new BusinessException(
+                    ErrorCode.TOKEN_INVALID,
+                    ErrorMessage.TOKEN_INVALID
+            );
+        }
     }
 
     private JwtUtil() {

@@ -1,8 +1,11 @@
 package com.zentra.server.interceptor;
 
 import com.zentra.common.auth.AuthInfo;
+import com.zentra.common.constant.ErrorCode;
+import com.zentra.common.constant.ErrorMessage;
 import com.zentra.common.constant.UserType;
 import com.zentra.common.context.AuthContext;
+import com.zentra.common.exception.BusinessException;
 import com.zentra.common.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -51,7 +54,11 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
 
         // Validate header format
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("Invalid Authorization header");
+
+            throw new BusinessException(
+                    ErrorCode.TOKEN_INVALID,
+                    ErrorMessage.TOKEN_INVALID
+            );
         }
 
         // Extract token by removing "Bearer " prefix
@@ -69,12 +76,15 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
         // EMPLOYEE can only access employee APIs
         if (UserType.EMPLOYEE.equals(userType)) {
 
-            boolean allowed = EMPLOYEE_APIS.stream()
-                    .anyMatch(requestUri::startsWith);
+            boolean allowed =
+                    EMPLOYEE_APIS.stream()
+                            .anyMatch(requestUri::startsWith);
 
             if (!allowed) {
-                throw new IllegalArgumentException(
-                        "No permission to access this API"
+
+                throw new BusinessException(
+                        ErrorCode.NO_PERMISSION,
+                        ErrorMessage.NO_PERMISSION
                 );
             }
         }
@@ -82,12 +92,15 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
         // USER can only access user APIs
         if (UserType.USER.equals(userType)) {
 
-            boolean allowed = USER_APIS.stream()
-                    .anyMatch(requestUri::startsWith);
+            boolean allowed =
+                    USER_APIS.stream()
+                            .anyMatch(requestUri::startsWith);
 
             if (!allowed) {
-                throw new IllegalArgumentException(
-                        "No permission to access this API"
+
+                throw new BusinessException(
+                        ErrorCode.NO_PERMISSION,
+                        ErrorMessage.NO_PERMISSION
                 );
             }
         }

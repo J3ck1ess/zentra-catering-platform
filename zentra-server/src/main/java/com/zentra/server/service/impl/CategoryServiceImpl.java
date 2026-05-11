@@ -2,7 +2,10 @@ package com.zentra.server.service.impl;
 
 import com.zentra.common.constant.CategoryStatus;
 import com.zentra.common.constant.CategoryType;
+import com.zentra.common.constant.ErrorCode;
+import com.zentra.common.constant.ErrorMessage;
 import com.zentra.common.context.AuthContext;
+import com.zentra.common.exception.BusinessException;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.util.AssertUtil;
 import com.zentra.server.dto.CategoryCreateDTO;
@@ -46,7 +49,10 @@ public class CategoryServiceImpl implements CategoryService {
         if (!Objects.equals(dto.getType(), CategoryType.DISH)
                 && !Objects.equals(dto.getType(), CategoryType.SET_MEAL)) {
 
-            throw new IllegalArgumentException("Invalid category type");
+            throw new BusinessException(
+                    ErrorCode.CATEGORY_TYPE_INVALID,
+                    ErrorMessage.CATEGORY_TYPE_INVALID
+            );
         }
 
         // Convert DTO -> Entity
@@ -59,7 +65,11 @@ public class CategoryServiceImpl implements CategoryService {
         category.setMerchantId(AuthContext.getCurrentMerchantId());
 
         int rows = categoryMapper.insert(category);
-        AssertUtil.checkRows(rows, "Failed to create category");
+        AssertUtil.checkRows(
+                rows,
+                ErrorCode.CATEGORY_CREATE_FAILED,
+                ErrorMessage.CATEGORY_CREATE_FAILED
+        );
     }
 
     /**
@@ -114,15 +124,16 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void update(CategoryUpdateDTO dto) {
 
-        AssertUtil.notNull(dto.getId(), "Category id cannot be null");
-
         // Check if update fields are empty
         if (dto.getName() == null
                 && dto.getType() == null
                 && dto.getStatus() == null
                 && dto.getSort() == null) {
 
-            throw new IllegalArgumentException("No fields to update");
+            throw new BusinessException(
+                    ErrorCode.CATEGORY_UPDATE_FAILED,
+                    ErrorMessage.CATEGORY_UPDATE_FAILED
+            );
         }
 
         // Validate category type
@@ -130,7 +141,10 @@ public class CategoryServiceImpl implements CategoryService {
                 && !Objects.equals(dto.getType(), CategoryType.DISH)
                 && !Objects.equals(dto.getType(), CategoryType.SET_MEAL)) {
 
-            throw new IllegalArgumentException("Invalid category type");
+            throw new BusinessException(
+                    ErrorCode.CATEGORY_TYPE_INVALID,
+                    ErrorMessage.CATEGORY_TYPE_INVALID
+            );
         }
 
         // Validate category status
@@ -138,18 +152,37 @@ public class CategoryServiceImpl implements CategoryService {
                 && !Objects.equals(dto.getStatus(), CategoryStatus.ENABLED)
                 && !Objects.equals(dto.getStatus(), CategoryStatus.DISABLED)) {
 
-            throw new IllegalArgumentException("Invalid category status");
+            throw new BusinessException(
+                    ErrorCode.CATEGORY_STATUS_INVALID,
+                    ErrorMessage.CATEGORY_STATUS_INVALID
+            );
         }
 
-        // Convert DTO to entity
+        Long merchantId = AuthContext.getCurrentMerchantId();
+
+        // Query category
+        Category dbCategory = categoryMapper.findById(dto.getId(), merchantId);
+
+        // Check category existence
+        AssertUtil.notNull(
+                dbCategory,
+                ErrorCode.CATEGORY_NOT_FOUND,
+                ErrorMessage.CATEGORY_NOT_FOUND
+        );
+
+        // Convert DTO to Entity
         Category category = new Category();
         BeanUtils.copyProperties(dto, category);
 
         // Set merchant ID from current user context
-        category.setMerchantId(AuthContext.getCurrentMerchantId());
+        category.setMerchantId(merchantId);
 
         int rows = categoryMapper.update(category);
-        AssertUtil.checkRows(rows, "Category not found or no permission");
+        AssertUtil.checkRows(
+                rows,
+                ErrorCode.CATEGORY_UPDATE_FAILED,
+                ErrorMessage.CATEGORY_UPDATE_FAILED
+        );
 
     }
 
@@ -161,21 +194,36 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteById(Long id) {
 
-        // Validate input parameter
-        AssertUtil.notNull(id, "Category id cannot be null");
-
         // TODO MyBatis Interceptor
         Long merchantId = AuthContext.getCurrentMerchantId();
 
-        // Check if there are dishes associated with this category
+        // Query category
+        Category category = categoryMapper.findById(id, merchantId);
+
+        // Check category existence
+        AssertUtil.notNull(
+                category,
+                ErrorCode.CATEGORY_NOT_FOUND,
+                ErrorMessage.CATEGORY_NOT_FOUND
+        );
+
+        // Check whether category contains dishes
         int count = dishMapper.countByCategoryId(id, merchantId);
         if (count > 0) {
-            throw new IllegalArgumentException("Category cannot be deleted because it has dishes");
+
+            throw new BusinessException(
+                    ErrorCode.CATEGORY_HAS_DISHES,
+                    ErrorMessage.CATEGORY_HAS_DISHES
+            );
         }
 
-        // Delete category with merchant scope restriction
+        // Delete category
         int rows = categoryMapper.deleteById(id, merchantId);
-        AssertUtil.checkRows(rows, "Category not found or no permission");
+        AssertUtil.checkRows(
+                rows,
+                ErrorCode.CATEGORY_DELETE_FAILED,
+                ErrorMessage.CATEGORY_DELETE_FAILED
+        );
 
     }
 }

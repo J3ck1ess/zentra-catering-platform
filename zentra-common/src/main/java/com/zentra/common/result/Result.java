@@ -1,6 +1,7 @@
 package com.zentra.common.result;
 
-import java.io.Serializable;
+import com.zentra.common.constant.ErrorCode;
+import com.zentra.common.constant.ErrorMessage;
 
 /**
  * Generic response wrapper for API responses
@@ -9,49 +10,44 @@ import java.io.Serializable;
  */
 public class Result<T> {
 
-    private Integer code; // status code (200 success, 400/401/500 error)
+    private Integer code; // status code
     private String msg;   // message
     private T data;       // response data
 
+    private Result() {
+    }
+
     /**
      * Success response with data
-     *
-     * @param data response data
-     * @return Result object
      */
     public static <T> Result<T> success(T data) {
 
         Result<T> result = new Result<>();
-        result.setCode(200);
-        result.setMsg("success");
+        result.setCode(ErrorCode.SUCCESS);
+        result.setMsg(ErrorMessage.SUCCESS);
         result.setData(data);
         return result;
     }
 
     /**
      * Success response without data
-     *
-     * @return Result object
      */
 
     public static <T> Result<T> success() {
 
         Result<T> result = new Result<>();
-        result.setCode(200);
-        result.setMsg("success");
+        result.setCode(ErrorCode.SUCCESS);
+        result.setMsg(ErrorMessage.SUCCESS);
         return result;
     }
 
     /**
      * Error response with custom message
-     *
-     * @param msg error message
-     * @return Result object
      */
     public static <T> Result<T> error(String msg) {
 
         Result<T> result = new Result<>();
-        result.setCode(500);
+        result.setCode(ErrorCode.FAILURE);
         result.setMsg(msg);
         return result;
 
@@ -59,10 +55,6 @@ public class Result<T> {
 
     /**
      * Error response with custom code and message
-     *
-     * @param code status code
-     * @param msg  error message
-     * @return Result object
      */
     public static <T> Result<T> error(Integer code, String msg) {
 
@@ -72,7 +64,7 @@ public class Result<T> {
         return result;
     }
 
-    // ===== Getter and Setter =====
+    // Getter and Setter
     public Integer getCode() {
 
         return code;

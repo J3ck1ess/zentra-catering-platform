@@ -1,7 +1,10 @@
 package com.zentra.server.service.impl;
 
 import com.zentra.common.constant.DishStatus;
+import com.zentra.common.constant.ErrorCode;
+import com.zentra.common.constant.ErrorMessage;
 import com.zentra.common.context.AuthContext;
+import com.zentra.common.exception.BusinessException;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.util.AssertUtil;
 import com.zentra.server.dto.*;
@@ -45,9 +48,13 @@ public class DishServiceImpl implements DishService {
                 dto.getCategoryId(),
                 merchantId
         );
-        AssertUtil.notNull(category, "Category not found");
+        AssertUtil.notNull(
+                category,
+                ErrorCode.CATEGORY_NOT_FOUND,
+                ErrorMessage.CATEGORY_NOT_FOUND
+        );
 
-        // Convert DTO to entity
+        // Convert DTO to Entity
         Dish dish = new Dish();
         BeanUtils.copyProperties(dto, dish);
 
@@ -58,7 +65,11 @@ public class DishServiceImpl implements DishService {
         dish.setMerchantId(merchantId);
 
         int rows = dishMapper.insert(dish);
-        AssertUtil.checkRows(rows, "Failed to create a dish");
+        AssertUtil.checkRows(
+                rows,
+                ErrorCode.DISH_CREATE_FAILED,
+                ErrorMessage.DISH_CREATE_FAILED
+        );
     }
 
     /**
@@ -112,17 +123,32 @@ public class DishServiceImpl implements DishService {
     @Override
     public void update(DishUpdateDTO dto) {
 
-        AssertUtil.notNull(dto.getId(), "Dish id cannot be null");
-
+        // Check if update fields are empty
         if (dto.getName() == null
                 && dto.getPrice() == null
                 && dto.getCategoryId() == null
                 && dto.getStatus() == null) {
 
-            throw new IllegalArgumentException("No fields to update");
+            throw new BusinessException(
+                    ErrorCode.DISH_UPDATE_FAILED,
+                    ErrorMessage.DISH_UPDATE_FAILED
+            );
         }
 
         Long merchantId = AuthContext.getCurrentMerchantId();
+
+        // Query dish
+        Dish dbDish = dishMapper.findById(
+                dto.getId(),
+                merchantId
+        );
+
+        // Check dish existence
+        AssertUtil.notNull(
+                dbDish,
+                ErrorCode.DISH_NOT_FOUND,
+                ErrorMessage.DISH_NOT_FOUND
+        );
 
         // Validate category
         if (dto.getCategoryId() != null) {
@@ -131,7 +157,11 @@ public class DishServiceImpl implements DishService {
                     merchantId
             );
 
-            AssertUtil.notNull(category, "Category not found");
+            AssertUtil.notNull(
+                    category,
+                    ErrorCode.CATEGORY_NOT_FOUND,
+                    ErrorMessage.CATEGORY_NOT_FOUND
+            );
         }
 
         // Validate dish status
@@ -139,17 +169,24 @@ public class DishServiceImpl implements DishService {
                 && !Objects.equals(dto.getStatus(), DishStatus.ENABLED)
                 && !Objects.equals(dto.getStatus(), DishStatus.DISABLED)) {
 
-            throw new IllegalArgumentException("Invalid dish status");
+            throw new BusinessException(
+                    ErrorCode.DISH_STATUS_INVALID,
+                    ErrorMessage.DISH_STATUS_INVALID
+            );
         }
 
-        // Convert DTO to entity
+        // Convert DTO to Entity
         Dish dish = new Dish();
         BeanUtils.copyProperties(dto, dish);
 
         dish.setMerchantId(merchantId);
 
         int rows = dishMapper.update(dish);
-        AssertUtil.checkRows(rows, "Dish not found or no permission");
+        AssertUtil.checkRows(
+                rows,
+                ErrorCode.DISH_UPDATE_FAILED,
+                ErrorMessage.DISH_UPDATE_FAILED
+        );
 
     }
 
@@ -161,14 +198,32 @@ public class DishServiceImpl implements DishService {
     @Override
     public void deleteById(Long id) {
 
-        // Validate input parameter
-        AssertUtil.notNull(id, "Dish id cannot be null");
-
         Long merchantId = AuthContext.getCurrentMerchantId();
 
-        // Delete dish with merchant scope restriction
-        int rows = dishMapper.deleteById(id, merchantId);
-        AssertUtil.checkRows(rows, "Dish not found or no permission");
+        // Query dish
+        Dish dish = dishMapper.findById(
+                id,
+                merchantId
+        );
+
+        // Check dish existence
+        AssertUtil.notNull(
+                dish,
+                ErrorCode.DISH_NOT_FOUND,
+                ErrorMessage.DISH_NOT_FOUND
+        );
+
+        // Delete dish
+        int rows = dishMapper.deleteById(
+                id,
+                merchantId
+        );
+
+        AssertUtil.checkRows(
+                rows,
+                ErrorCode.DISH_DELETE_FAILED,
+                ErrorMessage.DISH_DELETE_FAILED
+        );
 
     }
 }

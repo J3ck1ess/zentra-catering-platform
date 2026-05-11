@@ -1,5 +1,7 @@
 package com.zentra.server.exception;
 
+import com.zentra.common.constant.ErrorCode;
+import com.zentra.common.exception.BusinessException;
 import com.zentra.common.result.Result;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,16 +25,16 @@ public class GlobalExceptionHandler {
                 .get(0)
                 .getDefaultMessage();
 
-        return Result.error(400, errorMsg);
+        return Result.error(ErrorCode.FAILURE, errorMsg);
     }
 
     /**
-     * Handle IllegalArgumentException
+     * Handle business exception
      */
-    @ExceptionHandler(IllegalArgumentException.class)
-    public Result<String> handleIllegalArgumentException(IllegalArgumentException e) {
+    @ExceptionHandler(BusinessException.class)
+    public Result<Void> handleBusinessException(BusinessException ex) {
 
-        return Result.error(400, e.getMessage());
+        return Result.error(ex.getCode(), ex.getMessage());
     }
 
     /**
@@ -44,6 +46,7 @@ public class GlobalExceptionHandler {
         e.printStackTrace();
 
         // Fallback error (avoid exposing internal details)
-        return Result.error(500, "Internal server error");
+        return Result.error(ErrorCode.FAILURE, "Internal server error");
     }
+
 }

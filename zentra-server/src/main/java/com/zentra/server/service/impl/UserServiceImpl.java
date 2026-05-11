@@ -1,9 +1,12 @@
 package com.zentra.server.service.impl;
 
 import com.zentra.common.auth.AuthInfo;
+import com.zentra.common.constant.ErrorCode;
+import com.zentra.common.constant.ErrorMessage;
 import com.zentra.common.constant.UserStatus;
 import com.zentra.common.constant.UserType;
 import com.zentra.common.context.AuthContext;
+import com.zentra.common.exception.BusinessException;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.util.AssertUtil;
 import com.zentra.common.util.PasswordUtil;
@@ -55,18 +58,28 @@ public class UserServiceImpl implements UserService {
                 merchantId
         );
 
-        AssertUtil.isNull(existUser, "Username already exists");
+        AssertUtil.isNull(
+                existUser,
+                ErrorCode.USERNAME_ALREADY_EXISTS,
+                ErrorMessage.USERNAME_ALREADY_EXISTS
+        );
 
         // Convert DTO -> Entity
         User user = new User();
         BeanUtils.copyProperties(dto, user);
 
+        // Set default properties
         user.setMerchantId(merchantId);
         user.setStatus(UserStatus.ACTIVE);
         user.setPassword(PasswordUtil.encode(dto.getPassword()));
 
+        // Insert user
         int rows = userMapper.insert(user);
-        AssertUtil.checkRows(rows, "Failed to register user");
+        AssertUtil.checkRows(
+                rows,
+                ErrorCode.USER_REGISTER_FAILED,
+                ErrorMessage.USER_REGISTER_FAILED
+        );
     }
 
     /**
@@ -82,12 +95,19 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.findByUsernameOnly(
                 dto.getUsername()
         );
-        AssertUtil.notNull(user, "Username or password incorrect");
+        AssertUtil.notNull(
+                user,
+                ErrorCode.USERNAME_OR_PASSWORD_ERROR,
+                ErrorMessage.USERNAME_OR_PASSWORD_ERROR
+        );
 
         // Check user status
         if (user.getStatus().equals(UserStatus.DISABLED)) {
 
-            throw new IllegalArgumentException("User account disabled");
+            throw new BusinessException(
+                    ErrorCode.USER_DISABLED,
+                    ErrorMessage.USER_DISABLED
+            );
         }
 
         // Verify password
@@ -96,7 +116,10 @@ public class UserServiceImpl implements UserService {
                 user.getPassword()
         )) {
 
-            throw new IllegalArgumentException("Username or password incorrect");
+            throw new BusinessException(
+                    ErrorCode.USERNAME_OR_PASSWORD_ERROR,
+                    ErrorMessage.USERNAME_OR_PASSWORD_ERROR
+            );
         }
 
         // Generate JWT token
@@ -130,7 +153,11 @@ public class UserServiceImpl implements UserService {
                 userId,
                 merchantId
         );
-        AssertUtil.notNull(user, "User not found");
+        AssertUtil.notNull(
+                user,
+                ErrorCode.USER_NOT_FOUND,
+                ErrorMessage.USER_NOT_FOUND
+        );
 
         // Convert Entity -> DTO
         UserDTO dto = new UserDTO();

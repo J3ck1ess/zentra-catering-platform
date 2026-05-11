@@ -2,8 +2,11 @@ package com.zentra.server.service.impl;
 
 import com.zentra.common.auth.AuthInfo;
 import com.zentra.common.constant.EmployeeStatus;
+import com.zentra.common.constant.ErrorCode;
+import com.zentra.common.constant.ErrorMessage;
 import com.zentra.common.constant.UserType;
 import com.zentra.common.context.AuthContext;
+import com.zentra.common.exception.BusinessException;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.util.AssertUtil;
 import com.zentra.common.util.PasswordUtil;
@@ -37,14 +40,21 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void create(EmployeeCreateDTO dto) {
 
+        Long merchantId = AuthContext.getCurrentMerchantId();
+
         // Check username duplication
         Employee existEmployee = employeeMapper.findByUsername(
                 dto.getUsername(),
-                AuthContext.getCurrentMerchantId()
+                merchantId
         );
 
-        AssertUtil.isNull(existEmployee, "Username already exists");
+        AssertUtil.isNull(
+                existEmployee,
+                ErrorCode.EMPLOYEE_USERNAME_ALREADY_EXISTS,
+                ErrorMessage.EMPLOYEE_USERNAME_ALREADY_EXISTS
+        );
 
+        // Convert DTO -> Entity
         Employee employee = new Employee();
         BeanUtils.copyProperties(dto, employee);
 
@@ -53,11 +63,16 @@ public class EmployeeServiceImpl implements EmployeeService {
                 PasswordUtil.encode(dto.getPassword())
         );
 
+        // Set default properties
         employee.setStatus(EmployeeStatus.ACTIVE);
-        employee.setMerchantId(AuthContext.getCurrentMerchantId());
+        employee.setMerchantId(merchantId);
 
         int rows = employeeMapper.insert(employee);
-        AssertUtil.checkRows(rows, "Failed to create employee");
+        AssertUtil.checkRows(
+                rows,
+                ErrorCode.EMPLOYEE_CREATE_FAILED,
+                ErrorMessage.EMPLOYEE_CREATE_FAILED
+        );
     }
 
     /**
@@ -112,9 +127,20 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Long merchantId = AuthContext.getCurrentMerchantId();
 
-        Employee employee = employeeMapper.findById(id, merchantId);
-        AssertUtil.notNull(employee, "Employee not found");
+        // Query employee
+        Employee employee = employeeMapper.findById(
+                id,
+                merchantId
+        );
 
+        // Check employee existence
+        AssertUtil.notNull(
+                employee,
+                ErrorCode.EMPLOYEE_NOT_FOUND,
+                ErrorMessage.EMPLOYEE_NOT_FOUND
+        );
+
+        // Convert Entity -> DTO
         EmployeeDTO dto = new EmployeeDTO();
         BeanUtils.copyProperties(employee, dto);
 
@@ -132,9 +158,20 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         Long merchantId = AuthContext.getCurrentMerchantId();
 
-        Employee employee = employeeMapper.findByUsername(username, merchantId);
-        AssertUtil.notNull(employee, "Employee not found");
+        // Query employee
+        Employee employee = employeeMapper.findByUsername(
+                username,
+                merchantId
+        );
 
+        // Check employee existence
+        AssertUtil.notNull(
+                employee,
+                ErrorCode.EMPLOYEE_NOT_FOUND,
+                ErrorMessage.EMPLOYEE_NOT_FOUND
+        );
+
+        // Convert Entity -> DTO
         EmployeeDTO dto = new EmployeeDTO();
         BeanUtils.copyProperties(employee, dto);
 
@@ -155,12 +192,20 @@ public class EmployeeServiceImpl implements EmployeeService {
                 dto.getUsername()
         );
 
-        // Check if the user exists
-        AssertUtil.notNull(dbEmployee, "Username or password incorrect");
+        // Check employee existence
+        AssertUtil.notNull(
+                dbEmployee,
+                ErrorCode.EMPLOYEE_USERNAME_OR_PASSWORD_ERROR,
+                ErrorMessage.EMPLOYEE_USERNAME_OR_PASSWORD_ERROR
+        );
 
         // Verify account status
         if (dbEmployee.getStatus().equals(EmployeeStatus.DISABLED)) {
-            throw new IllegalArgumentException("Account disabled");
+
+            throw new BusinessException(
+                    ErrorCode.EMPLOYEE_DISABLED,
+                    ErrorMessage.EMPLOYEE_DISABLED
+            );
         }
 
         // Verify password
@@ -169,7 +214,10 @@ public class EmployeeServiceImpl implements EmployeeService {
                 dbEmployee.getPassword()
         )) {
 
-            throw new IllegalArgumentException("Username or password incorrect");
+            throw new BusinessException(
+                    ErrorCode.EMPLOYEE_USERNAME_OR_PASSWORD_ERROR,
+                    ErrorMessage.EMPLOYEE_USERNAME_OR_PASSWORD_ERROR
+            );
         }
 
         // Generate JWT token
@@ -192,25 +240,56 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void update(EmployeeUpdateDTO dto) {
 
-        AssertUtil.notNull(dto.getId(), "Employee id cannot be null");
-
         if (dto.getUsername() == null
                 && dto.getName() == null
                 && dto.getRole() == null
                 && dto.getStatus() == null) {
 
-            throw new IllegalArgumentException("No fields to update");
+            throw new BusinessException(
+                    ErrorCode.EMPLOYEE_UPDATE_FAILED,
+                    ErrorMessage.EMPLOYEE_UPDATE_FAILED
+            );
+        }
+
+        Long merchantId = AuthContext.getCurrentMerchantId();
+
+        // Query employee
+        Employee dbEmployee = employeeMapper.findById(
+                dto.getId(),
+                merchantId
+        );
+
+        // Check employee existence
+        AssertUtil.notNull(
+                dbEmployee,
+                ErrorCode.EMPLOYEE_NOT_FOUND,
+                ErrorMessage.EMPLOYEE_NOT_FOUND
+        );
+
+        // Validate employee status
+        if (dto.getStatus() != null
+                && dbEmployee.getStatus().equals(EmployeeStatus.ACTIVE)
+                && dbEmployee.getStatus().equals(EmployeeStatus.DISABLED)) {
+
+            throw new BusinessException(
+                    ErrorCode.EMPLOYEE_STATUS_INVALID,
+                    ErrorMessage.EMPLOYEE_STATUS_INVALID
+            );
         }
 
         // Convert DTO -> Entity
         Employee employee = new Employee();
         BeanUtils.copyProperties(dto, employee);
 
-        employee.setMerchantId(AuthContext.getCurrentMerchantId());
+        employee.setMerchantId(merchantId);
 
         // Execute update
         int rows = employeeMapper.update(employee);
-        AssertUtil.checkRows(rows, "Employee not found or no permission");
+        AssertUtil.checkRows(
+                rows,
+                ErrorCode.EMPLOYEE_UPDATE_FAILED,
+                ErrorMessage.EMPLOYEE_UPDATE_FAILED
+        );
     }
 
     /**
@@ -221,12 +300,31 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void deleteById(Long id) {
 
-        AssertUtil.notNull(id, "Employee id cannot be null");
-
         Long merchantId = AuthContext.getCurrentMerchantId();
 
+        // Query employee
+        Employee employee = employeeMapper.findById(
+                id,
+                merchantId
+        );
+
+        // Check employee existence
+        AssertUtil.notNull(
+                employee,
+                ErrorCode.EMPLOYEE_NOT_FOUND,
+                ErrorMessage.EMPLOYEE_NOT_FOUND
+        );
+
         // Execute delete
-        int rows = employeeMapper.deleteById(id, merchantId);
-        AssertUtil.checkRows(rows, "Employee not found or no permission");
+        int rows = employeeMapper.deleteById(
+                id,
+                merchantId
+        );
+
+        AssertUtil.checkRows(
+                rows,
+                ErrorCode.EMPLOYEE_DELETE_FAILED,
+                ErrorMessage.EMPLOYEE_DELETE_FAILED
+        );
     }
 }

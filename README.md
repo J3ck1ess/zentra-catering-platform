@@ -208,6 +208,30 @@ Validation is implemented at multiple layers:
 
 Global exception handling is implemented via `GlobalExceptionHandler`.
 
+### Global Response Code System
+
+The project implements a unified business exception architecture based on:
+
+- Global business error codes (`ErrorCode`)
+- Centralized error messages (`ErrorMessage`)
+- Custom business exceptions (`BusinessException`)
+- Unified API response wrapper (`Result<T>`)
+- Global exception interception (`GlobalExceptionHandler`)
+- Validation and business exception separation
+- Consistent error response structure across all modules
+
+All business exceptions are standardized into unified JSON responses:
+
+```json
+{
+  "code": 50001,
+  "msg": "Category not found"
+}
+```
+
+Business validation, authentication, authorization, and tenant isolation errors are all integrated into the same response architecture.
+
+
 ---
 
 ## Project Structure

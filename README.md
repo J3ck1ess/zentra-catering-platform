@@ -142,6 +142,49 @@ This project implements a stateless authentication system using JSON Web Token (
 
 ---
 
+## Enterprise OpenAPI Architecture
+
+This project implements an enterprise-style OpenAPI architecture using SpringDoc and Swagger UI.
+
+### Features
+
+- Grouped OpenAPI documentation (`user-api` / `admin-api`)
+- Reusable global response components
+- Unified validation error documentation
+- Centralized error response governance
+- Generic API response schema documentation
+- DTO-based request and response documentation
+- Global OpenAPI component registry
+- Tag governance and API grouping
+- Query parameter governance
+- Reusable pagination query infrastructure
+- JWT authentication integration in Swagger UI
+- Enterprise-style API metadata management and documentation portal
+
+### API Documentation Access
+
+```text
+http://localhost:8080/swagger-ui/index.html
+```
+
+### OpenAPI Architecture
+
+The project follows a layered enterprise-style OpenAPI governance architecture:
+
+```text
+Controller Layer
+    ↓
+Business Semantic Annotations
+    ↓
+OpenAPI Infrastructure Layer
+    ↓
+Reusable OpenAPI Components
+```
+
+The API documentation system includes reusable response schemas, centralized examples, grouped APIs, global metadata management, and enterprise-oriented documentation governance.
+
+---
+
 ## Order Module Design
 
 The Order module supports full order lifecycle including creation, querying, detailed retrieval, and state transition control.
@@ -252,7 +295,6 @@ zentra-catering-platform
 - Payment integration
 - Redis caching
 - Docker deployment
-- API documentation (Swagger/OpenAPI)
 - MyBatis interceptor for automatic tenant injection
 - Order payment workflow
 - Employee permission management

@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Controller for order APIs
  */
-@Tag(
-        name = "Order APIs",
-        description = "Order management APIs"
-)
+@Tag(name = "Order APIs")
 @RestController
 @RequestMapping("/order")
 public class OrderController {

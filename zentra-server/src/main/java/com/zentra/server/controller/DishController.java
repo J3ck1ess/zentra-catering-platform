@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Controller for Dish APIs
  */
-@Tag(
-        name = "Dish APIs",
-        description = "Dish management APIs"
-)
+@Tag(name = "Dish APIs")
 @RestController
 @RequestMapping("/dish")
 public class DishController {

@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Controller for category APIs
  */
-@Tag(
-        name = "Category APIs",
-        description = "Category management APIs"
-)
+@Tag(name = "Category APIs")
 @RestController
 @RequestMapping("/category")
 public class CategoryController {

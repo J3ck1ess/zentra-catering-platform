@@ -7,16 +7,23 @@ import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.tags.Tag;
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 /**
  * OpenAPI / Swagger configuration
@@ -61,10 +68,26 @@ public class OpenApiConfig {
                                 .title("Zentra Catering Platform API")
                                 .description("Enterprise-style Catering Saas Backend")
                                 .version("1.0.0")
+                                .termsOfService("https://zentra.com/terms")
+                                .contact(
+                                        new Contact()
+                                                .name("Zentra Backend Team")
+                                                .email("backend@zentra.com")
+                                )
                                 .license(
                                         new License()
-                                                .name("Open Source")
+                                                .name("MIT License")
+                                                .url("https://opensource.org/licenses/MIT")
                                 )
+                )
+
+                // API servers
+                .servers(
+                        List.of(
+                                new Server()
+                                        .url("http://localhost:8080")
+                                        .description("Local development server")
+                        )
                 )
 
                 // JWT authentication
@@ -79,12 +102,14 @@ public class OpenApiConfig {
                                 .addList("bearerAuth")
                 )
 
-                // Optional external docs
+                // External documentation
                 .externalDocs(
                         new ExternalDocumentation()
-                                .description("Project Documentation")
+                                .description("Project GitHub Repository")
+                                .url("https://github.com/J3ck1ess/zentra-catering-platform")
                 )
 
+                // Reusable OpenAPI components
                 .components(
                         new Components()
 
@@ -104,7 +129,13 @@ public class OpenApiConfig {
                                         "UnauthorizedResponse",
                                         buildErrorResponse(
                                                 "Unauthorized - JWT token is missing or invalid",
-                                                errorResponseSchema
+                                                errorResponseSchema,
+                                                """
+                                                        {
+                                                          "code": 40100,
+                                                          "msg": "Unauthorized access"
+                                                        }
+                                                        """
                                         )
                                 )
 
@@ -113,7 +144,13 @@ public class OpenApiConfig {
                                         "ForbiddenResponse",
                                         buildErrorResponse(
                                                 "Forbidden - Access denied",
-                                                errorResponseSchema
+                                                errorResponseSchema,
+                                                """
+                                                        {
+                                                          "code": 40300,
+                                                          "msg": "Access denied"
+                                                        }
+                                                        """
                                         )
                                 )
 
@@ -122,7 +159,13 @@ public class OpenApiConfig {
                                         "ValidationErrorResponse",
                                         buildErrorResponse(
                                                 "Validation failed",
-                                                errorResponseSchema
+                                                errorResponseSchema,
+                                                """
+                                                        {
+                                                          "code": 40000,
+                                                          "msg": "Invalid request parameters"
+                                                        }
+                                                        """
                                         )
                                 )
 
@@ -131,15 +174,130 @@ public class OpenApiConfig {
                                         "NotFoundResponse",
                                         buildErrorResponse(
                                                 "Requested resource was not found",
-                                                errorResponseSchema
+                                                errorResponseSchema,
+                                                """
+                                                        {
+                                                          "code": 40400,
+                                                          "msg": "Resource not found"
+                                                        }
+                                                        """
                                         )
                                 )
+
+                                // Conflict response
+                                .addResponses(
+                                        "ConflictResponse",
+                                        buildErrorResponse(
+                                                "Resource conflict",
+                                                errorResponseSchema,
+                                                """
+                                                        {
+                                                          "code": 40900,
+                                                          "msg": "Resource already exists"
+                                                        }
+                                                        """
+                                        )
+                                )
+
+                                .addResponses(
+                                        "DependencyConflictResponse",
+                                        buildErrorResponse(
+                                                "Resource dependency conflict",
+                                                errorResponseSchema,
+                                                """
+                                                        {
+                                                          "code": 40901,
+                                                          "msg": "Resource is referenced by other resources"
+                                                        }
+                                                        """
+                                        )
+
+                                )
+
+                                .addParameters(
+                                        "PageParameter",
+                                        new Parameter()
+                                                .in("query")
+                                                .name("page")
+                                                .description("Page number")
+                                                .example(1)
+                                )
+
+                                .addParameters(
+                                        "PageSizeParameter",
+                                        new Parameter()
+                                                .in("query")
+                                                .name("pageSize")
+                                                .description("Page size")
+                                                .example(10)
+                                )
+                )
+
+                // API tags
+                .tags(
+                        List.of(
+
+                                new Tag()
+                                        .name("User APIs")
+                                        .description("User account and user order APIs"),
+
+                                new Tag()
+                                        .name("Employee APIs")
+                                        .description("Employee management and authentication APIs"),
+
+                                new Tag()
+                                        .name("Category APIs")
+                                        .description("Category management APIs"),
+
+                                new Tag()
+                                        .name("Dish APIs")
+                                        .description("Dish management APIs"),
+
+                                new Tag()
+                                        .name("Order APIs")
+                                        .description("Order management APIs")
+                        )
                 );
     }
 
+    /**
+     * User API group
+     */
+    @Bean
+    public GroupedOpenApi userApiGroup() {
+
+        return GroupedOpenApi.builder()
+                .group("user-api")
+                .pathsToMatch(
+                        "/user/**"
+                )
+                .build();
+    }
+
+    /**
+     * Admin API group
+     */
+    @Bean
+    public GroupedOpenApi adminApiGroup() {
+
+        return GroupedOpenApi.builder()
+                .group("admin-api")
+                .pathsToMatch(
+                        "/employee/**",
+                        "/category/**",
+                        "/dish/**",
+                        "/order/**"
+                )
+                .build();
+    }
+
+    /**
+     * Build reusable error response
+     */
     private ApiResponse buildErrorResponse(
             String description,
-            Schema<?> schema
+            Schema<?> schema,
+            String example
     ) {
 
         return new ApiResponse()
@@ -149,6 +307,7 @@ public class OpenApiConfig {
                                 "application/json",
                                 new MediaType()
                                         .schema(schema)
+                                        .example(example)
                         )
                 );
     }

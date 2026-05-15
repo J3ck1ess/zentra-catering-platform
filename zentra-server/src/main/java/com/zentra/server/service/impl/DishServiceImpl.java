@@ -35,8 +35,6 @@ public class DishServiceImpl implements DishService {
 
     /**
      * Create dish
-     *
-     * @param dto
      */
     @Override
     public void create(DishCreateDTO dto) {
@@ -74,8 +72,6 @@ public class DishServiceImpl implements DishService {
 
     /**
      * Query dishes with pagination
-     *
-     * @param query
      */
     @Override
     public PageResult<DishDTO> list(DishQueryDTO query) {
@@ -117,8 +113,6 @@ public class DishServiceImpl implements DishService {
 
     /**
      * Update dish
-     *
-     * @param dto
      */
     @Override
     public void update(DishUpdateDTO dto) {
@@ -192,8 +186,6 @@ public class DishServiceImpl implements DishService {
 
     /**
      * Delete dish by id
-     *
-     * @param id
      */
     @Override
     public void deleteById(Long id) {

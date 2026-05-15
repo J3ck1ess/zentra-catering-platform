@@ -1,24 +1,34 @@
 package com.zentra.server.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
+/**
+ * DTO for updating dish
+ */
+@Schema(description = "Dish update request")
 public class DishUpdateDTO {
 
+    @Schema(description = "Dish ID", example = "1")
     @NotNull(message = "dish id cannot be null")
     private Long id;
 
+    @Schema(description = "Dish name", example = "Pizza")
     @Size(min = 1, message = "name cannot be empty")
     private String name;
 
+    @Schema(description = "Dish price", example = "10.99")
     @DecimalMin(value = "0.01", message = "price must be greater than 0.01")
     private BigDecimal price;
 
+    @Schema(description = "Category ID", example = "1")
     private Long categoryId;
 
+    @Schema(description = "Dish status (1 = Enabled, 0 = Disabled)", example = "1")
     private Integer status;
 
     // Getter and Setter

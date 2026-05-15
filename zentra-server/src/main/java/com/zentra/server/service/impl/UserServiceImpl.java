@@ -39,8 +39,6 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Register user
-     *
-     * @param dto
      */
     @Override
     public void register(UserRegisterDTO dto) {
@@ -84,9 +82,6 @@ public class UserServiceImpl implements UserService {
 
     /**
      * User login
-     *
-     * @param dto
-     * @return
      */
     @Override
     public LoginResponse login(UserLoginDTO dto) {
@@ -136,8 +131,6 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Get user profile
-     *
-     * @return
      */
     @Override
     public UserDTO getProfile() {
@@ -168,9 +161,6 @@ public class UserServiceImpl implements UserService {
 
     /**
      * Get user orders
-     *
-     * @param query
-     * @return
      */
     @Override
     public PageResult<OrderPageDTO> getMyOrders(OrderQueryDTO query) {

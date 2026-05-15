@@ -40,9 +40,6 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * Create a new order
-     *
-     * @param dto
-     * @return
      */
     @Transactional
     @Override
@@ -157,9 +154,6 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * Query orders with pagination
-     *
-     * @param query
-     * @return
      */
     @Override
     public PageResult<OrderPageDTO> list(OrderQueryDTO query) {
@@ -195,9 +189,6 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * Get order by id
-     *
-     * @param id
-     * @return
      */
     @Override
     public OrderDetailDTO getById(Long id) {
@@ -247,9 +238,6 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * Update order status
-     *
-     * @param orderId
-     * @param newStatus
      */
     @Override
     public void updateStatus(Long orderId, Integer newStatus) {

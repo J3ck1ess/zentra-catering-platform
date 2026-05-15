@@ -1,14 +1,26 @@
 package com.zentra.server.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 /**
- * Data Transfer Object for Category
+ * DTO for category response
  */
+@Schema(description = "Category response")
 public class CategoryDTO {
 
+    @Schema(description = "Category ID", example = "1")
     private Long id;
+
+    @Schema(description = "Category name", example = "Food")
     private String name;
+
+    @Schema(description = "Category type (1 = Dish, 2 = Set Meal)", example = "1")
     private Integer type;
+
+    @Schema(description = "Category status (1 = Enabled, 2 = Disabled)", example = "1")
     private Integer status;
+
+    @Schema(description = "Category sort order", example = "10")
     private Integer sort;
 
     // Getter and Setter

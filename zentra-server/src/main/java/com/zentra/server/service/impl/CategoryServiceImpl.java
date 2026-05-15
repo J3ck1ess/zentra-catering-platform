@@ -39,8 +39,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     /**
      * Create a new category
-     *
-     * @param dto
      */
     @Override
     public void create(CategoryCreateDTO dto) {
@@ -74,9 +72,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     /**
      * Query categories with pagination
-     *
-     * @param query
-     * @return PageResult<CategoryDTO>
      */
     @Override
     public PageResult<CategoryDTO> list(CategoryQueryDTO query) {
@@ -118,8 +113,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     /**
      * Update category
-     *
-     * @param dto
      */
     @Override
     public void update(CategoryUpdateDTO dto) {
@@ -188,8 +181,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     /**
      * Delete category by id
-     *
-     * @param id
      */
     @Override
     public void deleteById(Long id) {

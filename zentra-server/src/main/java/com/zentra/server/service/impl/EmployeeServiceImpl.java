@@ -34,8 +34,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * Create employee
-     *
-     * @param dto
      */
     @Override
     public void create(EmployeeCreateDTO dto) {
@@ -77,9 +75,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * Query employees with pagination
-     *
-     * @param query
-     * @return
      */
     @Override
     public PageResult<EmployeeDTO> list(EmployeeQueryDTO query) {
@@ -118,9 +113,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * Get employee by id
-     *
-     * @param id
-     * @return
      */
     @Override
     public EmployeeDTO getById(Long id) {
@@ -149,9 +141,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * Get employee by username
-     *
-     * @param username
-     * @return
      */
     @Override
     public EmployeeDTO getByUsername(String username) {
@@ -180,9 +169,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * Login employee
-     *
-     * @param dto
-     * @return
      */
     @Override
     public LoginResponse login(EmployeeLoginDTO dto) {
@@ -234,8 +220,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * Update employee
-     *
-     * @param dto
      */
     @Override
     public void update(EmployeeUpdateDTO dto) {
@@ -294,8 +278,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * Delete employee by id
-     *
-     * @param id
      */
     @Override
     public void deleteById(Long id) {

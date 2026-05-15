@@ -1,18 +1,31 @@
 package com.zentra.server.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.math.BigDecimal;
 
 /**
- * Data Transfer Object for Dish (used for response)
+ * DTO for dish response
  */
-
+@Schema(description = "Dish response")
 public class DishDTO {
 
+    @Schema(description = "Dish ID", example = "1")
     private Long id;
+
+    @Schema(description = "Dish name", example = "Pizza")
     private String name;
+
+    @Schema(description = "Dish price", example = "10.99")
     private BigDecimal price;
+
+    @Schema(description = "Dish status (1 = Enabled, 0 = Disabled)", example = "1")
     private Integer status;
+
+    @Schema(description = "Category ID", example = "1")
     private Long categoryId;
+
+    @Schema(description = "Category name", example = "Pizza")
     private String categoryName;
 
     // Getter and Setter

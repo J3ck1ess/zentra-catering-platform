@@ -1,21 +1,38 @@
 package com.zentra.server.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 /**
  * DTO for updating employee
  */
+@Schema(description = "Employee update request")
 public class EmployeeUpdateDTO {
 
+    @Schema(description = "Employee ID", example = "1")
     @NotNull(message = "employee id cannot be null")
     private Long id;
 
+    @Schema(description = "Employee username", example = "admin")
+    @Size(
+            min = 4,
+            max = 20,
+            message = "username must be between 4 and 20 characters"
+    )
     private String username;
 
+    @Schema(description = "Employee display name", example = "Admin User")
+    @Size(
+            max = 50,
+            message = "name must be less than 50 characters"
+    )
     private String name;
 
+    @Schema(description = "Employee role", example = "admin")
     private String role;
 
+    @Schema(description = "Employee status (1 = Active, 0 = Disabled)", example = "1")
     private Integer status;
 
     // Getter and Setter

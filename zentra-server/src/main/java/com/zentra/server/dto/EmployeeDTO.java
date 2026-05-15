@@ -1,14 +1,31 @@
 package com.zentra.server.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.LocalDateTime;
 
+/**
+ * DTO for employee response
+ */
+@Schema(description = "Employee response")
 public class EmployeeDTO {
 
+    @Schema(description = "Employee ID", example = "1")
     private Long id;
+
+    @Schema(description = "Employee username", example = "admin")
     private String username;
+
+    @Schema(description = "Employee display name", example = "Admin User")
     private String name;
+
+    @Schema(description = "Employee role", example = "admin")
     private String role;
+
+    @Schema(description = "Employee status (1 = Active, 0 = Disabled)", example = "1")
     private Integer status;
+
+    @Schema(description = "Employee creation time", example = "2026-05-07T18:50:56")
     private LocalDateTime createdAt;
 
     // Getter and Setter

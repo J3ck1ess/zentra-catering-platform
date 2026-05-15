@@ -1,14 +1,26 @@
 package com.zentra.server.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 /**
  * DTO for user response
  */
+@Schema(description = "User response")
 public class UserDTO {
 
+    @Schema(description = "User ID", example = "1")
     private Long id;
+
+    @Schema(description = "Username", example = "sultan_bek")
     private String username;
+
+    @Schema(description = "User nickname", example = "Sultan")
     private String nickname;
+
+    @Schema(description = "Phone number", example = "+77001234567")
     private String phone;
+
+    @Schema(description = "User status (1 = Active, 0 = Disabled)", example = "1")
     private Integer status;
 
     // Getter and Setter

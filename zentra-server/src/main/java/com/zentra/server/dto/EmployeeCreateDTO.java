@@ -1,20 +1,41 @@
 package com.zentra.server.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 /**
  * DTO for creating employee
  */
+@Schema(description = "Employee creation request")
 public class EmployeeCreateDTO {
 
+    @Schema(description = "Employee username", example = "admin")
     @NotBlank(message = "username cannot be blank")
+    @Size(
+            min = 4,
+            max = 20,
+            message = "username must be between 4 and 20 characters"
+    )
     private String username;
 
+    @Schema(description = "Employee password", example = "123456")
     @NotBlank(message = "password cannot be blank")
+    @Size(
+            min = 6,
+            max = 32,
+            message = "password must be between 6 and 32 characters"
+    )
     private String password;
 
+    @Schema(description = "Employee display name", example = "Admin User")
+    @Size(
+            max = 50,
+            message = "name must be less than 50 characters"
+    )
     private String name;
 
+    @Schema(description = "Employee role", example = "admin")
     private String role;
 
     // Getter and Setter

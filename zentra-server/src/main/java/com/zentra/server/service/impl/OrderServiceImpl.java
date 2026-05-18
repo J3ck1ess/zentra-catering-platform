@@ -156,7 +156,7 @@ public class OrderServiceImpl implements OrderService {
      * Query orders with pagination
      */
     @Override
-    public PageResult<OrderPageDTO> list(OrderQueryDTO query) {
+    public PageResult<OrderPageDTO> page(OrderQueryDTO query) {
 
         Long merchantId = AuthContext.getCurrentMerchantId();
 

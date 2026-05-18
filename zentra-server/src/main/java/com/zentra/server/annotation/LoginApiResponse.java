@@ -17,6 +17,7 @@ import java.lang.annotation.*;
         responseCode = "200",
         description = "Login successful",
         content = @Content(
+                mediaType = "application/json",
                 schema = @Schema(
                         implementation = LoginResponseWrapperDTO.class
                 )

@@ -19,7 +19,7 @@ public interface DishService {
     /**
      * Query dishes with pagination
      */
-    PageResult<DishDTO> list(DishQueryDTO query);
+    PageResult<DishDTO> page(DishQueryDTO query);
 
     /**
      * Update dish

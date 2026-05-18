@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Controller for order APIs
  */
-@Tag(name = "Order APIs")
+@Tag(
+        name = "Order APIs",
+        description = "Order management APIs"
+)
 @RestController
 @RequestMapping("/order")
 public class OrderController {
@@ -58,12 +61,12 @@ public class OrderController {
     @OrderPageApiResponse
     @AuthApiResponses
     @GetMapping
-    public Result<PageResult<OrderPageDTO>> list(
+    public Result<PageResult<OrderPageDTO>> page(
             @Valid OrderQueryDTO query
     ) {
 
         return Result.success(
-                orderService.list(query)
+                orderService.page(query)
         );
     }
 

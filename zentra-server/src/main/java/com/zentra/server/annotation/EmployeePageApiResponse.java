@@ -17,6 +17,7 @@ import java.lang.annotation.*;
         responseCode = "200",
         description = "Employees retrieved successfully",
         content = @Content(
+                mediaType = "application/json",
                 schema = @Schema(
                         implementation = EmployeePageResponseDTO.class
                 )

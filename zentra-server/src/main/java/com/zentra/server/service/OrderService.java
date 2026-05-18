@@ -8,11 +8,23 @@ import com.zentra.server.dto.OrderQueryDTO;
 
 public interface OrderService {
 
+    /**
+     * Create Order
+     */
     void create(OrderCreateDTO dto);
 
-    PageResult<OrderPageDTO> list(OrderQueryDTO query);
+    /**
+     * Query orders with pagination
+     */
+    PageResult<OrderPageDTO> page(OrderQueryDTO query);
 
+    /**
+     * Get order detail by id
+     */
     OrderDetailDTO getById(Long id);
 
+    /**
+     * Update order status
+     */
     void updateStatus(Long id, Integer status);
 }

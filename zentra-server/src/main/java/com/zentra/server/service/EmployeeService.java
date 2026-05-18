@@ -16,7 +16,7 @@ public interface EmployeeService {
     /**
      * Query employees with pagination
      */
-    PageResult<EmployeeDTO> list(EmployeeQueryDTO query);
+    PageResult<EmployeeDTO> page(EmployeeQueryDTO query);
 
     /**
      * Get employee by id

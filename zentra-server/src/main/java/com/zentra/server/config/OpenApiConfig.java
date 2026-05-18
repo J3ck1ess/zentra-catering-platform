@@ -90,12 +90,6 @@ public class OpenApiConfig {
                         )
                 )
 
-                // JWT authentication
-                .schemaRequirement(
-                        "bearerAuth",
-                        securityScheme
-                )
-
                 // Global security requirement
                 .addSecurityItem(
                         new SecurityRequirement()
@@ -112,6 +106,12 @@ public class OpenApiConfig {
                 // Reusable OpenAPI components
                 .components(
                         new Components()
+
+                                // Security schemes
+                                .addSecuritySchemes(
+                                        "bearerAuth",
+                                        securityScheme
+                                )
 
                                 // Global reusable schemas
                                 .addSchemas(
@@ -231,32 +231,6 @@ public class OpenApiConfig {
                                                 .description("Page size")
                                                 .example(10)
                                 )
-                )
-
-                // API tags
-                .tags(
-                        List.of(
-
-                                new Tag()
-                                        .name("User APIs")
-                                        .description("User account and user order APIs"),
-
-                                new Tag()
-                                        .name("Employee APIs")
-                                        .description("Employee management and authentication APIs"),
-
-                                new Tag()
-                                        .name("Category APIs")
-                                        .description("Category management APIs"),
-
-                                new Tag()
-                                        .name("Dish APIs")
-                                        .description("Dish management APIs"),
-
-                                new Tag()
-                                        .name("Order APIs")
-                                        .description("Order management APIs")
-                        )
                 );
     }
 
@@ -286,7 +260,8 @@ public class OpenApiConfig {
                         "/employee/**",
                         "/category/**",
                         "/dish/**",
-                        "/order/**"
+                        "/order/**",
+                        "/admin/users/**"
                 )
                 .build();
     }

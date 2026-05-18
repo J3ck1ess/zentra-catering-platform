@@ -74,7 +74,7 @@ public class DishServiceImpl implements DishService {
      * Query dishes with pagination
      */
     @Override
-    public PageResult<DishDTO> list(DishQueryDTO query) {
+    public PageResult<DishDTO> page(DishQueryDTO query) {
 
         Long merchantId = AuthContext.getCurrentMerchantId();
 

@@ -109,6 +109,16 @@ The system includes multiple enterprise-oriented backend patterns:
 - Multi-user authentication architecture
 - ThreadLocal-based authentication context
 
+### User Admin Module
+- Admin user pagination query
+- User account status management
+- Admin-level user governance APIs
+- Status validation and update workflow
+- Swagger/OpenAPI integration
+- DTO-based admin response architecture
+- JWT-based admin authorization control
+- Multi-domain API access routing
+
 ---
 
 ## Authentication Module (JWT)
@@ -130,6 +140,7 @@ This project implements a stateless authentication system using JSON Web Token (
 - Multi-user identity support (`USER` / `EMPLOYEE`)
 - Interceptor-based API authorization control
 - API access isolation based on authenticated user type
+- Admin API authorization routing (`/admin/**`)
 
 ### Workflow
 
@@ -156,6 +167,7 @@ This project implements an enterprise-style OpenAPI architecture using SpringDoc
 - DTO-based request and response documentation
 - Global OpenAPI component registry
 - Tag governance and API grouping
+- Admin user API documentation governance
 - Query parameter governance
 - Reusable pagination query infrastructure
 - JWT authentication integration in Swagger UI

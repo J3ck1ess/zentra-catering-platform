@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * @param <T> record type
  */
 @Schema(description = "Paginated API response")
-public class PageResponseDTO<T> extends BaseResponseDTO{
+public class PageResponseDTO<T> extends BaseResponseDTO {
 
     @Schema(description = "Pagination response data")
     private PageDataDTO<T> data;

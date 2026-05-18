@@ -74,7 +74,7 @@ public class CategoryServiceImpl implements CategoryService {
      * Query categories with pagination
      */
     @Override
-    public PageResult<CategoryDTO> list(CategoryQueryDTO query) {
+    public PageResult<CategoryDTO> page(CategoryQueryDTO query) {
 
         Long merchantId = AuthContext.getCurrentMerchantId();
 

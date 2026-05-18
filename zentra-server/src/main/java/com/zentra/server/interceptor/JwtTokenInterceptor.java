@@ -28,7 +28,8 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
                     "/employee",
                     "/category",
                     "/dish",
-                    "/order"
+                    "/order",
+                    "/admin"
             );
 
     /**

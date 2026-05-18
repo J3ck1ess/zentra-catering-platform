@@ -77,7 +77,7 @@ public class EmployeeServiceImpl implements EmployeeService {
      * Query employees with pagination
      */
     @Override
-    public PageResult<EmployeeDTO> list(EmployeeQueryDTO query) {
+    public PageResult<EmployeeDTO> page(EmployeeQueryDTO query) {
 
         Long merchantId = AuthContext.getCurrentMerchantId();
 

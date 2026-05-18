@@ -17,6 +17,7 @@ import java.lang.annotation.*;
         responseCode = "200",
         description = "Operation successful",
         content = @Content(
+                mediaType = "application/json",
                 schema = @Schema(
                         implementation = BaseResponseDTO.class
                 )

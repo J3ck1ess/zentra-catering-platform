@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Controller for Employee APIs
  */
-@Tag(name = "Employee APIs")
+@Tag(
+        name = "Employee APIs",
+        description = "Employee management and authentication APIs"
+)
 @RestController
 @RequestMapping("/employee")
 public class EmployeeController {
@@ -58,12 +61,12 @@ public class EmployeeController {
     @EmployeePageApiResponse
     @AuthApiResponses
     @GetMapping
-    public Result<PageResult<EmployeeDTO>> list(
+    public Result<PageResult<EmployeeDTO>> page(
             @Valid EmployeeQueryDTO query
     ) {
 
         return Result.success(
-                employeeService.list(query)
+                employeeService.page(query)
         );
     }
 

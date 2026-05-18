@@ -114,4 +114,127 @@
 
     </select>
 
+    <!-- ========================================= -->
+    <!-- Query user list with pagination -->
+    <!-- ========================================= -->
+    <select id="findPage"
+            resultMap="UserResultMap">
+
+        SELECT
+            id,
+            merchant_id,
+            username,
+            password,
+            nickname,
+            phone,
+            status,
+            created_at,
+            updated_at
+        FROM user
+
+        <where>
+
+            <!-- Optional fuzzy search by username -->
+            <if test="username != null and username != ''">
+                AND username LIKE CONCAT('%', #{username}, '%')
+            </if>
+
+            <!-- Optional status filter -->
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+
+        </where>
+
+        ORDER BY created_at DESC
+
+        LIMIT #{offset}, #{pageSize}
+
+    </select>
+
+    <!-- ========================================= -->
+    <!-- Count users -->
+    <!-- ========================================= -->
+    <select id="count"
+            resultType="long">
+
+        SELECT COUNT(*)
+        FROM user
+
+        <where>
+
+            <!-- Optional fuzzy search by username -->
+            <if test="username != null and username != ''">
+                AND username LIKE CONCAT('%', #{username}, '%')
+            </if>
+
+            <!-- Optional status filter -->
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+
+        </where>
+
+    </select>
+
+    <!-- ========================================= -->
+    <!-- Query user by id for admin management -->
+    <!-- ========================================= -->
+    <select id="findByIdOnly"
+            resultMap="UserResultMap">
+
+        SELECT
+            id,
+            merchant_id,
+            username,
+            password,
+            nickname,
+            phone,
+            status,
+            created_at,
+            updated_at
+        FROM user
+        WHERE id = #{id}
+
+    </select>
+
+    <!-- ========================================= -->
+    <!-- Update user -->
+    <!-- ========================================= -->
+    <update id="update"
+            parameterType="com.zentra.server.entity.User">
+
+        UPDATE user
+
+        <set>
+
+            <!-- Update username -->
+            <if test="username != null">
+                username = #{username},
+            </if>
+
+            <!-- Update nickname -->
+            <if test="nickname != null">
+                nickname = #{nickname},
+            </if>
+
+            <!-- Update phone -->
+            <if test="phone != null">
+                phone = #{phone},
+            </if>
+
+            <!-- Update user status -->
+            <if test="status != null">
+                status = #{status},
+            </if>
+
+            <!-- Auto update timestamp -->
+            updated_at = NOW()
+
+        </set>
+
+        WHERE id = #{id}
+
+    </update>
+
 </mapper>

@@ -23,7 +23,7 @@ public interface CategoryService {
     /**
      * Query categories with pagination
      */
-    PageResult<CategoryDTO> list(CategoryQueryDTO query);
+    PageResult<CategoryDTO> page(CategoryQueryDTO query);
 
     /**
      * Update category

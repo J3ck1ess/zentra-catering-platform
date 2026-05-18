@@ -56,6 +56,10 @@ public class ErrorCode {
 
     public static final Integer USER_REGISTER_FAILED = 40205;
 
+    public static final Integer USER_STATUS_UPDATE_FAILED = 40206;
+
+    public static final Integer USER_STATUS_INVALID = 40207;
+
     /**
      * Category Errors
      */

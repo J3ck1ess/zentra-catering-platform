@@ -16,7 +16,10 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Controller for category APIs
  */
-@Tag(name = "Category APIs")
+@Tag(
+        name = "Category APIs",
+        description = "Category management APIs"
+)
 @RestController
 @RequestMapping("/category")
 public class CategoryController {
@@ -61,12 +64,12 @@ public class CategoryController {
     @CategoryPageApiResponse
     @AuthApiResponses
     @GetMapping
-    public Result<PageResult<CategoryDTO>> list(
+    public Result<PageResult<CategoryDTO>> page(
             @Valid CategoryQueryDTO query
     ) {
 
         return Result.success(
-                categoryService.list(query)
+                categoryService.page(query)
         );
     }
 

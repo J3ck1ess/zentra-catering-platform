@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * Employee API response
  */
 @Schema(description = "Employee API response")
-public class EmployeeResponseDTO extends BaseResponseDTO{
+public class EmployeeResponseDTO extends BaseResponseDTO {
 
     @Schema(description = "Employee response data")
     private EmployeeDTO data;

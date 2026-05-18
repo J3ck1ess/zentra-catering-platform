@@ -17,6 +17,7 @@ import java.lang.annotation.*;
         responseCode = "200",
         description = "Order retrieved successfully",
         content = @Content(
+                mediaType = "application/json",
                 schema = @Schema(
                         implementation = OrderDetailResponseDTO.class
                 )

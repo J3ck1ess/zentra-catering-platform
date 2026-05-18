@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Controller for Dish APIs
  */
-@Tag(name = "Dish APIs")
+@Tag(name = "Dish APIs", description = "Dish management APIs")
 @RestController
 @RequestMapping("/dish")
 public class DishController {
@@ -61,12 +61,12 @@ public class DishController {
     @DishPageApiResponse
     @AuthApiResponses
     @GetMapping
-    public Result<PageResult<DishDTO>> list(
+    public Result<PageResult<DishDTO>> page(
             @Valid DishQueryDTO query
     ) {
 
         return Result.success(
-                dishService.list(query)
+                dishService.page(query)
         );
     }
 

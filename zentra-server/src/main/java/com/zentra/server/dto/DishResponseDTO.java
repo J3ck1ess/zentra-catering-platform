@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * Dish API response
  */
 @Schema(description = "Dish API response")
-public class DishResponseDTO extends BaseResponseDTO{
+public class DishResponseDTO extends BaseResponseDTO {
 
     @Schema(description = "Dish response data")
     private DishDTO data;

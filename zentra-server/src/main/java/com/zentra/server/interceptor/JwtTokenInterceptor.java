@@ -5,8 +5,10 @@ import com.zentra.common.constant.ErrorCode;
 import com.zentra.common.constant.ErrorMessage;
 import com.zentra.common.constant.UserType;
 import com.zentra.common.context.AuthContext;
+import com.zentra.common.context.PermissionContext;
 import com.zentra.common.exception.BusinessException;
 import com.zentra.common.util.JwtUtil;
+import com.zentra.server.security.PermissionProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
@@ -41,6 +43,21 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
             );
 
     /**
+     * RBAC permission provider
+     */
+    private final PermissionProvider permissionProvider;
+
+    /**
+     * Constructor injection
+     */
+    public JwtTokenInterceptor(
+            PermissionProvider permissionProvider
+    ) {
+
+        this.permissionProvider = permissionProvider;
+    }
+
+    /**
      * Execute before controller
      */
     @Override
@@ -67,6 +84,18 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
 
         // Parse JWT
         AuthInfo authInfo = JwtUtil.parseToken(token);
+
+        // Load RBAC permissions for employee
+        if (UserType.EMPLOYEE.equals(
+                authInfo.getUserType()
+        )) {
+
+            PermissionContext.setPermissions(
+                    permissionProvider.loadPermissions(
+                            authInfo.getRole()
+                    )
+            );
+        }
 
         // Current request URI
         String requestUri = request.getRequestURI();
@@ -113,6 +142,15 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
 
         AuthContext.setCurrentUserType(authInfo.getUserType());
 
+        // Load RBAC permissions for employee
+        if (UserType.EMPLOYEE.equals(userType)) {
+
+            PermissionContext.setPermissions(
+                    permissionProvider.loadPermissions(
+                            authInfo.getRole()
+                    )
+            );
+        }
         return true;
     }
 
@@ -128,5 +166,7 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
     ) {
 
         AuthContext.clear();
+
+        PermissionContext.clear();
     }
 }

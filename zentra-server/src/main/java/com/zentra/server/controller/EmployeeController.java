@@ -1,5 +1,6 @@
 package com.zentra.server.controller;
 
+import com.zentra.common.constant.PermissionConstants;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.result.Result;
 import com.zentra.server.annotation.*;
@@ -15,7 +16,8 @@ import org.springframework.web.bind.annotation.*;
  */
 @Tag(
         name = "Employee APIs",
-        description = "Employee management and authentication APIs"
+        description =
+                "Employee management APIs with RBAC permission control"
 )
 @RestController
 @RequestMapping("/employee")
@@ -35,12 +37,17 @@ public class EmployeeController {
      */
     @Operation(
             summary = "Create employee",
-            description = "Create a new employee account"
+            description =
+                    "Create a new employee account. " +
+                    "Requires permission: employee:create"
     )
     @SuccessApiResponse
     @ValidationErrorApiResponse
     @ConflictApiResponse
     @AuthApiResponses
+    @RequirePermission(
+            PermissionConstants.EMPLOYEE_CREATE
+    )
     @PostMapping
     public Result<Void> createEmployee(
             @Valid @RequestBody EmployeeCreateDTO dto
@@ -56,10 +63,15 @@ public class EmployeeController {
      */
     @Operation(
             summary = "Get employees list",
-            description = "Retrieve paginated employee list with optional filters"
+            description =
+                    "Retrieve paginated employee list with optional filters. " +
+                    "Requires permission: employee:view"
     )
     @EmployeePageApiResponse
     @AuthApiResponses
+    @RequirePermission(
+            PermissionConstants.EMPLOYEE_VIEW
+    )
     @GetMapping
     public Result<PageResult<EmployeeDTO>> page(
             @Valid EmployeeQueryDTO query
@@ -75,11 +87,16 @@ public class EmployeeController {
      */
     @Operation(
             summary = "Get employee by id",
-            description = "Retrieve employee information by employee id"
+            description =
+                    "Retrieve employee information by employee id. " +
+                    "Requires permission: employee:view"
     )
     @EmployeeApiResponse
     @NotFoundApiResponse
     @AuthApiResponses
+    @RequirePermission(
+            PermissionConstants.EMPLOYEE_VIEW
+    )
     @GetMapping("/{id}")
     public Result<EmployeeDTO> getById(
             @PathVariable Long id
@@ -95,11 +112,16 @@ public class EmployeeController {
      */
     @Operation(
             summary = "Get employee by username",
-            description = "Retrieve employee information by username"
+            description =
+                    "Retrieve employee information by username. " +
+                    "Requires permission: employee:view"
     )
     @EmployeeApiResponse
     @NotFoundApiResponse
     @AuthApiResponses
+    @RequirePermission(
+            PermissionConstants.EMPLOYEE_VIEW
+    )
     @GetMapping("/search")
     public Result<EmployeeDTO> getByUsername(
             @RequestParam String username
@@ -135,12 +157,17 @@ public class EmployeeController {
      */
     @Operation(
             summary = "Update employee",
-            description = "Update employee information"
+            description =
+                    "Update employee information. " +
+                    "Requires permission: employee:update"
     )
     @SuccessApiResponse
     @ValidationErrorApiResponse
     @NotFoundApiResponse
     @AuthApiResponses
+    @RequirePermission(
+            PermissionConstants.EMPLOYEE_UPDATE
+    )
     @PatchMapping
     public Result<Void> update(
             @Valid @RequestBody EmployeeUpdateDTO dto
@@ -156,11 +183,16 @@ public class EmployeeController {
      */
     @Operation(
             summary = "Delete employee",
-            description = "Delete employee by employee id"
+            description =
+                    "Delete employee by employee id. " +
+                    "Requires permission: employee:delete"
     )
     @SuccessApiResponse
     @NotFoundApiResponse
     @AuthApiResponses
+    @RequirePermission(
+            PermissionConstants.EMPLOYEE_DELETE
+    )
     @DeleteMapping("/{id}")
     public Result<Void> delete(
             @PathVariable Long id

@@ -29,7 +29,16 @@ public class EmployeeUpdateDTO {
     )
     private String name;
 
-    @Schema(description = "Employee role", example = "admin")
+    @Schema(
+            description = "Employee role",
+            allowableValues = {
+                    "SUPER_ADMIN",
+                    "STORE_MANAGER",
+                    "CASHIER",
+                    "KITCHEN_STAFF"
+            },
+            example = "STORE_MANAGER"
+    )
     private String role;
 
     @Schema(description = "Employee status (1 = Active, 0 = Disabled)", example = "1")

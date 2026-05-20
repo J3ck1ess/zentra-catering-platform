@@ -45,4 +45,18 @@ public class AssertUtil {
             throw new BusinessException(code, message);
         }
     }
+
+    /**
+     * Assert condition is true
+     */
+    public static void isTrue(
+            boolean condition,
+            Integer code,
+            String message
+    ) {
+        if (!condition){
+
+            throw new BusinessException(code, message);
+        }
+    }
 }

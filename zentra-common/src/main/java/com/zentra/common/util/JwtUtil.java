@@ -44,6 +44,7 @@ public class JwtUtil {
                 .claim("userId", authInfo.getUserId())
                 .claim("merchantId", authInfo.getMerchantId())
                 .claim("userType", authInfo.getUserType())
+                .claim("role", authInfo.getRole())
                 .setExpiration(new Date(
                         System.currentTimeMillis() + EXPIRATION
                 ))
@@ -69,10 +70,13 @@ public class JwtUtil {
 
             String userType = (String) claims.get("userType");
 
+            String role = (String) claims.get("role");
+
             return new AuthInfo(
                     userId,
                     merchantId,
-                    userType
+                    userType,
+                    role
             );
 
         } catch (ExpiredJwtException e) {

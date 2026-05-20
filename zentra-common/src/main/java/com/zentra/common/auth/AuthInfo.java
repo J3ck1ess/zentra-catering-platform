@@ -26,4 +26,9 @@ public class AuthInfo {
      * Current user type
      */
     private String userType;
+
+    /**
+     * Current employee role
+     */
+    private String role;
 }

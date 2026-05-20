@@ -38,6 +38,8 @@ public class ErrorMessage {
 
     public static final String EMPLOYEE_STATUS_INVALID = "Invalid employee status";
 
+    public static final String INVALID_EMPLOYEE_ROLE = "Invalid employee role";
+
     /**
      * User messages
      */

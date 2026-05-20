@@ -19,7 +19,16 @@ public class EmployeeDTO {
     @Schema(description = "Employee display name", example = "Admin User")
     private String name;
 
-    @Schema(description = "Employee role", example = "admin")
+    @Schema(
+            description = "Employee role",
+            allowableValues = {
+                    "SUPER_ADMIN",
+                    "STORE_MANAGER",
+                    "CASHIER",
+                    "KITCHEN_STAFF"
+            },
+            example = "CASHIER"
+    )
     private String role;
 
     @Schema(description = "Employee status (1 = Active, 0 = Disabled)", example = "1")

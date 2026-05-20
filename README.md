@@ -14,6 +14,8 @@ The project focuses on enterprise-style backend architecture, including DTO laye
 - MySQL
 - MyBatis
 - JWT Authentication
+- RBAC Authorization
+- Swagger / OpenAPI 3
 - BCrypt Password Hashing
 - Jakarta Validation
 
@@ -106,7 +108,6 @@ The system includes multiple enterprise-oriented backend patterns:
 - User order history query
 - User-order association
 - Protected API access control
-- Multi-user authentication architecture
 - ThreadLocal-based authentication context
 
 ### User Admin Module
@@ -136,6 +137,7 @@ This project implements a stateless authentication system using JSON Web Token (
 - Structured API response with DTO
 - BCrypt password hashing
 - User and employee authentication support
+- Multi-user authentication architecture
 - AuthContext-based authentication architecture
 - Multi-user identity support (`USER` / `EMPLOYEE`)
 - Interceptor-based API authorization control
@@ -150,6 +152,66 @@ This project implements a stateless authentication system using JSON Web Token (
 4. Interceptor validates token before accessing protected APIs
 5. User identity is stored in ThreadLocal and accessible throughout request lifecycle
 6. API access is restricted based on user identity type
+
+---
+
+## Enterprise RBAC Architecture
+
+This project implements an enterprise-style RBAC (Role-Based Access Control) architecture for admin-side authorization governance.
+
+### Features
+
+- Role-based permission management
+- Annotation-driven authorization (`@RequirePermission`)
+- Interceptor-based permission validation
+- ThreadLocal-based permission context
+- JWT + RBAC integration
+- Role-permission mapping infrastructure
+- CRUD permission matrix governance
+- Permission-aware Swagger/OpenAPI documentation
+- Admin API authorization isolation
+- Multi-domain authentication and authorization architecture
+
+### RBAC Architecture
+
+The RBAC system follows a layered enterprise authorization architecture:
+
+```text
+JWT Authentication
+    ↓
+Role Resolution
+    ↓
+Permission Provider
+    ↓
+Permission Context
+    ↓
+Permission Interceptor
+    ↓
+Annotation-driven Authorization
+    ↓
+Controller Access Control
+```
+
+### Permission Governance
+
+The project implements fine-grained permission governance using CRUD-based permission design:
+
+- employee:create
+- employee:view
+- employee:update
+- employee:delete
+
+The same governance model is applied across employee, user admin, category, dish, and order management APIs.
+
+### Security Design
+
+- JWT-based identity authentication
+- RBAC-based authorization control
+- ThreadLocal request-scoped permission context
+- Role-to-permission mapping infrastructure
+- Annotation-driven permission validation
+- Centralized authorization interception
+- Permission-aware API documentation
 
 ---
 
@@ -310,8 +372,6 @@ zentra-catering-platform
 - MyBatis interceptor for automatic tenant injection
 - Order payment workflow
 - Employee permission management
-- Fine-grained RBAC permission system
-- Annotation-based permission control
 - Redis-based token blacklist
 
 ---

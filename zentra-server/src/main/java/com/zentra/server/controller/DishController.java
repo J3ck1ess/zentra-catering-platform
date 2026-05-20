@@ -1,5 +1,6 @@
 package com.zentra.server.controller;
 
+import com.zentra.common.constant.PermissionConstants;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.result.Result;
 import com.zentra.server.annotation.*;
@@ -16,7 +17,10 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Controller for Dish APIs
  */
-@Tag(name = "Dish APIs", description = "Dish management APIs")
+@Tag(
+        name = "Dish APIs",
+        description = "Dish management APIs with RBAC permission control"
+)
 @RestController
 @RequestMapping("/dish")
 public class DishController {
@@ -35,12 +39,17 @@ public class DishController {
      */
     @Operation(
             summary = "Create dish",
-            description = "Create a new dish"
+            description =
+                    "Create a new dish. " +
+                    "Requires permission: dish:create"
     )
     @SuccessApiResponse
     @ValidationErrorApiResponse
     @NotFoundApiResponse
     @AuthApiResponses
+    @RequirePermission(
+            PermissionConstants.DISH_CREATE
+    )
     @PostMapping
     public Result<Void> create(
             @Valid @RequestBody DishCreateDTO dto
@@ -56,10 +65,15 @@ public class DishController {
      */
     @Operation(
             summary = "Get dish list",
-            description = "Retrieve paginated dish list with optional filters"
+            description =
+                    "Retrieve paginated dish list with optional filters. " +
+                    "Requires permission: dish:view"
     )
     @DishPageApiResponse
     @AuthApiResponses
+    @RequirePermission(
+            PermissionConstants.DISH_VIEW
+    )
     @GetMapping
     public Result<PageResult<DishDTO>> page(
             @Valid DishQueryDTO query
@@ -75,12 +89,17 @@ public class DishController {
      */
     @Operation(
             summary = "Update dish",
-            description = "Update dish information"
+            description =
+                    "Update dish information. " +
+                    "Requires permission: dish:update"
     )
     @SuccessApiResponse
     @ValidationErrorApiResponse
     @NotFoundApiResponse
     @AuthApiResponses
+    @RequirePermission(
+            PermissionConstants.DISH_UPDATE
+    )
     @PatchMapping
     public Result<Void> update(
             @Valid @RequestBody DishUpdateDTO dto
@@ -96,12 +115,17 @@ public class DishController {
      */
     @Operation(
             summary = "Delete dish",
-            description = "Delete dish by dish id"
+            description =
+                    "Delete dish by dish id. " +
+                    "Requires permission: dish:delete"
     )
     @SuccessApiResponse
     @NotFoundApiResponse
     @DependencyConflictApiResponse
     @AuthApiResponses
+    @RequirePermission(
+            PermissionConstants.DISH_DELETE
+    )
     @DeleteMapping("/{id}")
     public Result<Void> delete(
             @PathVariable Long id

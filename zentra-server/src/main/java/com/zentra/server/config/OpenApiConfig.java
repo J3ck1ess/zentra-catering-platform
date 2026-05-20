@@ -18,7 +18,6 @@ import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
-import io.swagger.v3.oas.models.tags.Tag;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,7 +42,18 @@ public class OpenApiConfig {
                         .type(SecurityScheme.Type.HTTP)
                         .scheme("bearer")
                         .bearerFormat("JWT")
-                        .name("Authorization");
+                        .name("Authorization")
+                        .description(
+                                """
+                                JWT Bearer token authentication.
+                        
+                                Format:
+                                Bearer <your-jwt-token>
+                        
+                                RBAC-protected admin APIs require
+                                corresponding permission authorization.
+                                """
+                        );
 
         // Global reusable schemas
         Schema<?> errorResponseSchema =
@@ -66,7 +76,20 @@ public class OpenApiConfig {
                 .info(
                         new Info()
                                 .title("Zentra Catering Platform API")
-                                .description("Enterprise-style Catering Saas Backend")
+                                .description(
+                                        """
+                                        Enterprise-style Catering SaaS backend system with JWT authentication
+                                        and RBAC-protected admin APIs.
+                                        
+                                        Authentication:
+                                        - User APIs require JWT bearer token authentication
+                                        - Admin APIs require JWT bearer token with RBAC authorization
+                                        
+                                        Authorization:
+                                        - RBAC permissions are enforced through annotation-driven authorization
+                                        - Admin APIs require corresponding permission grants
+                                        """
+                                )
                                 .version("1.0.0")
                                 .termsOfService("https://zentra.com/terms")
                                 .contact(
@@ -128,7 +151,7 @@ public class OpenApiConfig {
                                 .addResponses(
                                         "UnauthorizedResponse",
                                         buildErrorResponse(
-                                                "Unauthorized - JWT token is missing or invalid",
+                                                "Unauthorized - JWT token is missing, invalid, or expired",
                                                 errorResponseSchema,
                                                 """
                                                         {
@@ -143,12 +166,12 @@ public class OpenApiConfig {
                                 .addResponses(
                                         "ForbiddenResponse",
                                         buildErrorResponse(
-                                                "Forbidden - Access denied",
+                                                "Forbidden - RBAC permission denied",
                                                 errorResponseSchema,
                                                 """
                                                         {
                                                           "code": 40300,
-                                                          "msg": "Access denied"
+                                                          "msg": "No permission"
                                                         }
                                                         """
                                         )

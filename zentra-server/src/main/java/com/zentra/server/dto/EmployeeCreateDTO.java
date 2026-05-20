@@ -35,7 +35,16 @@ public class EmployeeCreateDTO {
     )
     private String name;
 
-    @Schema(description = "Employee role", example = "admin")
+    @Schema(
+            description = "Employee role",
+            allowableValues = {
+                    "SUPER_ADMIN",
+                    "STORE_MANAGER",
+                    "CASHIER",
+                    "KITCHEN_STAFF"
+            },
+            example = "SUPER_ADMIN"
+    )
     private String role;
 
     // Getter and Setter

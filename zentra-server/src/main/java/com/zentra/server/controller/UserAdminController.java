@@ -1,5 +1,6 @@
 package com.zentra.server.controller;
 
+import com.zentra.common.constant.PermissionConstants;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.result.Result;
 import com.zentra.server.annotation.*;
@@ -10,6 +11,7 @@ import com.zentra.server.service.UserAdminService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -17,8 +19,10 @@ import org.springframework.web.bind.annotation.*;
  */
 @Tag(
         name = "Admin user APIs",
-        description = "Admin user management APIs"
+        description =
+                "Admin user management APIs with RBAC authorization"
 )
+@Validated
 @RestController
 @RequestMapping("/admin/users")
 public class UserAdminController {
@@ -37,10 +41,15 @@ public class UserAdminController {
      */
     @Operation(
             summary = "Get users list",
-            description = "Retrieve paginated user list with optional filters"
+            description =
+                    "Retrieve paginated user list with optional filters. " +
+                    "Requires permission: user::view"
     )
     @UserAdminPageApiResponse
     @AuthApiResponses
+    @RequirePermission(
+            PermissionConstants.USER_VIEW
+    )
     @GetMapping
     public Result<PageResult<UserAdminDTO>> page(
             @Valid UserAdminQueryDTO query
@@ -56,13 +65,18 @@ public class UserAdminController {
      */
     @Operation(
             summary = "Update user status",
-            description = "Update user account status"
+            description =
+                    "Update user account status. " +
+                    "Requires permission: user:update"
     )
     @SuccessApiResponse
     @ValidationErrorApiResponse
     @NotFoundApiResponse
     @AuthApiResponses
-    @PutMapping("/{id}/status")
+    @RequirePermission(
+            PermissionConstants.USER_UPDATE
+    )
+    @PatchMapping("/{id}/status")
     public Result<Void> updateStatus(
             @PathVariable Long id,
             @Valid @RequestBody UserStatusUpdateDTO dto

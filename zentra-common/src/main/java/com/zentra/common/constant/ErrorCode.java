@@ -43,6 +43,8 @@ public class ErrorCode {
 
     public static final Integer EMPLOYEE_STATUS_INVALID = 40108;
 
+    public static final Integer INVALID_EMPLOYEE_ROLE = 40109;
+
     /**
      * User Errors
      */

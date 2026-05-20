@@ -1,10 +1,7 @@
 package com.zentra.server.service.impl;
 
 import com.zentra.common.auth.AuthInfo;
-import com.zentra.common.constant.EmployeeStatus;
-import com.zentra.common.constant.ErrorCode;
-import com.zentra.common.constant.ErrorMessage;
-import com.zentra.common.constant.UserType;
+import com.zentra.common.constant.*;
 import com.zentra.common.context.AuthContext;
 import com.zentra.common.exception.BusinessException;
 import com.zentra.common.result.PageResult;
@@ -37,6 +34,13 @@ public class EmployeeServiceImpl implements EmployeeService {
      */
     @Override
     public void create(EmployeeCreateDTO dto) {
+
+        // Validate employee role
+        AssertUtil.isTrue(
+                RoleConstants.isValid(dto.getRole()),
+                ErrorCode.INVALID_EMPLOYEE_ROLE,
+                ErrorMessage.INVALID_EMPLOYEE_ROLE
+        );
 
         Long merchantId = AuthContext.getCurrentMerchantId();
 
@@ -210,7 +214,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         AuthInfo authInfo = new AuthInfo(
                 dbEmployee.getId(),
                 dbEmployee.getMerchantId(),
-                UserType.EMPLOYEE
+                UserType.EMPLOYEE,
+                dbEmployee.getRole()
         );
 
         String token = JwtUtil.generateToken(authInfo);
@@ -223,6 +228,17 @@ public class EmployeeServiceImpl implements EmployeeService {
      */
     @Override
     public void update(EmployeeUpdateDTO dto) {
+
+        // Validate employee role
+        if (dto.getRole() != null) {
+
+            AssertUtil.isTrue(
+                    RoleConstants.isValid(dto.getRole()),
+                    ErrorCode.INVALID_EMPLOYEE_ROLE,
+                    ErrorMessage.INVALID_EMPLOYEE_ROLE
+            );
+        }
+
 
         if (dto.getUsername() == null
                 && dto.getName() == null

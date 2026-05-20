@@ -1,5 +1,6 @@
 package com.zentra.server.controller;
 
+import com.zentra.common.constant.PermissionConstants;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.result.Result;
 import com.zentra.server.annotation.*;
@@ -15,7 +16,8 @@ import org.springframework.web.bind.annotation.*;
  */
 @Tag(
         name = "Order APIs",
-        description = "Order management APIs"
+        description =
+                "Order management APIs with RBAC authorization"
 )
 @RestController
 @RequestMapping("/order")
@@ -56,10 +58,15 @@ public class OrderController {
      */
     @Operation(
             summary = "Get order list",
-            description = "Retrieve paginated order list with optional filters"
+            description =
+                    "Retrieve paginated order list with optional filters. " +
+                    "Requires permission: order:view"
     )
     @OrderPageApiResponse
     @AuthApiResponses
+    @RequirePermission(
+            PermissionConstants.ORDER_VIEW
+    )
     @GetMapping
     public Result<PageResult<OrderPageDTO>> page(
             @Valid OrderQueryDTO query
@@ -95,12 +102,17 @@ public class OrderController {
      */
     @Operation(
             summary = "Update order status",
-            description = "Update order status by order id"
+            description =
+                    "Update order status by order id. " +
+                    "Requires permission: order:update"
     )
     @SuccessApiResponse
     @ValidationErrorApiResponse
     @NotFoundApiResponse
     @AuthApiResponses
+    @RequirePermission(
+            PermissionConstants.ORDER_UPDATE
+    )
     @PatchMapping("/{id}/status")
     public Result<Void> updateStatus(
             @PathVariable Long id,

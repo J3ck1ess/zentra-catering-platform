@@ -17,6 +17,10 @@ public class UserLoginDTO {
     @NotBlank(message = "password cannot be blank")
     private String password;
 
+    @Schema(description = "Verification code", example = "123456")
+    @NotBlank(message = "Verification code cannot be blank")
+    private String verificationCode;
+
     // Getter and Setter
     public String getUsername() {
         return username;
@@ -32,5 +36,13 @@ public class UserLoginDTO {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
     }
 }

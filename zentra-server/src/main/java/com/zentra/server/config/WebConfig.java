@@ -40,6 +40,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "/employee/login",
                         "/user/register",
                         "/user/login",
+                        "/verification/send",
 
                         // Swagger/OpenAPI
                         "/swagger-ui/**",
@@ -58,6 +59,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "/employee/login",
                         "/user/register",
                         "/user/login",
+                        "/verification/send",
 
                         // Swagger/OpenAPI
                         "/swagger-ui/**",

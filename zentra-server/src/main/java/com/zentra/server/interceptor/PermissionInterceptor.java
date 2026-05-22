@@ -7,6 +7,7 @@ import com.zentra.common.exception.BusinessException;
 import com.zentra.server.annotation.RequirePermission;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -15,6 +16,7 @@ import java.util.Set;
 /**
  * RBAC permission interceptor
  */
+@Component
 public class PermissionInterceptor implements HandlerInterceptor {
 
     @Override

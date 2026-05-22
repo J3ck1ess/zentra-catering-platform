@@ -13,6 +13,22 @@ public class DataResponseDTO<T> extends BaseResponseDTO {
     @Schema(description = "Response data")
     private T data;
 
+    /**
+     * Success response
+     */
+    public static <T> DataResponseDTO<T> success(
+            T data
+    ) {
+
+        DataResponseDTO<T> response = new DataResponseDTO<>();
+
+        response.setCode(0);
+        response.setMsg("success");
+        response.setData(data);
+
+        return response;
+    }
+
     // Getter and setter
     public T getData() {
         return data;

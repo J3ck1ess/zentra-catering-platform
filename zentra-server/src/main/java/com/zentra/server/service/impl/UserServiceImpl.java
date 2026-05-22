@@ -1,10 +1,7 @@
 package com.zentra.server.service.impl;
 
 import com.zentra.common.auth.AuthInfo;
-import com.zentra.common.constant.ErrorCode;
-import com.zentra.common.constant.ErrorMessage;
-import com.zentra.common.constant.UserStatus;
-import com.zentra.common.constant.UserType;
+import com.zentra.common.constant.*;
 import com.zentra.common.context.AuthContext;
 import com.zentra.common.exception.BusinessException;
 import com.zentra.common.result.PageResult;
@@ -17,6 +14,8 @@ import com.zentra.server.mapper.OrderMapper;
 import com.zentra.server.mapper.UserMapper;
 import com.zentra.server.service.UserService;
 import com.zentra.common.util.JwtUtil;
+import com.zentra.server.service.VerificationCodeService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -26,16 +25,17 @@ import java.util.List;
  * Service implementation for user logic
  */
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
 
     private final OrderMapper orderMapper;
 
-    public UserServiceImpl(UserMapper userMapper, OrderMapper orderMapper) {
-        this.userMapper = userMapper;
-        this.orderMapper = orderMapper;
-    }
+    /**
+     * Verification code service
+     */
+    private final VerificationCodeService verificationCodeService;
 
     /**
      * Register user
@@ -86,6 +86,41 @@ public class UserServiceImpl implements UserService {
     @Override
     public LoginResponse login(UserLoginDTO dto) {
 
+        // Check verification retry limit
+        boolean retryAllowed =
+                verificationCodeService
+                        .isRetryAllowed(
+                                VerificationCodeType.LOGIN,
+                                dto.getUsername()
+                        );
+        AssertUtil.isTrue(
+                retryAllowed,
+                ErrorCode.BAD_REQUEST,
+                ErrorMessage.TOO_MANY_VERIFICATION_ATTEMPTS
+        );
+
+        // Validate verification code
+        boolean valid =
+                verificationCodeService.validateCode(
+                        VerificationCodeType.LOGIN,
+                        dto.getUsername(),
+                        dto.getVerificationCode()
+                );
+
+        if (!valid) {
+
+            verificationCodeService
+                    .incrementRetryCount(
+                            VerificationCodeType.LOGIN,
+                            dto.getUsername()
+                    );
+        }
+        AssertUtil.isTrue(
+                valid,
+                ErrorCode.BAD_REQUEST,
+                ErrorMessage.INVALID_VERIFICATION_CODE
+        );
+
         // Query user
         User user = userMapper.findByUsernameOnly(
                 dto.getUsername()
@@ -117,11 +152,18 @@ public class UserServiceImpl implements UserService {
             );
         }
 
+        // Delete verification code
+        verificationCodeService.deleteCode(
+                VerificationCodeType.LOGIN,
+                dto.getUsername()
+        );
+
         // Generate JWT token
         AuthInfo authInfo = new AuthInfo(
                 user.getId(),
                 user.getMerchantId(),
-                UserType.USER
+                UserType.USER,
+                null
         );
 
         String token = JwtUtil.generateToken(authInfo);

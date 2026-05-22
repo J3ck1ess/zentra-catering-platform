@@ -16,6 +16,11 @@ public class ErrorCode {
     public static final Integer FAILURE = 0;
 
     /**
+     * Common Request Errors
+     */
+    public static final Integer BAD_REQUEST = 40000;
+
+    /**
      * Authentication Errors
      */
     public static final Integer TOKEN_INVALID = 40001;

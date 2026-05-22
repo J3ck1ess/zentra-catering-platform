@@ -215,6 +215,57 @@ The same governance model is applied across employee, user admin, category, dish
 
 ---
 
+## Enterprise Redis Verification Architecture
+
+This project implements an enterprise-style Redis-based verification runtime architecture for authentication security governance.
+
+### Features
+
+- Redis infrastructure integration
+- Enterprise RedisTemplate governance
+- Redis key namespace governance
+- Redis TTL governance
+- Verification code runtime system
+- Verification retry protection
+- Distributed verification state management
+- Verification code expiration management
+- Verification retry counter governance
+- Swagger/OpenAPI verification documentation
+- Authentication verification runtime integration
+
+### Verification Runtime Flow
+
+The verification system follows a distributed runtime security architecture:
+
+```text
+Client Verification Request
+    ↓
+Verification Code Generation
+    ↓
+Redis Temporary State Storage
+    ↓
+TTL-based Expiration Governance
+    ↓
+Verification Validation
+    ↓
+Retry Protection
+    ↓
+Authentication Runtime Integration
+```
+
+### Security Design
+
+- Redis-based distributed verification state
+- TTL-based verification expiration governance
+- Verification retry limit protection
+- One-time verification token design
+- Runtime verification cleanup
+- Cross-request security state persistence
+- Anti-bruteforce verification protection
+- Verification-aware authentication runtime
+
+---
+
 ## Enterprise OpenAPI Architecture
 
 This project implements an enterprise-style OpenAPI architecture using SpringDoc and Swagger UI.

@@ -23,6 +23,8 @@ public class ErrorMessage {
 
     public static final String TOO_MANY_VERIFICATION_ATTEMPTS = "Too many verification attempts";
 
+    public static final String TOO_MANY_LOGIN_REQUESTS = "Too many login requests";
+
     /**
      * Employee messages
      */

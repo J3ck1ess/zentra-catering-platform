@@ -33,4 +33,12 @@ public interface RedisService {
      * Check redis key exists
      */
     boolean exists(String key);
+
+    /**
+     * Increment redis value atomically
+     */
+    Long increment(
+            String key,
+            Duration ttl
+    );
 }

@@ -12,6 +12,7 @@ import com.zentra.server.entity.Order;
 import com.zentra.server.entity.User;
 import com.zentra.server.mapper.OrderMapper;
 import com.zentra.server.mapper.UserMapper;
+import com.zentra.server.service.RedisService;
 import com.zentra.server.service.UserService;
 import com.zentra.common.util.JwtUtil;
 import com.zentra.server.service.VerificationCodeService;
@@ -32,10 +33,25 @@ public class UserServiceImpl implements UserService {
 
     private final OrderMapper orderMapper;
 
+    private static final long MAX_LOGIN_REQUEST_COUNT = 10L;
+
     /**
      * Verification code service
      */
     private final VerificationCodeService verificationCodeService;
+
+    /**
+     * Redis service
+     */
+    private final RedisService redisService;
+
+    /**
+     * Build login rate limit redis key
+     */
+    private String buildLoginRateLimitKey(String username) {
+
+        return RedisKeyConstants.LOGIN_RATE_LIMIT + username;
+    }
 
     /**
      * Register user
@@ -85,6 +101,20 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public LoginResponse login(UserLoginDTO dto) {
+
+        // Increment login request count
+        Long loginRequestCount =
+                redisService.increment(
+                        buildLoginRateLimitKey(dto.getUsername()),
+                        RedisTtlConstants.LOGIN_RATE_LIMIT_TTL
+                );
+
+        // Check login rate limit
+        AssertUtil.isTrue(
+                loginRequestCount <= MAX_LOGIN_REQUEST_COUNT,
+                ErrorCode.TOO_MANY_REQUESTS,
+                ErrorMessage.TOO_MANY_LOGIN_REQUESTS
+        );
 
         // Check verification retry limit
         boolean retryAllowed =

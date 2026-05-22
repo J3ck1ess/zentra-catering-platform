@@ -63,4 +63,25 @@ public class RedisServiceImpl implements RedisService {
 
         return Boolean.TRUE.equals(exists);
     }
+
+    @Override
+    public Long increment(
+            String key,
+            Duration ttl
+    ) {
+
+        Long value =
+                redisTemplate.opsForValue()
+                        .increment(key);
+
+        if (value != null && value == 1) {
+
+            redisTemplate.expire(
+                    key,
+                    ttl
+            );
+        }
+
+        return value;
+    }
 }

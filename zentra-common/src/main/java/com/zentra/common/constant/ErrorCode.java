@@ -11,7 +11,7 @@ public class ErrorCode {
     public static final Integer SUCCESS = 1;
 
     /**
-     * General failure
+     * General Failure
      */
     public static final Integer FAILURE = 0;
 
@@ -19,6 +19,11 @@ public class ErrorCode {
      * Common Request Errors
      */
     public static final Integer BAD_REQUEST = 40000;
+
+    /**
+     * Rate Limit Errors
+     */
+    public static final Integer TOO_MANY_REQUESTS = 40029;
 
     /**
      * Authentication Errors

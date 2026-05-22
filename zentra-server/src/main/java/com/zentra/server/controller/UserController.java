@@ -55,11 +55,16 @@ public class UserController {
      */
     @Operation(
             summary = "User login",
-            description = "Authenticate user and return JWT token"
+            description =
+                    "Authenticate user and return JWT token. " +
+                    "This API includes login rate limiting, " +
+                    "verification code validation, and " +
+                    "verification retry protection"
     )
     @LoginApiResponse
     @ValidationErrorApiResponse
     @NotFoundApiResponse
+    @TooManyRequestApiResponse
     @PostMapping("/login")
     public Result<LoginResponse> login(
             @Valid @RequestBody UserLoginDTO dto

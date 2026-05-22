@@ -266,6 +266,53 @@ Authentication Runtime Integration
 
 ---
 
+## Enterprise Login Rate Limiting Architecture
+
+This project implements an enterprise-style login rate limiting architecture for authentication traffic governance and anti-abuse protection.
+
+### Features
+
+- Redis atomic counter runtime
+- Login request rate limiting
+- Distributed request traffic governance
+- Fixed-window rate limiting strategy
+- Redis-based concurrent request control
+- Authentication traffic protection
+- Login abuse prevention
+- Security-aware authentication runtime
+- OpenAPI rate limit documentation
+- Rate limit error governance
+
+### Login Rate Limit Flow
+
+The login rate limiting system follows a distributed traffic governance architecture:
+
+```text
+Client Login Request
+    ↓
+Redis Atomic Counter Increment
+    ↓
+Rate Limit Validation
+    ↓
+Verification Runtime
+    ↓
+Password Authentication
+    ↓
+JWT Generation
+```
+### Security Design
+
+- Redis atomic increment runtime
+- Distributed request counter management
+- Fixed-window traffic governance
+- Login abuse prevention
+- Authentication API protection
+- Concurrent request-safe rate limiting
+- Runtime traffic protection
+- Security-aware authentication pipeline
+
+---
+
 ## Enterprise OpenAPI Architecture
 
 This project implements an enterprise-style OpenAPI architecture using SpringDoc and Swagger UI.

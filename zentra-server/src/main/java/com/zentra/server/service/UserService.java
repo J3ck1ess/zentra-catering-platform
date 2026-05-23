@@ -16,6 +16,11 @@ public interface UserService {
     LoginResponse login(UserLoginDTO dto);
 
     /**
+     * User logout
+     */
+    void logout(String token);
+
+    /**
      * Get current user profile
      * @return
      */

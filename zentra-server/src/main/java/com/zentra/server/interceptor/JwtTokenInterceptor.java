@@ -9,6 +9,7 @@ import com.zentra.common.context.PermissionContext;
 import com.zentra.common.exception.BusinessException;
 import com.zentra.common.util.JwtUtil;
 import com.zentra.server.security.PermissionProvider;
+import com.zentra.server.service.JwtBlacklistService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
@@ -48,13 +49,21 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
     private final PermissionProvider permissionProvider;
 
     /**
+     * JWT blacklist service
+     */
+    private final JwtBlacklistService jwtBlacklistService;
+
+    /**
      * Constructor injection
      */
     public JwtTokenInterceptor(
-            PermissionProvider permissionProvider
+            PermissionProvider permissionProvider,
+            JwtBlacklistService jwtBlacklistService
     ) {
 
         this.permissionProvider = permissionProvider;
+
+        this.jwtBlacklistService = jwtBlacklistService;
     }
 
     /**
@@ -85,15 +94,12 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
         // Parse JWT
         AuthInfo authInfo = JwtUtil.parseToken(token);
 
-        // Load RBAC permissions for employee
-        if (UserType.EMPLOYEE.equals(
-                authInfo.getUserType()
-        )) {
+        // Check token blacklist
+        if (jwtBlacklistService.isBlacklisted(token)) {
 
-            PermissionContext.setPermissions(
-                    permissionProvider.loadPermissions(
-                            authInfo.getRole()
-                    )
+            throw new BusinessException(
+                    ErrorCode.TOKEN_BLACKLISTED,
+                    ErrorMessage.TOKEN_BLACKLISTED
             );
         }
 

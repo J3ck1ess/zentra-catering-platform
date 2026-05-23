@@ -8,8 +8,8 @@ public final class RedisKeyConstants {
     /**
      * JWT token blacklist key
      */
-    public static final String TOKEN_BLACKLIST =
-            "auth:blacklist:";
+    public static final String JWT_TOKEN_BLACKLIST =
+            "auth:blacklist:jwt:";
 
     /**
      * Login verification code key

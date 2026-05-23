@@ -9,6 +9,7 @@ import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Date;
 
 /**
@@ -32,7 +33,7 @@ public class JwtUtil {
                     SECRET_KEY.getBytes(
                             StandardCharsets.UTF_8
                     )
-    );
+            );
 
     /**
      * Generate JWT token
@@ -85,6 +86,34 @@ public class JwtUtil {
                     ErrorCode.TOKEN_EXPIRED,
                     ErrorMessage.TOKEN_EXPIRED
             );
+
+        } catch (JwtException e) {
+
+            throw new BusinessException(
+                    ErrorCode.TOKEN_INVALID,
+                    ErrorMessage.TOKEN_INVALID
+            );
+        }
+    }
+
+    /**
+     * Get token remaining expiration duration
+     */
+    public static Duration getRemainingExpiration(String token) {
+
+        try {
+
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(KEY)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            Date expiration = claims.getExpiration();
+
+            return Duration.ofMillis(
+                    expiration.getTime()
+                            - System.currentTimeMillis());
 
         } catch (JwtException e) {
 

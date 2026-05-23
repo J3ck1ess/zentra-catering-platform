@@ -19,6 +19,8 @@ public class ErrorMessage {
 
     public static final String NO_PERMISSION = "No permission to access this API";
 
+    public static final String TOKEN_BLACKLISTED = "Token has been revoked";
+
     public static final String INVALID_VERIFICATION_CODE = "Invalid verification code";
 
     public static final String TOO_MANY_VERIFICATION_ATTEMPTS = "Too many verification attempts";

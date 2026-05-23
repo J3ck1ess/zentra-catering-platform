@@ -234,6 +234,11 @@ This project implements an enterprise-style Redis-based verification runtime arc
 - Redis atomic counter runtime
 - Distributed traffic governance
 - Authentication abuse protection
+- JWT token blacklist runtime
+- Distributed JWT revocation governance
+- Logout token revocation integration
+- JWT lifecycle management
+- Dynamic JWT blacklist TTL governance
 - Swagger/OpenAPI verification documentation
 - Authentication verification runtime integration
 
@@ -248,17 +253,17 @@ Login Rate Limiting
     ↓
 Verification Runtime
     ↓
-Verification Code Generation
+JWT Generation
     ↓
-Redis Temporary State Storage
+Authenticated Request
     ↓
-TTL-based Expiration Governance
+JWT Blacklist Validation
     ↓
-Verification Validation
+RBAC Authorization
     ↓
-Retry Protection
+Logout Runtime
     ↓
-Authentication Runtime Integration
+JWT Revocation
 ```
 
 ### Security Design
@@ -274,6 +279,11 @@ Authentication Runtime Integration
 - Fixed-window login rate limiting
 - Distributed traffic governance
 - Authentication API abuse protection
+- Distributed JWT blacklist validation
+- Token revocation runtime governance
+- JWT lifecycle synchronization
+- Dynamic token expiration governance
+- Distributed logout runtime architecture
 - Verification-aware authentication runtime
 
 ---
@@ -435,7 +445,6 @@ zentra-catering-platform
 - MyBatis interceptor for automatic tenant injection
 - Order payment workflow
 - Employee permission management
-- Redis-based token blacklist
 
 ---
 

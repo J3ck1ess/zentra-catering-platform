@@ -12,6 +12,7 @@ import com.zentra.server.entity.Order;
 import com.zentra.server.entity.User;
 import com.zentra.server.mapper.OrderMapper;
 import com.zentra.server.mapper.UserMapper;
+import com.zentra.server.service.JwtBlacklistService;
 import com.zentra.server.service.RedisService;
 import com.zentra.server.service.UserService;
 import com.zentra.common.util.JwtUtil;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -44,6 +46,11 @@ public class UserServiceImpl implements UserService {
      * Redis service
      */
     private final RedisService redisService;
+
+    /**
+     * JWT blacklist service
+     */
+    private final JwtBlacklistService jwtBlacklistService;
 
     /**
      * Build login rate limit redis key
@@ -199,6 +206,21 @@ public class UserServiceImpl implements UserService {
         String token = JwtUtil.generateToken(authInfo);
 
         return new LoginResponse(token, user.getId());
+    }
+
+    /**
+     * User logout
+     */
+    @Override
+    public void logout(String token) {
+
+        Duration remainingExpiration =
+                JwtUtil.getRemainingExpiration(token);
+
+        jwtBlacklistService.blacklistToken(
+                token,
+                remainingExpiration
+        );
     }
 
     /**

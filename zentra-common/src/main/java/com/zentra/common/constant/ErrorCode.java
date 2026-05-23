@@ -34,6 +34,8 @@ public class ErrorCode {
 
     public static final Integer NO_PERMISSION = 40003;
 
+    public static final Integer TOKEN_BLACKLISTED = 40004;
+
     /**
      * Employee Errors
      */

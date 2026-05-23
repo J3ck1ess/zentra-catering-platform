@@ -7,6 +7,7 @@ import com.zentra.server.dto.*;
 import com.zentra.server.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -73,6 +74,33 @@ public class UserController {
         return Result.success(
                 userService.login(dto)
         );
+    }
+
+    /**
+     * User logout
+     */
+    @Operation(
+            summary = "User logout",
+            description =
+                    "Logout current user and revoke JWT token. " +
+                    "This API adds the current JWT token to the " +
+                    "distributed blacklist runtime"
+    )
+    @SuccessApiResponse
+    @AuthApiResponses
+    @TokenBlacklistedApiResponse
+    @PostMapping("/logout")
+    public Result<Void> logout(
+            HttpServletRequest request
+    ) {
+
+        String authHeader = request.getHeader("Authorization");
+
+        String token = authHeader.substring(7);
+
+        userService.logout(token);
+
+        return Result.success();
     }
 
     /**

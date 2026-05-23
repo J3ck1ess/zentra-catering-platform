@@ -29,13 +29,6 @@ public final class RedisTtlConstants {
             Duration.ofMinutes(1);
 
     /**
-     * JWT blacklist TTL
-     */
-    public static final Duration
-            TOKEN_BLACKLIST_TTL =
-            Duration.ofHours(24);
-
-    /**
      * User profile cache TTL
      */
     public static final Duration

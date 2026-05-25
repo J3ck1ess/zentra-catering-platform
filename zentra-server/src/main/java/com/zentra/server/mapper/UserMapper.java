@@ -1,5 +1,6 @@
 package com.zentra.server.mapper;
 
+import com.zentra.server.dto.UserUpdateDTO;
 import com.zentra.server.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -71,5 +72,10 @@ public interface UserMapper {
      * Update user
      */
     int update(User user);
+
+    /**
+     * Update current user profile
+     */
+    int updateProfile(User user);
 
 }

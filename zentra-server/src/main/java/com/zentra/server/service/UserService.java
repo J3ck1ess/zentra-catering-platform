@@ -2,6 +2,7 @@ package com.zentra.server.service;
 
 import com.zentra.common.result.PageResult;
 import com.zentra.server.dto.*;
+import jakarta.validation.Valid;
 
 public interface UserService {
 
@@ -22,12 +23,23 @@ public interface UserService {
 
     /**
      * Get current user profile
-     * @return
      */
     UserDTO getProfile();
+
+    /**
+     * Get user detail by ID
+     */
+    UserDTO getUserById(Long id);
+
+    /**
+     * Update current user profile
+     */
+    void updateProfile(UserUpdateDTO dto);
 
     /**
      * Get current user's orders
      */
     PageResult<OrderPageDTO> getMyOrders(OrderQueryDTO query);
+
+
 }

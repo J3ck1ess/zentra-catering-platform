@@ -109,6 +109,10 @@ The system includes multiple enterprise-oriented backend patterns:
 - User-order association
 - Protected API access control
 - ThreadLocal-based authentication context
+- Hot data profile cache runtime
+- Tenant-aware user cache governance
+- Profile cache eviction runtime
+- Distributed cache consistency protection
 
 ### User Admin Module
 - Admin user pagination query
@@ -239,15 +243,26 @@ This project implements an enterprise-style Redis-based verification runtime arc
 - Logout token revocation integration
 - JWT lifecycle management
 - Dynamic JWT blacklist TTL governance
+- Hot data cache runtime
+- Cache Aside architecture
+- Tenant-aware cache namespace governance
+- Cache eviction runtime
+- Distributed cache consistency governance
+- Cache penetration protection
+- Empty marker runtime protection
+- Cache TTL freshness governance
+- Redis-based high-frequency read optimization
 - Swagger/OpenAPI verification documentation
 - Authentication verification runtime integration
 
-### Verification Runtime Flow
+### Distributed Runtime Flow
 
 The verification system follows a distributed runtime security architecture:
 
 ```text
-Client Login Request
+Client Request
+    ↓
+Authentication Runtime
     ↓
 Login Rate Limiting
     ↓
@@ -261,9 +276,17 @@ JWT Blacklist Validation
     ↓
 RBAC Authorization
     ↓
-Logout Runtime
+Hot Data Cache Runtime
     ↓
-JWT Revocation
+Cache Hit → Return
+    ↓
+Cache Miss
+    ↓
+Database Query
+    ↓
+Cache Writeback
+    ↓
+Business Response
 ```
 
 ### Security Design
@@ -285,6 +308,12 @@ JWT Revocation
 - Dynamic token expiration governance
 - Distributed logout runtime architecture
 - Verification-aware authentication runtime
+- Distributed hot data cache runtime
+- Cache Aside consistency governance
+- Tenant-aware distributed cache isolation
+- Cache eviction and rebuild runtime
+- Empty marker cache penetration protection
+- Redis-based database traffic protection
 
 ---
 
@@ -440,7 +469,6 @@ zentra-catering-platform
 
 - Admin/User frontend implementation
 - Payment integration
-- Redis caching
 - Docker deployment
 - MyBatis interceptor for automatic tenant injection
 - Order payment workflow

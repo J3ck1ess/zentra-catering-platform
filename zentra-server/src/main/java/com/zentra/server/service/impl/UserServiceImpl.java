@@ -18,6 +18,7 @@ import com.zentra.server.service.UserService;
 import com.zentra.common.util.JwtUtil;
 import com.zentra.server.service.VerificationCodeService;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.http.fileupload.impl.IOFileUploadException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -53,11 +54,27 @@ public class UserServiceImpl implements UserService {
     private final JwtBlacklistService jwtBlacklistService;
 
     /**
+     * Empty cache marker
+     */
+    private static final String EMPTY_CACHE = "NULL";
+
+    /**
      * Build login rate limit redis key
      */
     private String buildLoginRateLimitKey(String username) {
 
         return RedisKeyConstants.LOGIN_RATE_LIMIT + username;
+    }
+
+    /**
+     * Build user profile cache key
+     */
+    private String buildUserProfileCacheKey(Long merchantId, Long userId) {
+
+        return RedisKeyConstants.USER_PROFILE_CACHE
+                + merchantId
+                + ":"
+                + userId;
     }
 
     /**
@@ -235,7 +252,21 @@ public class UserServiceImpl implements UserService {
         // Get merchant ID
         Long merchantId = AuthContext.getCurrentMerchantId();
 
-        // Query user
+        String cacheKey = buildUserProfileCacheKey(merchantId, userId);
+
+        // Query cache
+        UserDTO cacheUser =
+                redisService.get(
+                        cacheKey,
+                        UserDTO.class
+                );
+
+        if (cacheUser != null) {
+
+            return cacheUser;
+        }
+
+        // Query database
         User user = userMapper.findById(
                 userId,
                 merchantId
@@ -250,7 +281,124 @@ public class UserServiceImpl implements UserService {
         UserDTO dto = new UserDTO();
         BeanUtils.copyProperties(user, dto);
 
+        // Write cache
+        redisService.set(
+                cacheKey,
+                dto,
+                RedisTtlConstants.USER_PROFILE_CACHE_TTL
+        );
+
         return dto;
+    }
+
+    /**
+     * Get user detail by ID
+     */
+    @Override
+    public UserDTO getUserById(Long id) {
+
+        String cacheKey =
+                RedisKeyConstants.USER_PROFILE_CACHE
+                        + "public:"
+                        + id;
+
+        // Query cache
+        Object cacheObject =
+                redisService.get(
+                        cacheKey,
+                        Object.class
+                );
+
+        // Empty cache protection
+        if (EMPTY_CACHE.equals(cacheObject)) {
+
+            throw new BusinessException(
+                    ErrorCode.USER_NOT_FOUND,
+                    ErrorMessage.USER_NOT_FOUND
+            );
+        }
+
+        // Cache hit
+        if (cacheObject instanceof UserDTO cacheUser) {
+
+            return cacheUser;
+        }
+
+        // Query database
+        User user = userMapper.findByIdOnly(id);
+
+        // User not exists
+        if (user == null) {
+
+            redisService.set(
+                    cacheKey,
+                    EMPTY_CACHE,
+                    Duration.ofMinutes(5)
+            );
+
+            throw new BusinessException(
+                    ErrorCode.USER_NOT_FOUND,
+                    ErrorMessage.USER_NOT_FOUND
+            );
+        }
+
+        // Convert Entity -> DTO
+        UserDTO dto = new UserDTO();
+        BeanUtils.copyProperties(user, dto);
+
+        // Write cache
+        redisService.set(
+                cacheKey,
+                dto,
+                RedisTtlConstants.USER_PROFILE_CACHE_TTL
+        );
+
+        return dto;
+    }
+
+    /**
+     * Update current user profile
+     */
+    @Override
+    public void updateProfile(UserUpdateDTO dto) {
+
+        // Current logged-in user
+        Long userId = AuthContext.getCurrentUserId();
+
+        // Current merchant ID
+        Long merchantId = AuthContext.getCurrentMerchantId();
+
+        // Query user
+        User user = userMapper.findById(
+                userId,
+                merchantId
+        );
+        AssertUtil.notNull(
+                user,
+                ErrorCode.USER_NOT_FOUND,
+                ErrorMessage.USER_NOT_FOUND
+        );
+
+        // Update profile fields
+        user.setNickname(dto.getNickname());
+        user.setPhone(dto.getPhone());
+
+        // Update database
+        int rows = userMapper.updateProfile(user);
+
+        AssertUtil.checkRows(
+                rows,
+                ErrorCode.USER_UPDATE_FAILED,
+                ErrorMessage.USER_UPDATE_FAILED
+        );
+
+        // Delete profile cache
+        redisService.delete(
+                buildUserProfileCacheKey(
+                        merchantId,
+                        userId
+                )
+        );
     }
 
     /**

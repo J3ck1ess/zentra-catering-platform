@@ -121,6 +121,49 @@ public class UserController {
     }
 
     /**
+     * Get user detail
+     */
+    @Operation(
+            summary = "Get user detail",
+            description =
+                    "Query user detail by user ID with " +
+                    "cache penetration protection runtime"
+    )
+    @SuccessApiResponse
+    @GetMapping("/{id}")
+    public Result<UserDTO> getUserById(
+            @PathVariable Long id
+    ) {
+
+        return Result.success(
+                userService.getUserById(id)
+        );
+    }
+
+    /**
+     * Update current user profile
+     */
+    @Operation(
+            summary = "Update current user profile",
+            description =
+                    "Update profile information of the " +
+                    "current authenticated user and evict " +
+                    "Redis hot data cache"
+    )
+    @SuccessApiResponse
+    @ValidationErrorApiResponse
+    @AuthApiResponses
+    @PutMapping("/profile")
+    public Result<Void> updateProfile(
+            @Valid @RequestBody UserUpdateDTO dto
+    ) {
+
+        userService.updateProfile(dto);
+
+        return Result.success();
+    }
+
+    /**
      * Get current user's orders
      */
     @Operation(

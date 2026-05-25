@@ -237,4 +237,34 @@
 
     </update>
 
+    <!-- ========================================= -->
+    <!-- Update current user profile -->
+    <!-- ========================================= -->
+    <update id="updateProfile"
+            parameterType="com.zentra.server.entity.User">
+
+        UPDATE user
+
+        <set>
+
+            <!-- Update nickname -->
+            <if test="nickname != null">
+                nickname = #{nickname},
+            </if>
+
+            <!-- Update phone -->
+            <if test="phone != null">
+                phone = #{phone},
+            </if>
+
+            <!-- Auto update timestamp -->
+            updated_at = NOW()
+
+        </set>
+
+        WHERE id = #{id}
+            AND merchant_id = #{merchantId}
+
+    </update>
+
 </mapper>

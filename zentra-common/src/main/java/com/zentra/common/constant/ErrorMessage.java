@@ -61,6 +61,8 @@ public class ErrorMessage {
 
     public static final String USER_REGISTER_FAILED = "Failed to register user";
 
+    public static final String USER_UPDATE_FAILED = "User profile update failed";
+
     public static final String USER_STATUS_UPDATE_FAILED = "Failed to update user status";
 
     public static final String USER_STATUS_INVALID = "Invalid user status";

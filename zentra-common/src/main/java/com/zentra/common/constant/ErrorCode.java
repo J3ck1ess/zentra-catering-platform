@@ -125,6 +125,8 @@ public class ErrorCode {
 
     public static final Integer ORDER_ITEM_CREATE_FAILED = 52007;
 
+    public static final Integer DUPLICATE_ORDER_REQUEST = 52008;
+
     private ErrorCode() {
     }
 }

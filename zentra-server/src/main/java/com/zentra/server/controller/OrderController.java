@@ -37,12 +37,15 @@ public class OrderController {
      */
     @Operation(
             summary = "Create Order",
-            description = "Create a new order"
+            description =
+                    "Create a new order with distributed" +
+                    "duplicate request protection runtime"
     )
     @SuccessApiResponse
     @ValidationErrorApiResponse
     @NotFoundApiResponse
     @AuthApiResponses
+    @DuplicateRequestApiResponse
     @PostMapping
     public Result<Void> create(
             @Valid @RequestBody OrderCreateDTO dto

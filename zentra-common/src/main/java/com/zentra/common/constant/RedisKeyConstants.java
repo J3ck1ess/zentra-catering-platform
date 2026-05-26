@@ -35,6 +35,12 @@ public final class RedisKeyConstants {
     public static final String USER_PROFILE_CACHE =
             "cache:user:profile:";
 
+    /**
+     * Distributed lock key
+     */
+    public static final String DISTRIBUTED_LOCK =
+            "lock:";
+
     private RedisKeyConstants() {
         // prevent instantiation
     }

@@ -13,6 +13,8 @@ import com.zentra.server.mapper.DishMapper;
 import com.zentra.server.mapper.OrderItemMapper;
 import com.zentra.server.mapper.OrderMapper;
 import com.zentra.server.service.OrderService;
+import com.zentra.server.service.RedisService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,21 +23,52 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Order service implementation
  */
+@Slf4j
 @Service
 public class OrderServiceImpl implements OrderService {
 
     private final OrderMapper orderMapper;
+
     private final OrderItemMapper orderItemMapper;
+
     private final DishMapper dishMapper;
 
-    public OrderServiceImpl(OrderMapper orderMapper, OrderItemMapper orderItemMapper, DishMapper dishMapper) {
+    /**
+     * Redis runtime service
+     */
+    private final RedisService redisService;
+
+    public OrderServiceImpl(
+            OrderMapper orderMapper,
+            OrderItemMapper orderItemMapper,
+            DishMapper dishMapper,
+            RedisService redisService
+    ) {
+
         this.orderMapper = orderMapper;
         this.orderItemMapper = orderItemMapper;
         this.dishMapper = dishMapper;
+        this.redisService = redisService;
+    }
+
+    /**
+     * Build order create lock key
+     */
+    private String buildOrderCreateLockKey(
+            Long merchantId,
+            Long userId
+    ) {
+
+        return RedisKeyConstants.DISTRIBUTED_LOCK
+                + "order:create:"
+                + merchantId
+                + ":"
+                + userId;
     }
 
     /**
@@ -51,104 +84,161 @@ public class OrderServiceImpl implements OrderService {
         // Set merchant ID
         Long merchantId = AuthContext.getCurrentMerchantId();
 
-        // Validate order items
-        if (dto.getItems() == null || dto.getItems().isEmpty()) {
+        // Build distributed lock
+        String lockKey =
+                buildOrderCreateLockKey(
+                        merchantId,
+                        userId
+                );
+        String lockValue =
+                UUID.randomUUID().toString();
+
+        // Try to acquire distributed lock
+        boolean locked =
+                redisService.tryLock(
+                        lockKey,
+                        lockValue,
+                        RedisTtlConstants.DISTRIBUTED_LOCK_TTL
+                );
+        if (!locked) {
+
+            log.warn(
+                    "Duplicate order request detected. " +
+                    "merchantId={}, userId={}, lockKey={}",
+                    merchantId,
+                    userId,
+                    lockKey
+            );
 
             throw new BusinessException(
-                    ErrorCode.ORDER_ITEMS_EMPTY,
-                    ErrorMessage.ORDER_ITEMS_EMPTY
+                    ErrorCode.DUPLICATE_ORDER_REQUEST,
+                    ErrorMessage.DUPLICATE_ORDER_REQUEST
             );
         }
 
-        Map<Long, Dish> dishMap = new HashMap<>();
+        try {
 
-        // Validate each order item
-        for (OrderItemCreateDTO item : dto.getItems()) {
-
-            Dish dish = dishMapper.findById(
-                    item.getDishId(),
-                    merchantId
-            );
-            AssertUtil.notNull(
-                    dish,
-                    ErrorCode.DISH_NOT_FOUND,
-                    ErrorMessage.DISH_NOT_FOUND
+            log.info(
+                    "Distributed order lock acquired. " +
+                    "merchantId={}, userId={}, lockKey={}",
+                    merchantId,
+                    userId,
+                    lockKey
             );
 
-            // Check dish status
-            if (dish.getStatus().equals(DishStatus.DISABLED)) {
+            // Validate order items
+            if (dto.getItems() == null || dto.getItems().isEmpty()) {
 
                 throw new BusinessException(
-                        ErrorCode.DISH_DISABLED,
-                        ErrorMessage.DISH_DISABLED
+                        ErrorCode.ORDER_ITEMS_EMPTY,
+                        ErrorMessage.ORDER_ITEMS_EMPTY
                 );
             }
 
-            dishMap.put(dish.getId(), dish);
-        }
+            Map<Long, Dish> dishMap = new HashMap<>();
 
-        // Calculate total amount
-        BigDecimal totalAmount = BigDecimal.ZERO;
+            // Validate each order item
+            for (OrderItemCreateDTO item : dto.getItems()) {
 
-        for (OrderItemCreateDTO item : dto.getItems()) {
+                Dish dish = dishMapper.findById(
+                        item.getDishId(),
+                        merchantId
+                );
+                AssertUtil.notNull(
+                        dish,
+                        ErrorCode.DISH_NOT_FOUND,
+                        ErrorMessage.DISH_NOT_FOUND
+                );
 
-            Dish dish = dishMap.get(item.getDishId());
+                // Check dish status
+                if (dish.getStatus().equals(DishStatus.DISABLED)) {
 
-            BigDecimal amount =
-                    dish.getPrice().multiply(
-                            BigDecimal.valueOf(item.getQuantity())
+                    throw new BusinessException(
+                            ErrorCode.DISH_DISABLED,
+                            ErrorMessage.DISH_DISABLED
                     );
+                }
 
-            totalAmount = totalAmount.add(amount);
-        }
+                dishMap.put(dish.getId(), dish);
+            }
 
-        // Insert Order
-        Order order = new Order();
+            // Calculate total amount
+            BigDecimal totalAmount = BigDecimal.ZERO;
 
-        order.setMerchantId(merchantId);
-        order.setUserId(userId);
-        order.setTotalAmount(totalAmount);
-        order.setStatus(OrderStatus.PENDING);
+            for (OrderItemCreateDTO item : dto.getItems()) {
 
-        // TODO: Generate order number
-        order.setOrderNumber(String.valueOf(System.currentTimeMillis()));
+                Dish dish = dishMap.get(item.getDishId());
 
-        int orderRows = orderMapper.insert(order);
-        AssertUtil.checkRows(
-                orderRows,
-                ErrorCode.ORDER_CREATE_FAILED,
-                ErrorMessage.ORDER_CREATE_FAILED
-        );
+                BigDecimal amount =
+                        dish.getPrice().multiply(
+                                BigDecimal.valueOf(item.getQuantity())
+                        );
 
-        // Insert Order Items
-        for (OrderItemCreateDTO item : dto.getItems()) {
+                totalAmount = totalAmount.add(amount);
+            }
 
-            // Get dish and order item
-            Dish dish = dishMap.get(item.getDishId());
+            // Insert Order
+            Order order = new Order();
 
-            BigDecimal amount =
-                    dish.getPrice().multiply(
-                            BigDecimal.valueOf(item.getQuantity())
-                    );
+            order.setMerchantId(merchantId);
+            order.setUserId(userId);
+            order.setTotalAmount(totalAmount);
+            order.setStatus(OrderStatus.PENDING);
 
-            OrderItem orderItem = new OrderItem();
+            // TODO: Generate order number
+            order.setOrderNumber(String.valueOf(System.currentTimeMillis()));
 
-            // Set order item properties
-            orderItem.setMerchantId(merchantId);
-            orderItem.setOrderId(order.getId());
-            orderItem.setDishId(dish.getId());
-            orderItem.setDishName(dish.getName());
-            orderItem.setPrice(dish.getPrice());
-            orderItem.setQuantity(item.getQuantity());
-            orderItem.setAmount(amount);
-
-            int orderItemRows = orderItemMapper.insert(orderItem);
+            int orderRows = orderMapper.insert(order);
             AssertUtil.checkRows(
-                    orderItemRows,
-                    ErrorCode.ORDER_ITEM_CREATE_FAILED,
-                    ErrorMessage.ORDER_ITEM_CREATE_FAILED
+                    orderRows,
+                    ErrorCode.ORDER_CREATE_FAILED,
+                    ErrorMessage.ORDER_CREATE_FAILED
             );
 
+            // Insert Order Items
+            for (OrderItemCreateDTO item : dto.getItems()) {
+
+                // Get dish and order item
+                Dish dish = dishMap.get(item.getDishId());
+
+                BigDecimal amount =
+                        dish.getPrice().multiply(
+                                BigDecimal.valueOf(item.getQuantity())
+                        );
+
+                OrderItem orderItem = new OrderItem();
+
+                // Set order item properties
+                orderItem.setMerchantId(merchantId);
+                orderItem.setOrderId(order.getId());
+                orderItem.setDishId(dish.getId());
+                orderItem.setDishName(dish.getName());
+                orderItem.setPrice(dish.getPrice());
+                orderItem.setQuantity(item.getQuantity());
+                orderItem.setAmount(amount);
+
+                int orderItemRows = orderItemMapper.insert(orderItem);
+                AssertUtil.checkRows(
+                        orderItemRows,
+                        ErrorCode.ORDER_ITEM_CREATE_FAILED,
+                        ErrorMessage.ORDER_ITEM_CREATE_FAILED
+                );
+
+            }
+        } finally {
+
+            log.info(
+                    "Releasing distributed order lock. " +
+                    "merchantId={}, userId={}, lockKey={}",
+                    merchantId,
+                    userId,
+                    lockKey
+            );
+
+            redisService.unlock(
+                    lockKey,
+                    lockValue
+            );
         }
     }
 

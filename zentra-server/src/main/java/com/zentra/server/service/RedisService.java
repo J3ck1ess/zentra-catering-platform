@@ -41,4 +41,21 @@ public interface RedisService {
             String key,
             Duration ttl
     );
+
+    /**
+     * Try to acquire distributed lock
+     */
+    boolean tryLock(
+            String key,
+            String value,
+            Duration ttl
+    );
+
+    /**
+     * Release distributed lock
+     */
+    void unlock(
+            String key,
+            String value
+    );
 }

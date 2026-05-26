@@ -35,6 +35,13 @@ public final class RedisTtlConstants {
             USER_PROFILE_CACHE_TTL =
             Duration.ofMinutes(30);
 
+    /**
+     * Distributed lock TTL
+     */
+    public static final Duration
+            DISTRIBUTED_LOCK_TTL =
+            Duration.ofSeconds(10);
+
     private RedisTtlConstants() {
         // prevent instantiation
     }

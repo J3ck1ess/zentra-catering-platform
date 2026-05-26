@@ -98,6 +98,11 @@ The system includes multiple enterprise-oriented backend patterns:
 - State transition validation
 - Tenant isolation
 - Order item tenant isolation
+- Distributed duplicate order protection
+- Concurrent-safe order creation runtime
+- Redis-based distributed lock governance
+- Lock-aware order submission runtime
+- Fast-fail duplicate request interception
 
 ### User Module
 - User registration
@@ -252,6 +257,16 @@ This project implements an enterprise-style Redis-based verification runtime arc
 - Empty marker runtime protection
 - Cache TTL freshness governance
 - Redis-based high-frequency read optimization
+- Distributed lock runtime infrastructure
+- Atomic distributed lock acquisition
+- Distributed unlock governance
+- Lock ownership verification runtime
+- Duplicate order request protection
+- Concurrent business runtime governance
+- Fast-fail distributed concurrency protection
+- Lock lifecycle expiration governance
+- Distributed runtime observability
+- Concurrent-safe order creation runtime
 - Swagger/OpenAPI verification documentation
 - Authentication verification runtime integration
 
@@ -286,6 +301,12 @@ Database Query
     ↓
 Cache Writeback
     ↓
+Distributed Lock Runtime
+    ↓
+Duplicate Request Protection
+    ↓
+Concurrent-safe Business Runtime
+    ↓
 Business Response
 ```
 
@@ -314,6 +335,12 @@ Business Response
 - Cache eviction and rebuild runtime
 - Empty marker cache penetration protection
 - Redis-based database traffic protection
+- Distributed lock-based concurrency governance
+- Atomic duplicate request protection
+- Lock ownership verification runtime
+- Concurrent-safe business execution
+- Fast-fail distributed request protection
+- Runtime-level distributed lock observability
 
 ---
 
@@ -336,6 +363,9 @@ This project implements an enterprise-style OpenAPI architecture using SpringDoc
 - Reusable pagination query infrastructure
 - JWT authentication integration in Swagger UI
 - Enterprise-style API metadata management and documentation portal
+- Distributed concurrency runtime documentation
+- Duplicate request API governance
+- Concurrent-safe order runtime documentation
 
 ### API Documentation Access
 
@@ -473,6 +503,9 @@ zentra-catering-platform
 - MyBatis interceptor for automatic tenant injection
 - Order payment workflow
 - Employee permission management
+- Redisson-based distributed lock optimization
+- Distributed lock watchdog renewal
+- Idempotency token runtime
 
 ---
 

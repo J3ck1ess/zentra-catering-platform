@@ -84,4 +84,41 @@ public class RedisServiceImpl implements RedisService {
 
         return value;
     }
+
+    /**
+     * Try to acquire distributed lock
+     */
+    @Override
+    public boolean tryLock(
+            String key,
+            String value,
+            Duration ttl
+    ) {
+
+        Boolean success =
+                redisTemplate.opsForValue().setIfAbsent(
+                        key,
+                        value,
+                        ttl
+                );
+        return Boolean.TRUE.equals(success);
+    }
+
+    /**
+     * Release distributed lock
+     */
+    @Override
+    public void unlock(
+            String key,
+            String value
+    ) {
+
+        Object currentValue =
+                redisTemplate.opsForValue().get(key);
+
+        if (value.equals(currentValue)) {
+
+            redisTemplate.delete(key);
+        }
+    }
 }

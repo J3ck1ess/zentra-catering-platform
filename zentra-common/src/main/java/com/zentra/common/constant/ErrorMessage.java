@@ -116,6 +116,8 @@ public class ErrorMessage {
 
     public static final String ORDER_ITEM_CREATE_FAILED = "Failed to create order item";
 
+    public static final String DUPLICATE_ORDER_REQUEST = "Duplicate order request";
+
     private ErrorMessage() {
     }
 }

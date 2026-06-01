@@ -16,6 +16,7 @@ import com.zentra.server.entity.Category;
 import com.zentra.server.mapper.CategoryMapper;
 import com.zentra.server.mapper.DishMapper;
 import com.zentra.server.service.CategoryService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,7 @@ import java.util.Objects;
  * Implementation of CategoryService
  */
 @Service
+@Slf4j
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryMapper categoryMapper;
@@ -53,6 +55,15 @@ public class CategoryServiceImpl implements CategoryService {
             );
         }
 
+        Long merchantId = AuthContext.getCurrentMerchantId();
+
+        log.info(
+                "[CATEGORY] Category creation started. merchantId={}, name={}, type={}",
+                merchantId,
+                dto.getName(),
+                dto.getType()
+        );
+
         // Convert DTO -> Entity
         Category category = new Category();
         BeanUtils.copyProperties(dto, category);
@@ -60,13 +71,19 @@ public class CategoryServiceImpl implements CategoryService {
         // Default category status
         category.setStatus(CategoryStatus.ENABLED);
 
-        category.setMerchantId(AuthContext.getCurrentMerchantId());
+        category.setMerchantId(merchantId);
 
         int rows = categoryMapper.insert(category);
         AssertUtil.checkRows(
                 rows,
                 ErrorCode.CATEGORY_CREATE_FAILED,
                 ErrorMessage.CATEGORY_CREATE_FAILED
+        );
+
+        log.info(
+                "[CATEGORY] Category created successfully. merchantId={}, categoryName={}",
+                category.getMerchantId(),
+                category.getName()
         );
     }
 
@@ -82,6 +99,15 @@ public class CategoryServiceImpl implements CategoryService {
         Integer page = query.getPage();
         Integer pageSize = query.getPageSize();
         int offset = (page - 1) * pageSize;
+
+        log.info(
+                "[CATEGORY] Category page query started. merchantId={}, page={}, pageSize={}, type={}, status={}",
+                merchantId,
+                page,
+                pageSize,
+                query.getType(),
+                query.getStatus()
+        );
 
         // Query data
         List<Category> list = categoryMapper.findPage(
@@ -106,6 +132,12 @@ public class CategoryServiceImpl implements CategoryService {
                 query.getType(),
                 query.getStatus(),
                 merchantId
+        );
+
+        log.info(
+                "[CATEGORY] Category page query completed. merchantId={}, total={}",
+                merchantId,
+                total
         );
 
         return new PageResult<>(total, records);
@@ -153,8 +185,23 @@ public class CategoryServiceImpl implements CategoryService {
 
         Long merchantId = AuthContext.getCurrentMerchantId();
 
+        log.info(
+                "[CATEGORY] Category update started. merchantId={}, categoryId={}",
+                merchantId,
+                dto.getId()
+        );
+
         // Query category
         Category dbCategory = categoryMapper.findById(dto.getId(), merchantId);
+
+        if (dbCategory == null) {
+
+            log.warn(
+                    "[CATEGORY] Category not found during update. merchantId={}, categoryId={}",
+                    merchantId,
+                    dto.getId()
+            );
+        }
 
         // Check category existence
         AssertUtil.notNull(
@@ -177,6 +224,12 @@ public class CategoryServiceImpl implements CategoryService {
                 ErrorMessage.CATEGORY_UPDATE_FAILED
         );
 
+        log.info(
+                "[CATEGORY] Category updated successfully. merchantId={}, categoryId={}",
+                merchantId,
+                dto.getId()
+        );
+
     }
 
     /**
@@ -188,10 +241,24 @@ public class CategoryServiceImpl implements CategoryService {
         // TODO MyBatis Interceptor
         Long merchantId = AuthContext.getCurrentMerchantId();
 
+        log.info(
+                "[CATEGORY] Category deletion started. merchantId={}, categoryId={}",
+                merchantId,
+                id
+        );
+
         // Query category
         Category category = categoryMapper.findById(id, merchantId);
 
         // Check category existence
+        if (category == null) {
+            log.warn(
+                    "[CATEGORY] Category not found during deletion. merchantId={}, categoryId={}",
+                    merchantId,
+                    id
+            );
+        }
+
         AssertUtil.notNull(
                 category,
                 ErrorCode.CATEGORY_NOT_FOUND,
@@ -201,6 +268,13 @@ public class CategoryServiceImpl implements CategoryService {
         // Check whether category contains dishes
         int count = dishMapper.countByCategoryId(id, merchantId);
         if (count > 0) {
+
+            log.warn(
+                    "[CATEGORY] Category deletion rejected. category contains dishes. merchantId={}, categoryId={}, dishCount={}",
+                    merchantId,
+                    id,
+                    count
+            );
 
             throw new BusinessException(
                     ErrorCode.CATEGORY_HAS_DISHES,
@@ -216,5 +290,10 @@ public class CategoryServiceImpl implements CategoryService {
                 ErrorMessage.CATEGORY_DELETE_FAILED
         );
 
+        log.info(
+                "[CATEGORY] Category deleted successfully. merchantId={}, categoryId={}",
+                merchantId,
+                id
+        );
     }
 }

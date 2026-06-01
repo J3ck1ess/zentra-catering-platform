@@ -231,44 +231,19 @@ This project implements an enterprise-style Redis-based verification runtime arc
 ### Features
 
 - Redis infrastructure integration
-- Enterprise RedisTemplate governance
-- Redis key namespace governance
-- Redis TTL governance
-- Verification code runtime system
-- Verification retry protection
-- Distributed verification state management
-- Verification code expiration management
-- Verification retry counter governance
-- Login request rate limiting
-- Redis atomic counter runtime
-- Distributed traffic governance
-- Authentication abuse protection
-- JWT token blacklist runtime
-- Distributed JWT revocation governance
-- Logout token revocation integration
-- JWT lifecycle management
-- Dynamic JWT blacklist TTL governance
-- Hot data cache runtime
-- Cache Aside architecture
-- Tenant-aware cache namespace governance
-- Cache eviction runtime
-- Distributed cache consistency governance
+- Redis namespace and TTL governance
+- Verification runtime and retry governance
+- Login rate limiting and traffic protection
+- JWT blacklist and token revocation governance
+- Hot data cache runtime architecture
+- Cache Aside consistency governance
 - Cache penetration protection
-- Empty marker runtime protection
-- Cache TTL freshness governance
-- Redis-based high-frequency read optimization
 - Distributed lock runtime infrastructure
-- Atomic distributed lock acquisition
-- Distributed unlock governance
-- Lock ownership verification runtime
-- Duplicate order request protection
-- Concurrent business runtime governance
-- Fast-fail distributed concurrency protection
-- Lock lifecycle expiration governance
-- Distributed runtime observability
-- Concurrent-safe order creation runtime
-- Swagger/OpenAPI verification documentation
-- Authentication verification runtime integration
+- Concurrent-safe order runtime governance
+- Fast-fail duplicate request protection
+- Runtime observability governance
+- Structured runtime logging architecture
+- Swagger/OpenAPI verification integration
 
 ### Distributed Runtime Flow
 
@@ -309,38 +284,79 @@ Concurrent-safe Business Runtime
     ↓
 Business Response
 ```
+  
+### Runtime Domains
 
-### Security Design
+Verification Runtime
+- Redis-based verification storage
+- TTL-based expiration governance
+- Verification retry protection
+- Anti-bruteforce validation strategy
 
-- Redis-based distributed verification state
-- TTL-based verification expiration governance
-- Verification retry limit protection
-- One-time verification token design
-- Runtime verification cleanup
-- Cross-request security state persistence
-- Anti-bruteforce verification protection
+Rate Limit Runtime
 - Redis atomic request counter
 - Fixed-window login rate limiting
-- Distributed traffic governance
-- Authentication API abuse protection
+- Authentication traffic protection
+
+JWT Runtime
 - Distributed JWT blacklist validation
-- Token revocation runtime governance
-- JWT lifecycle synchronization
-- Dynamic token expiration governance
-- Distributed logout runtime architecture
-- Verification-aware authentication runtime
-- Distributed hot data cache runtime
-- Cache Aside consistency governance
-- Tenant-aware distributed cache isolation
-- Cache eviction and rebuild runtime
-- Empty marker cache penetration protection
-- Redis-based database traffic protection
-- Distributed lock-based concurrency governance
-- Atomic duplicate request protection
-- Lock ownership verification runtime
+- Token revocation governance
+- Logout lifecycle synchronization
+
+Cache Runtime
+- Cache Aside architecture
+- Tenant-aware cache isolation
+- Cache eviction and rebuild governance
+- Cache penetration protection
+
+Lock Runtime
+- Distributed lock infrastructure
+- Duplicate request protection
+- Lock ownership verification
 - Concurrent-safe business execution
-- Fast-fail distributed request protection
-- Runtime-level distributed lock observability
+
+---
+
+## Runtime Observability Architecture
+
+The project implements a structured runtime observability architecture to improve traceability, troubleshooting efficiency, and operational governance.
+
+### Runtime Domains
+
+- AUTH Runtime
+- RBAC Runtime
+- CACHE Runtime
+- LOCK Runtime
+- ORDER Runtime
+- VALIDATION Runtime
+- BUSINESS Runtime
+- SYSTEM Runtime
+
+### Observability Design
+
+The runtime logging system follows a lifecycle-oriented design:
+
+Request Start
+↓
+Business Validation
+↓
+Runtime Execution
+↓
+Persistence Validation
+↓
+Runtime Completion
+
+All critical runtime events are recorded using structured logging with unified domain prefixes.
+
+### Governance Principles
+
+- Structured log format
+- Domain-based log classification
+- Runtime lifecycle tracing
+- Security event auditing
+- Cache runtime observability
+- Distributed lock observability
+- Exception governance integration
 
 ---
 
@@ -498,10 +514,9 @@ zentra-catering-platform
 ## Future Improvements
 
 - Admin/User frontend implementation
-- Payment integration
+- Payment workflow integration
 - Docker deployment
 - MyBatis interceptor for automatic tenant injection
-- Order payment workflow
 - Employee permission management
 - Redisson-based distributed lock optimization
 - Distributed lock watchdog renewal

@@ -18,7 +18,7 @@ import com.zentra.server.service.UserService;
 import com.zentra.common.util.JwtUtil;
 import com.zentra.server.service.VerificationCodeService;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.http.fileupload.impl.IOFileUploadException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +30,7 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
@@ -133,7 +134,21 @@ public class UserServiceImpl implements UserService {
                         RedisTtlConstants.LOGIN_RATE_LIMIT_TTL
                 );
 
+        log.info(
+                "[AUTH] Login request received. username={}, requestCount={}",
+                dto.getUsername(),
+                loginRequestCount
+        );
+
         // Check login rate limit
+        if (loginRequestCount > MAX_LOGIN_REQUEST_COUNT) {
+
+            log.warn(
+                    "[AUTH] Login rate limit exceeded. username={}, requestCount={}",
+                    dto.getUsername(),
+                    loginRequestCount
+            );
+        }
         AssertUtil.isTrue(
                 loginRequestCount <= MAX_LOGIN_REQUEST_COUNT,
                 ErrorCode.TOO_MANY_REQUESTS,
@@ -163,6 +178,11 @@ public class UserServiceImpl implements UserService {
 
         if (!valid) {
 
+            log.warn(
+                    "[AUTH] Invalid verification code. username={}",
+                    dto.getUsername()
+            );
+
             verificationCodeService
                     .incrementRetryCount(
                             VerificationCodeType.LOGIN,
@@ -188,6 +208,12 @@ public class UserServiceImpl implements UserService {
         // Check user status
         if (user.getStatus().equals(UserStatus.DISABLED)) {
 
+            log.warn(
+                    "[AUTH] Disabled user attempted login. userId={}, username={}",
+                    user.getId(),
+                    user.getUsername()
+            );
+
             throw new BusinessException(
                     ErrorCode.USER_DISABLED,
                     ErrorMessage.USER_DISABLED
@@ -199,6 +225,13 @@ public class UserServiceImpl implements UserService {
                 dto.getPassword(),
                 user.getPassword()
         )) {
+
+            log.warn(
+                    "[AUTH] Login password mismatch. userId={}, username={}",
+                    user.getId(),
+                    user.getUsername()
+
+            );
 
             throw new BusinessException(
                     ErrorCode.USERNAME_OR_PASSWORD_ERROR,
@@ -222,6 +255,12 @@ public class UserServiceImpl implements UserService {
 
         String token = JwtUtil.generateToken(authInfo);
 
+        log.info(
+                "[AUTH] User login successful. userId={}, merchantId={}",
+                user.getId(),
+                user.getMerchantId()
+        );
+
         return new LoginResponse(token, user.getId());
     }
 
@@ -237,6 +276,10 @@ public class UserServiceImpl implements UserService {
         jwtBlacklistService.blacklistToken(
                 token,
                 remainingExpiration
+        );
+
+        log.info(
+                "[AUTH] User logout successful. token blacklisted"
         );
     }
 
@@ -263,8 +306,20 @@ public class UserServiceImpl implements UserService {
 
         if (cacheUser != null) {
 
+            log.info(
+                    "[CACHE] User profile cache hit. userId={}, merchantId={}",
+                    userId,
+                    merchantId
+            );
+
             return cacheUser;
         }
+
+        log.info(
+                "[CACHE] User profile cache miss. userId={}, merchantId={}",
+                userId,
+                merchantId
+        );
 
         // Query database
         User user = userMapper.findById(
@@ -288,6 +343,12 @@ public class UserServiceImpl implements UserService {
                 RedisTtlConstants.USER_PROFILE_CACHE_TTL
         );
 
+        log.info(
+                "[CACHE] User profile cache rebuilt. userId={}, merchantId={}",
+                userId,
+                merchantId
+        );
+
         return dto;
     }
 
@@ -309,8 +370,18 @@ public class UserServiceImpl implements UserService {
                         Object.class
                 );
 
+        log.info(
+                "[CACHE] Public user profile cache queried. userId={}",
+                id
+        );
+
         // Empty cache protection
         if (EMPTY_CACHE.equals(cacheObject)) {
+
+            log.warn(
+                    "[CACHE] Empty user cache hit. userId={}",
+                    id
+            );
 
             throw new BusinessException(
                     ErrorCode.USER_NOT_FOUND,
@@ -321,8 +392,18 @@ public class UserServiceImpl implements UserService {
         // Cache hit
         if (cacheObject instanceof UserDTO cacheUser) {
 
+            log.info(
+                    "[CACHE] Public user profile cache hit. userId={}",
+                    id
+            );
+
             return cacheUser;
         }
+
+        log.info(
+                "[CACHE] Public user profile cache miss. userId={}",
+                id
+        );
 
         // Query database
         User user = userMapper.findByIdOnly(id);
@@ -334,6 +415,11 @@ public class UserServiceImpl implements UserService {
                     cacheKey,
                     EMPTY_CACHE,
                     Duration.ofMinutes(5)
+            );
+
+            log.warn(
+                    "[CACHE] User not found. Empty cache written. userId={}",
+                    id
             );
 
             throw new BusinessException(
@@ -351,6 +437,11 @@ public class UserServiceImpl implements UserService {
                 cacheKey,
                 dto,
                 RedisTtlConstants.USER_PROFILE_CACHE_TTL
+        );
+
+        log.info(
+                "[CACHE] Public user profile cache rebuilt. userId={}",
+                id
         );
 
         return dto;
@@ -392,12 +483,24 @@ public class UserServiceImpl implements UserService {
                 ErrorMessage.USER_UPDATE_FAILED
         );
 
+        log.info(
+                "[USER] User profile updated successfully. userId={}, merchantId={}",
+                userId,
+                merchantId
+        );
+
         // Delete profile cache
         redisService.delete(
                 buildUserProfileCacheKey(
                         merchantId,
                         userId
                 )
+        );
+
+        log.info(
+                "[CACHE] User profile cache invalidated. userId={}, merchantId={}",
+                userId,
+                merchantId
         );
     }
 
@@ -412,6 +515,14 @@ public class UserServiceImpl implements UserService {
         Integer page = query.getPage();
         Integer pageSize = query.getPageSize();
         int offset = (page - 1) * pageSize;
+
+        log.info(
+                "[ORDER] User order query started. userId={}, status={}, page={}, pageSize={}",
+                userId,
+                query.getStatus(),
+                page,
+                pageSize
+        );
 
         List<Order> list = orderMapper.findUserOrders(
                 userId,
@@ -431,6 +542,12 @@ public class UserServiceImpl implements UserService {
         Long total = orderMapper.countUserOrders(
                 userId,
                 query.getStatus()
+        );
+
+        log.info(
+                "[ORDER] User order query completed. userId={}, total={}",
+                userId,
+                total
         );
 
         return new PageResult<>(total, records);

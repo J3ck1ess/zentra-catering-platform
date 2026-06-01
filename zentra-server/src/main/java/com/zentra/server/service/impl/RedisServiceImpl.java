@@ -2,6 +2,7 @@ package com.zentra.server.service.impl;
 
 import com.zentra.server.service.RedisService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import java.time.Duration;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RedisServiceImpl implements RedisService {
 
     /**
@@ -31,6 +33,11 @@ public class RedisServiceImpl implements RedisService {
                 value,
                 ttl
         );
+        log.info(
+                "[CACHE] Cache value set. key={}, ttlSeconds={}",
+                key,
+                ttl.getSeconds()
+        );
     }
 
     @Override
@@ -44,7 +51,19 @@ public class RedisServiceImpl implements RedisService {
                 redisTemplate.opsForValue().get(key);
 
         if (value == null) {
+
+            log.info(
+                    "[CACHE] Cache miss. key={}",
+                    key
+            );
+
             return null;
+        } else {
+
+            log.info(
+                    "[CACHE] Cache hit. key={}",
+                    key
+            );
         }
 
         return (T) value;
@@ -54,12 +73,23 @@ public class RedisServiceImpl implements RedisService {
     public void delete(String key) {
 
         redisTemplate.delete(key);
+
+        log.info(
+                "[CACHE] Cache key deleted. key={}",
+                key
+        );
     }
 
     @Override
     public boolean exists(String key) {
 
         Boolean exists = redisTemplate.hasKey(key);
+
+        log.info(
+                "[CACHE] Cache existence checked. key={}, exists={}",
+                key,
+                Boolean.TRUE.equals(exists)
+        );
 
         return Boolean.TRUE.equals(exists);
     }
@@ -74,11 +104,23 @@ public class RedisServiceImpl implements RedisService {
                 redisTemplate.opsForValue()
                         .increment(key);
 
+        log.info(
+                "[CACHE] Cache counter incremented. key={}, currentValue={}",
+                key,
+                value
+        );
+
         if (value != null && value == 1) {
 
             redisTemplate.expire(
                     key,
                     ttl
+            );
+
+            log.info(
+                    "[CACHE] Counter TTL initialized. key={}, ttlSeconds={}",
+                    key,
+                    ttl.getSeconds()
             );
         }
 
@@ -101,6 +143,12 @@ public class RedisServiceImpl implements RedisService {
                         value,
                         ttl
                 );
+
+        log.info(
+                "[LOCK] Distributed lock acquisition attempted. key={}, success={}",
+                key,
+                Boolean.TRUE.equals(success)
+        );
         return Boolean.TRUE.equals(success);
     }
 
@@ -119,6 +167,16 @@ public class RedisServiceImpl implements RedisService {
         if (value.equals(currentValue)) {
 
             redisTemplate.delete(key);
+
+            log.info(
+                    "[LOCK] Distributed lock released. key={}",
+                    key
+            );
+        } else {
+            log.warn(
+                    "[LOCK] Distributed lock release rejected. key={}",
+                    key
+            );
         }
     }
 }

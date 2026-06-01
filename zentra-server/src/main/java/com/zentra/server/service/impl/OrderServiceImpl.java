@@ -28,8 +28,8 @@ import java.util.UUID;
 /**
  * Order service implementation
  */
-@Slf4j
 @Service
+@Slf4j
 public class OrderServiceImpl implements OrderService {
 
     private final OrderMapper orderMapper;
@@ -103,8 +103,7 @@ public class OrderServiceImpl implements OrderService {
         if (!locked) {
 
             log.warn(
-                    "Duplicate order request detected. " +
-                    "merchantId={}, userId={}, lockKey={}",
+                    "[ORDER] Duplicate order request detected. merchantId={}, userId={}, lockKey={}",
                     merchantId,
                     userId,
                     lockKey
@@ -119,8 +118,7 @@ public class OrderServiceImpl implements OrderService {
         try {
 
             log.info(
-                    "Distributed order lock acquired. " +
-                    "merchantId={}, userId={}, lockKey={}",
+                    "[ORDER] Distributed order lock acquired. merchantId={}, userId={}, lockKey={}",
                     merchantId,
                     userId,
                     lockKey
@@ -137,6 +135,13 @@ public class OrderServiceImpl implements OrderService {
 
             Map<Long, Dish> dishMap = new HashMap<>();
 
+            log.info(
+                    "[ORDER] Order item validation started. merchantId={}, userId={}, itemCount={}",
+                    merchantId,
+                    userId,
+                    dto.getItems().size()
+            );
+
             // Validate each order item
             for (OrderItemCreateDTO item : dto.getItems()) {
 
@@ -152,6 +157,12 @@ public class OrderServiceImpl implements OrderService {
 
                 // Check dish status
                 if (dish.getStatus().equals(DishStatus.DISABLED)) {
+
+                    log.warn(
+                            "[ORDER] Disabled dish detected during order creation. merchantId={}, dishId={}",
+                            merchantId,
+                            dish.getId()
+                    );
 
                     throw new BusinessException(
                             ErrorCode.DISH_DISABLED,
@@ -177,6 +188,13 @@ public class OrderServiceImpl implements OrderService {
                 totalAmount = totalAmount.add(amount);
             }
 
+            log.info(
+                    "[ORDER] Order amount calculated. merchantId={}, userId={}, totalAmount={}",
+                    merchantId,
+                    userId,
+                    totalAmount
+            );
+
             // Insert Order
             Order order = new Order();
 
@@ -193,6 +211,13 @@ public class OrderServiceImpl implements OrderService {
                     orderRows,
                     ErrorCode.ORDER_CREATE_FAILED,
                     ErrorMessage.ORDER_CREATE_FAILED
+            );
+
+            log.info(
+                    "[ORDER] Order creation persisted. orderId={}, merchantId={}, userId={}",
+                    order.getId(),
+                    merchantId,
+                    userId
             );
 
             // Insert Order Items
@@ -224,12 +249,24 @@ public class OrderServiceImpl implements OrderService {
                         ErrorMessage.ORDER_ITEM_CREATE_FAILED
                 );
 
+                log.info(
+                        "[ORDER] Order item persisted. orderId={}, dishId={}, quantity={}",
+                        order.getId(),
+                        dish.getId(),
+                        item.getQuantity()
+                );
             }
+
+            log.info(
+                    "[ORDER] Order creation completed. orderId={}, merchantId={}, userId={}",
+                    order.getId(),
+                    merchantId,
+                    userId
+            );
         } finally {
 
             log.info(
-                    "Releasing distributed order lock. " +
-                    "merchantId={}, userId={}, lockKey={}",
+                    "[ORDER] Releasing distributed order lock. merchantId={}, userId={}, lockKey={}",
                     merchantId,
                     userId,
                     lockKey
@@ -253,6 +290,13 @@ public class OrderServiceImpl implements OrderService {
         Integer page = query.getPage();
         Integer pageSize = query.getPageSize();
         int offset = (page - 1) * pageSize;
+        log.info(
+                "[ORDER] Order page query started. merchantId={}, page={}, pageSize={}, status={}",
+                merchantId,
+                page,
+                pageSize,
+                query.getStatus()
+        );
 
         // Query data
         List<Order> list = orderMapper.findPage(
@@ -274,6 +318,11 @@ public class OrderServiceImpl implements OrderService {
                 merchantId
         );
 
+        log.info(
+                "[ORDER] Order page query completed. merchantId={}, total={}",
+                merchantId,
+                total
+        );
         return new PageResult<>(total, records);
     }
 
@@ -284,6 +333,12 @@ public class OrderServiceImpl implements OrderService {
     public OrderDetailDTO getById(Long id) {
 
         Long merchantId = AuthContext.getCurrentMerchantId();
+
+        log.info(
+                "[ORDER] Order detail query started. merchantId={}, orderId={}",
+                merchantId,
+                id
+        );
 
         // Get order
         Order order = orderMapper.findById(
@@ -323,6 +378,13 @@ public class OrderServiceImpl implements OrderService {
                 }).toList();
 
         dto.setItems(itemDTOs);
+
+        log.info(
+                "[ORDER] Order detail query completed. merchantId={}, orderId={}, itemCount={}",
+                merchantId,
+                order.getId(),
+                items.size()
+        );
         return dto;
     }
 
@@ -333,6 +395,13 @@ public class OrderServiceImpl implements OrderService {
     public void updateStatus(Long orderId, Integer newStatus) {
 
         Long merchantId = AuthContext.getCurrentMerchantId();
+
+        log.info(
+                "[ORDER] Order status update started. merchantId={}, orderId={}, newStatus={}",
+                merchantId,
+                orderId,
+                newStatus
+        );
 
         // Validate new status
         if (!OrderStatus.isValid(newStatus)) {
@@ -361,6 +430,13 @@ public class OrderServiceImpl implements OrderService {
         // Verify status transition
         if (!OrderStatusFlow.canTransfer(oldStatus, newStatus)) {
 
+            log.warn(
+                    "[ORDER] Invalid order status transition detected. orderId={}, oldStatus={}, newStatus={}",
+                    orderId,
+                    oldStatus,
+                    newStatus
+            );
+
             throw new BusinessException(
                     ErrorCode.ORDER_STATUS_TRANSITION_INVALID,
                     ErrorMessage.ORDER_STATUS_TRANSITION_INVALID
@@ -378,6 +454,13 @@ public class OrderServiceImpl implements OrderService {
                 rows,
                 ErrorCode.ORDER_UPDATE_FAILED,
                 ErrorMessage.ORDER_UPDATE_FAILED
+        );
+
+        log.info(
+                "[ORDER] Order status updated successfully. orderId={}, oldStatus={}, newStatus={}",
+                orderId,
+                oldStatus,
+                newStatus
         );
     }
 }

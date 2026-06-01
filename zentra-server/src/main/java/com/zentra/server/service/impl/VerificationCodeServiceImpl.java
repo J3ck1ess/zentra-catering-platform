@@ -5,6 +5,7 @@ import com.zentra.common.constant.RedisTtlConstants;
 import com.zentra.server.service.RedisService;
 import com.zentra.server.service.VerificationCodeService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
@@ -14,6 +15,7 @@ import java.util.Random;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VerificationCodeServiceImpl implements VerificationCodeService {
 
     /**
@@ -53,6 +55,12 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
                 code,
                 RedisTtlConstants.LOGIN_VERIFICATION_CODE_TTL
         );
+
+        log.info(
+                "[AUTH] Verification code saved. type={}, target={}",
+                type,
+                target
+        );
     }
 
     @Override
@@ -69,7 +77,22 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
                 String.class
         );
 
-        return code.equals(storedCode);
+        boolean valid = storedCode != null && code.equals(storedCode);
+
+        if (valid) {
+            log.info(
+                    "[AUTH] Verification code validated successfully. type={}, target={}",
+                    type,
+                    target
+            );
+        } else {
+            log.warn(
+                    "[AUTH] Verification code validation failed. type={}, target={}",
+                    type,
+                    target
+            );
+        }
+        return valid;
     }
 
     @Override
@@ -81,6 +104,11 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
         String key = buildKey(type, target);
 
         redisService.delete(key);
+        log.info(
+                "[AUTH] Verification code deleted. type={}, target={}",
+                type,
+                target
+        );
     }
 
     @Override
@@ -98,10 +126,26 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
                 );
 
         if (retryCount == null) {
+            log.info(
+                    "[AUTH] Verification retry check passed. type={}, target={}, retryCount=0",
+                    type,
+                    target
+            );
             return true;
         }
 
-        return retryCount < MAX_RETRY_COUNT;
+        boolean allowed = retryCount < MAX_RETRY_COUNT;
+
+        if (!allowed) {
+            log.warn(
+                    "[AUTH] Verification retry limit exceeded. type={}, target={}, retryCount={}",
+                    type,
+                    target,
+                    retryCount
+            );
+        }
+
+        return allowed;
     }
 
     @Override
@@ -126,6 +170,12 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
                     RedisTtlConstants.VERIFICATION_RETRY_TTL
             );
 
+            log.warn(
+                    "[AUTH] Verification retry count initialized. type={}, target={}, retryCount=1",
+                    type,
+                    target
+            );
+
             return;
         }
 
@@ -133,6 +183,13 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
                 retryKey,
                 retryCount + 1,
                 RedisTtlConstants.VERIFICATION_RETRY_TTL
+        );
+
+        log.warn(
+                "[AUTH] Verification retry count incremented. type={}, target={}, retryCount={}",
+                type,
+                target,
+                retryCount + 1
         );
     }
 

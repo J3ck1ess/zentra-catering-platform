@@ -4,6 +4,7 @@ import com.zentra.common.constant.RedisKeyConstants;
 import com.zentra.server.service.JwtBlacklistService;
 import com.zentra.server.service.RedisService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -13,6 +14,7 @@ import java.time.Duration;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class JwtBlacklistServiceImpl implements JwtBlacklistService {
 
     /**
@@ -34,7 +36,14 @@ public class JwtBlacklistServiceImpl implements JwtBlacklistService {
                 true,
                 ttl
         );
+
+        log.info(
+                "[AUTH] JWT token blacklisted. ttlSeconds={}",
+                ttl.getSeconds()
+        );
     }
+
+
 
     /**
      * Check whether token is blacklisted
@@ -42,9 +51,17 @@ public class JwtBlacklistServiceImpl implements JwtBlacklistService {
     @Override
     public boolean isBlacklisted(String token) {
 
-        return redisService.exists(
+        boolean blacklisted = redisService.exists(
                 buildBlacklistKey(token)
         );
+
+        if (blacklisted) {
+            log.warn(
+                    "[AUTH] Blacklisted token detected."
+            );
+        }
+
+        return blacklisted;
     }
 
     /**

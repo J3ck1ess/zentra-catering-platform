@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 /**
  * Global exception handler for unified error response
  */
-@Slf4j
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     /**
@@ -26,6 +26,10 @@ public class GlobalExceptionHandler {
                 .getFieldErrors()
                 .get(0)
                 .getDefaultMessage();
+        log.warn(
+                "[VALIDATION] Request validation failed. message={}",
+                errorMsg
+        );
 
         return Result.error(ErrorCode.FAILURE, errorMsg);
     }
@@ -37,8 +41,7 @@ public class GlobalExceptionHandler {
     public Result<Void> handleBusinessException(BusinessException ex) {
 
         log.warn(
-                "Business exception occurred. " +
-                "code={}, message={}",
+                "[BUSINESS] Business exception occurred. code={}, message={}",
                 ex.getCode(),
                 ex.getMessage()
         );
@@ -52,7 +55,9 @@ public class GlobalExceptionHandler {
     public Result<String> handleException(Exception e) {
 
         log.error(
-                "Unhandled system exception occurred",
+                "[SYSTEM] Unhandled system exception occurred. type={}, message={}",
+                e.getClass().getSimpleName(),
+                e.getMessage(),
                 e
         );
 

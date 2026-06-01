@@ -12,6 +12,7 @@ import com.zentra.server.entity.Employee;
 import com.zentra.server.mapper.EmployeeMapper;
 import com.zentra.server.service.EmployeeService;
 import com.zentra.common.util.JwtUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,7 @@ import java.util.List;
  * Service implementation for Employee
  */
 @Service
+@Slf4j
 public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeMapper employeeMapper;
@@ -43,12 +45,26 @@ public class EmployeeServiceImpl implements EmployeeService {
         );
 
         Long merchantId = AuthContext.getCurrentMerchantId();
+        log.info(
+                "[EMPLOYEE] Employee creation started. merchantId={}, username={}, role={}",
+                merchantId,
+                dto.getUsername(),
+                dto.getRole()
+        );
 
         // Check username duplication
         Employee existEmployee = employeeMapper.findByUsername(
                 dto.getUsername(),
                 merchantId
         );
+
+        if (existEmployee != null) {
+            log.warn(
+                    "[EMPLOYEE] Duplicate employee username detected. merchantId={}, username={}",
+                    merchantId,
+                    dto.getUsername()
+            );
+        }
 
         AssertUtil.isNull(
                 existEmployee,
@@ -70,10 +86,17 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setMerchantId(merchantId);
 
         int rows = employeeMapper.insert(employee);
+
         AssertUtil.checkRows(
                 rows,
                 ErrorCode.EMPLOYEE_CREATE_FAILED,
                 ErrorMessage.EMPLOYEE_CREATE_FAILED
+        );
+
+        log.info(
+                "[EMPLOYEE] Employee persisted successfully. merchantId={}, username={}",
+                merchantId,
+                employee.getUsername()
         );
     }
 
@@ -88,6 +111,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         Integer page = query.getPage();
         Integer pageSize = query.getPageSize();
         int offset = (page - 1) * pageSize;
+        log.info(
+                "[EMPLOYEE] Employee page query started. merchantId={}, page={}, pageSize={}, username={}, status={}",
+                merchantId,
+                page,
+                pageSize,
+                query.getUsername(),
+                query.getStatus()
+        );
 
         List<Employee> list = employeeMapper.findPage(
                 query.getUsername(),
@@ -112,6 +143,12 @@ public class EmployeeServiceImpl implements EmployeeService {
                 merchantId
         );
 
+        log.info(
+                "[EMPLOYEE] Employee page query completed. merchantId={}, total={}",
+                merchantId,
+                total
+        );
+
         return new PageResult<>(total, records);
     }
 
@@ -122,6 +159,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeDTO getById(Long id) {
 
         Long merchantId = AuthContext.getCurrentMerchantId();
+        log.info(
+                "[EMPLOYEE] Employee detail query started. merchantId={}, employeeId={}",
+                merchantId,
+                id
+        );
 
         // Query employee
         Employee employee = employeeMapper.findById(
@@ -140,6 +182,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         EmployeeDTO dto = new EmployeeDTO();
         BeanUtils.copyProperties(employee, dto);
 
+        log.info(
+                "[EMPLOYEE] Employee detail query completed. merchantId={}, employeeId={}",
+                merchantId,
+                id
+        );
         return dto;
     }
 
@@ -150,6 +197,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeDTO getByUsername(String username) {
 
         Long merchantId = AuthContext.getCurrentMerchantId();
+        log.info(
+                "[EMPLOYEE] Employee username query started. merchantId={}, username={}",
+                merchantId,
+                username
+        );
 
         // Query employee
         Employee employee = employeeMapper.findByUsername(
@@ -168,6 +220,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         EmployeeDTO dto = new EmployeeDTO();
         BeanUtils.copyProperties(employee, dto);
 
+        log.info(
+                "[EMPLOYEE] Employee username query completed. merchantId={}, username={}",
+                merchantId,
+                username
+        );
         return dto;
     }
 
@@ -178,6 +235,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     public LoginResponse login(EmployeeLoginDTO dto) {
 
         // Query database
+        log.info(
+                "[AUTH] Employee login started. username={}",
+                dto.getUsername()
+        );
         Employee dbEmployee = employeeMapper.findByUsernameOnly(
                 dto.getUsername()
         );
@@ -192,6 +253,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         // Verify account status
         if (dbEmployee.getStatus().equals(EmployeeStatus.DISABLED)) {
 
+            log.warn(
+                    "[AUTH] Disabled employee attempted login. employeeId={}, username={}",
+                    dbEmployee.getId(),
+                    dbEmployee.getUsername()
+            );
+
             throw new BusinessException(
                     ErrorCode.EMPLOYEE_DISABLED,
                     ErrorMessage.EMPLOYEE_DISABLED
@@ -203,6 +270,12 @@ public class EmployeeServiceImpl implements EmployeeService {
                 dto.getPassword(),
                 dbEmployee.getPassword()
         )) {
+
+            log.warn(
+                    "[AUTH] Employee password mismatch. employeeId={}, username={}",
+                    dbEmployee.getId(),
+                    dbEmployee.getUsername()
+            );
 
             throw new BusinessException(
                     ErrorCode.EMPLOYEE_USERNAME_OR_PASSWORD_ERROR,
@@ -220,6 +293,12 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         String token = JwtUtil.generateToken(authInfo);
 
+        log.info(
+                "[AUTH] Employee login successful. employeeId={}, merchantId={}, role={}",
+                dbEmployee.getId(),
+                dbEmployee.getMerchantId(),
+                dbEmployee.getRole()
+        );
         return new LoginResponse(token, dbEmployee.getId());
     }
 
@@ -252,6 +331,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         Long merchantId = AuthContext.getCurrentMerchantId();
+        log.info(
+                "[EMPLOYEE] Employee update started. merchantId={}, employeeId={}",
+                merchantId,
+                dto.getId()
+        );
 
         // Query employee
         Employee dbEmployee = employeeMapper.findById(
@@ -285,10 +369,17 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         // Execute update
         int rows = employeeMapper.update(employee);
+
         AssertUtil.checkRows(
                 rows,
                 ErrorCode.EMPLOYEE_UPDATE_FAILED,
                 ErrorMessage.EMPLOYEE_UPDATE_FAILED
+        );
+
+        log.info(
+                "[EMPLOYEE] Employee update successfully. merchantId={}, employeeId={}",
+                merchantId,
+                dto.getId()
         );
     }
 
@@ -299,6 +390,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void deleteById(Long id) {
 
         Long merchantId = AuthContext.getCurrentMerchantId();
+        log.info(
+                "[EMPLOYEE] Employee delete started. merchantId={}, employeeId={}",
+                merchantId,
+                id
+        );
 
         // Query employee
         Employee employee = employeeMapper.findById(
@@ -323,6 +419,12 @@ public class EmployeeServiceImpl implements EmployeeService {
                 rows,
                 ErrorCode.EMPLOYEE_DELETE_FAILED,
                 ErrorMessage.EMPLOYEE_DELETE_FAILED
+        );
+
+        log.info(
+                "[EMPLOYEE] Employee delete successfully. merchantId={}, employeeId={}",
+                merchantId,
+                id
         );
     }
 }

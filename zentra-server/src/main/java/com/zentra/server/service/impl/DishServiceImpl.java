@@ -13,6 +13,7 @@ import com.zentra.server.entity.Dish;
 import com.zentra.server.mapper.CategoryMapper;
 import com.zentra.server.mapper.DishMapper;
 import com.zentra.server.service.DishService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,7 @@ import java.util.Objects;
  * Implementation of DishService
  */
 @Service
+@Slf4j
 public class DishServiceImpl implements DishService {
 
     private final DishMapper dishMapper;
@@ -41,11 +43,25 @@ public class DishServiceImpl implements DishService {
 
         Long merchantId = AuthContext.getCurrentMerchantId();
 
+        log.info(
+                "[DISH] Dish creation started. merchantId={}, name={}, categoryId={}",
+                merchantId,
+                dto.getName(),
+                dto.getCategoryId()
+        );
+
         // Validate category
         Category category = categoryMapper.findById(
                 dto.getCategoryId(),
                 merchantId
         );
+        if (category == null) {
+            log.warn(
+                    "[DISH] Category not found during dish creation. merchantId={}, categoryId={}",
+                    merchantId,
+                    dto.getCategoryId()
+            );
+        }
         AssertUtil.notNull(
                 category,
                 ErrorCode.CATEGORY_NOT_FOUND,
@@ -68,6 +84,12 @@ public class DishServiceImpl implements DishService {
                 ErrorCode.DISH_CREATE_FAILED,
                 ErrorMessage.DISH_CREATE_FAILED
         );
+
+        log.info(
+                "[DISH] Dish created successfully. merchantId={}, name={}",
+                merchantId,
+                dto.getName()
+        );
     }
 
     /**
@@ -82,6 +104,15 @@ public class DishServiceImpl implements DishService {
         Integer page = query.getPage();
         Integer pageSize = query.getPageSize();
         int offset = (page - 1) * pageSize;
+
+        log.info(
+                "[DISH] Dish query started. merchantId={}, page={}, pageSize={}, categoryId={}, status={}",
+                merchantId,
+                page,
+                pageSize,
+                query.getCategoryId(),
+                query.getStatus()
+        );
 
         // Query data
         List<Dish> list = dishMapper.findPage(
@@ -108,6 +139,11 @@ public class DishServiceImpl implements DishService {
                 merchantId
         );
 
+        log.info(
+                "[DISH] Dish page query completed. merchantId={}, total={}",
+                merchantId,
+                total
+        );
         return new PageResult<>(total, records);
     }
 
@@ -131,6 +167,12 @@ public class DishServiceImpl implements DishService {
 
         Long merchantId = AuthContext.getCurrentMerchantId();
 
+        log.info(
+                "[DISH] Dish update started. merchantId={}, dishId={}",
+                merchantId,
+                dto.getId()
+        );
+
         // Query dish
         Dish dbDish = dishMapper.findById(
                 dto.getId(),
@@ -138,6 +180,13 @@ public class DishServiceImpl implements DishService {
         );
 
         // Check dish existence
+        if (dbDish == null) {
+            log.warn(
+                    "[DISH] Dish not found during update. merchantId={}, dishId={}",
+                    merchantId,
+                    dto.getId()
+            );
+        }
         AssertUtil.notNull(
                 dbDish,
                 ErrorCode.DISH_NOT_FOUND,
@@ -151,6 +200,13 @@ public class DishServiceImpl implements DishService {
                     merchantId
             );
 
+            if (category == null) {
+                log.warn(
+                        "[DISH] Category not found during dish update. merchantId={}, categoryId={}",
+                        merchantId,
+                        dto.getCategoryId()
+                );
+            }
             AssertUtil.notNull(
                     category,
                     ErrorCode.CATEGORY_NOT_FOUND,
@@ -182,6 +238,12 @@ public class DishServiceImpl implements DishService {
                 ErrorMessage.DISH_UPDATE_FAILED
         );
 
+        log.info(
+                "[DISH] Dish updated successfully. merchantId={}, dishId={}",
+                merchantId,
+                dto.getId()
+        );
+
     }
 
     /**
@@ -192,6 +254,12 @@ public class DishServiceImpl implements DishService {
 
         Long merchantId = AuthContext.getCurrentMerchantId();
 
+        log.info(
+                "[DISH] Dish deletion started. merchantId={}, dishId={}",
+                merchantId,
+                id
+        );
+
         // Query dish
         Dish dish = dishMapper.findById(
                 id,
@@ -199,6 +267,13 @@ public class DishServiceImpl implements DishService {
         );
 
         // Check dish existence
+        if (dish == null) {
+            log.warn(
+                    "[DISH] Dish not found during deletion. merchantId={}, dishId={}",
+                    merchantId,
+                    id
+            );
+        }
         AssertUtil.notNull(
                 dish,
                 ErrorCode.DISH_NOT_FOUND,
@@ -215,6 +290,12 @@ public class DishServiceImpl implements DishService {
                 rows,
                 ErrorCode.DISH_DELETE_FAILED,
                 ErrorMessage.DISH_DELETE_FAILED
+        );
+
+        log.info(
+                "[DISH] Dish deleted successfully. merchantId={}, dishId={}",
+                merchantId,
+                id
         );
 
     }

@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.List;
@@ -552,5 +553,148 @@ public class UserServiceImpl implements UserService {
 
         return new PageResult<>(total, records);
 
+    }
+
+    /**
+     * Cancel current user's order
+     */
+    @Override
+    @Transactional
+    public void cancelOrder(Long orderId) {
+
+        Long userId = AuthContext.getCurrentUserId();
+
+        log.info(
+                "[ORDER] Order cancellation started. userId={}, orderId={}",
+                userId,
+                orderId
+        );
+
+        Order order = orderMapper.findUserOrderById(orderId, userId);
+
+        if (order == null) {
+
+            log.warn(
+                    "[ORDER] Order not found during cancellation. userId={}, orderId={}",
+                    userId,
+                    orderId
+            );
+        }
+
+        AssertUtil.notNull(
+                order,
+                ErrorCode.ORDER_NOT_FOUND,
+                ErrorMessage.ORDER_NOT_FOUND
+        );
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+
+            log.warn(
+                    "[ORDER] Invalid order cancellation detected. orderId={}, currentStatus={}",
+                    orderId,
+                    order.getStatus()
+            );
+
+            throw new BusinessException(
+                    ErrorCode.ORDER_CANNOT_BE_CANCELLED,
+                    ErrorMessage.ORDER_CANNOT_BE_CANCELLED
+            );
+        }
+
+        log.info(
+                "[ORDER] Order cancellation validation passed. orderId={}",
+                orderId
+        );
+
+        int rows = orderMapper.updateStatus(
+                orderId,
+                order.getMerchantId(),
+                OrderStatus.CANCELLED
+        );
+        AssertUtil.checkRows(
+                rows,
+                ErrorCode.ORDER_UPDATE_FAILED,
+                ErrorMessage.ORDER_UPDATE_FAILED
+        );
+
+        log.info(
+                "[ORDER] Order cancelled successfully. userId={}, orderId={}, oldStatus={}, newStatus={}",
+                userId,
+                orderId,
+                OrderStatus.PENDING,
+                OrderStatus.CANCELLED
+        );
+    }
+
+    /**
+     * Simulate order payment
+     */
+    @Override
+    @Transactional
+    public void payOrder(Long orderId) {
+
+        Long userId = AuthContext.getCurrentUserId();
+
+        log.info(
+                "[PAYMENT] Payment simulation started. userId={}, orderId={}",
+                userId,
+                orderId
+        );
+
+        Order order = orderMapper.findUserOrderById(orderId, userId);
+
+        if (order == null) {
+
+            log.warn(
+                    "[PAYMENT] Order not found during payment. userId={}, orderId={}",
+                    userId,
+                    orderId
+            );
+        }
+
+        AssertUtil.notNull(
+                order,
+                ErrorCode.ORDER_NOT_FOUND,
+                ErrorMessage.ORDER_NOT_FOUND
+        );
+
+        if (order.getStatus() != OrderStatus.PENDING) {
+
+            log.warn(
+                    "[PAYMENT] Invalid payment request detected. orderId={}, currentStatus={}",
+                    orderId,
+                    order.getStatus()
+            );
+
+            throw new BusinessException(
+                    ErrorCode.ORDER_CANNOT_BE_PAID,
+                    ErrorMessage.ORDER_CANNOT_BE_PAID
+            );
+        }
+
+        log.info(
+                "[PAYMENT] Payment validation passed. orderId={}",
+                orderId
+        );
+
+        int rows = orderMapper.updateStatus(
+                orderId,
+                order.getMerchantId(),
+                OrderStatus.PAID
+        );
+
+        AssertUtil.checkRows(
+                rows,
+                ErrorCode.ORDER_UPDATE_FAILED,
+                ErrorMessage.ORDER_UPDATE_FAILED
+        );
+
+        log.info(
+                "[PAYMENT] Payment simulation completed. userId={}, orderId={}, oldStatus={}, newStatus={}",
+                userId,
+                orderId,
+                OrderStatus.PENDING,
+                OrderStatus.PAID
+        );
     }
 }

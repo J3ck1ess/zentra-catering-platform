@@ -116,6 +116,27 @@
     </select>
 
     <!-- ========================================= -->
+    <!-- Query current user's order by id -->
+    <!-- ========================================= -->
+    <select id="findUserOrderById"
+            resultMap="OrderResultMap">
+
+        SELECT
+            id,
+            merchant_id,
+            user_id,
+            order_number,
+            total_amount,
+            status,
+            created_at,
+            updated_at
+        FROM orders
+        WHERE id = #{id}
+          AND user_id = #{userId}
+
+    </select>
+
+    <!-- ========================================= -->
     <!-- Query current user's orders -->
     <!-- ========================================= -->
     <select id="findUserOrders"
@@ -180,6 +201,49 @@
 
         WHERE id = #{id}
         AND merchant_id = #{merchantId}
+
+    </update>
+
+    <!-- ========================================= -->
+    <!-- Query expired pending orders -->
+    <!-- ========================================= -->
+    <select id="findExpiredPendingOrders"
+            resultMap="OrderResultMap">
+
+        SELECT
+            id,
+            merchant_id,
+            user_id,
+            order_number,
+            total_amount,
+            status,
+            created_at,
+            updated_at
+        FROM orders
+        WHERE status = #{status}
+          AND created_at <![CDATA[ <= ]]> DATE_SUB(
+                NOW(),
+                INTERVAL 30 MINUTE
+        )
+
+    </select>
+
+    <!-- ========================================= -->
+    <!-- Update order status by id -->
+    <!-- ========================================= -->
+    <update id="updateStatusById">
+
+        UPDATE orders
+
+        <set>
+
+            status = #{status},
+
+            updated_at = NOW()
+
+        </set>
+
+        WHERE id = #{id}
 
     </update>
 

@@ -41,5 +41,15 @@ public interface UserService {
      */
     PageResult<OrderPageDTO> getMyOrders(OrderQueryDTO query);
 
+    /**
+     * Cancel current user's order
+     */
+    void cancelOrder(Long orderId);
+
+    /**
+     * Simulate order payment
+     */
+    void payOrder(Long orderId);
+
 
 }

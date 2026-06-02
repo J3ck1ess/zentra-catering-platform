@@ -45,6 +45,14 @@ public interface OrderMapper {
     );
 
     /**
+     * Find current user's order by id
+     */
+    Order findUserOrderById(
+            @Param("id") Long id,
+            @Param("userId") Long userId
+    );
+
+    /**
      * Find user orders with pagination
      */
     List<Order> findUserOrders(
@@ -71,4 +79,18 @@ public interface OrderMapper {
             @Param("status") Integer status
     );
 
+    /**
+     * Find expired pending orders
+     */
+    List<Order> findExpiredPendingOrders(
+            @Param("status") Integer status
+    );
+
+    /**
+     * Update order status by id
+     */
+    int updateStatusById(
+            @Param("id") Long id,
+            @Param("status") Integer status
+    );
 }

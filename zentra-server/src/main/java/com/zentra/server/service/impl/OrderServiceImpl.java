@@ -463,4 +463,30 @@ public class OrderServiceImpl implements OrderService {
                 newStatus
         );
     }
+
+    /**
+     * Auto cancel expired pending order
+     */
+    @Override
+    @Transactional
+    public void autoCancelExpiredOrder(Long orderId) {
+
+        int rows = orderMapper.updateStatusById(
+                orderId,
+                OrderStatus.CANCELLED
+        );
+
+        AssertUtil.checkRows(
+                rows,
+                ErrorCode.ORDER_UPDATE_FAILED,
+                ErrorMessage.ORDER_UPDATE_FAILED
+        );
+
+        log.info(
+                "[ORDER_SCHEDULER] Expired order cancelled. orderId={}, oldStatus={}, newStatus={}",
+                orderId,
+                OrderStatus.PENDING,
+                OrderStatus.CANCELLED
+        );
+    }
 }

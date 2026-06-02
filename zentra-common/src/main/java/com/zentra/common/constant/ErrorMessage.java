@@ -118,6 +118,10 @@ public class ErrorMessage {
 
     public static final String DUPLICATE_ORDER_REQUEST = "Duplicate order request";
 
+    public static final String ORDER_CANNOT_BE_CANCELLED = "Only pending orders can be cancelled";
+
+    public static final String ORDER_CANNOT_BE_PAID = "Only pending orders can be paid";
+
     private ErrorMessage() {
     }
 }

@@ -127,6 +127,10 @@ public class ErrorCode {
 
     public static final Integer DUPLICATE_ORDER_REQUEST = 52008;
 
+    public static final Integer ORDER_CANNOT_BE_CANCELLED = 52009;
+
+    public static final Integer ORDER_CANNOT_BE_PAID = 52010;
+
     private ErrorCode() {
     }
 }

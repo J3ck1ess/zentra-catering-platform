@@ -96,6 +96,10 @@ The system includes multiple enterprise-oriented backend patterns:
 - Server-side total amount calculation
 - Order status flow control
 - State transition validation
+- User-driven order cancellation runtime
+- Payment simulation runtime
+- Scheduled expired order cancellation
+- Order lifecycle automation governance
 - Tenant isolation
 - Order item tenant isolation
 - Distributed duplicate order protection
@@ -421,6 +425,10 @@ The Order module supports full order lifecycle including creation, querying, det
 - One-to-many DTO assembly
 - State flow validation
 - Multi-tenant isolation
+- User order cancellation support
+- Payment simulation workflow
+- Automatic expiration cancellation
+- Scheduler-driven order lifecycle governance
 
 ### Workflow
 
@@ -438,6 +446,12 @@ Allowed transitions:
 - PENDING → PAID
 - PENDING → CANCELLED
 - PAID → COMPLETED
+  
+Additional lifecycle automation:
+
+- User-triggered order cancellation
+- User-triggered payment simulation
+- Automatic cancellation for expired pending orders
 
 Invalid transitions are rejected at the service layer.
 

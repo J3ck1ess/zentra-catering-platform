@@ -181,4 +181,46 @@ public class UserController {
                 userService.getMyOrders(query)
         );
     }
+
+    /**
+     * Cancel current user's order
+     */
+    @Operation(
+            summary = "Cancel current user's order",
+            description =
+                    "Cancel a pending order of the current authenticated user"
+    )
+    @SuccessApiResponse
+    @AuthApiResponses
+    @NotFoundApiResponse
+    @PostMapping("/orders/{id}/cancel")
+    public Result<Void> cancelOrder(
+            @PathVariable Long id
+    ) {
+
+        userService.cancelOrder(id);
+
+        return Result.success();
+    }
+
+    /**
+     * Simulate order payment
+     */
+    @Operation(
+            summary = "Pay current user's order",
+            description =
+                    "Simulate payment for a pending order of the current authenticated user"
+    )
+    @SuccessApiResponse
+    @AuthApiResponses
+    @NotFoundApiResponse
+    @PostMapping("/orders/{id}/pay")
+    public Result<Void> payOrder(
+            @PathVariable Long id
+    ) {
+
+        userService.payOrder(id);
+
+        return Result.success();
+    }
 }

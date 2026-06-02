@@ -27,4 +27,9 @@ public interface OrderService {
      * Update order status
      */
     void updateStatus(Long id, Integer status);
+
+    /**
+     * Auto cancel expired pending order
+     */
+    void autoCancelExpiredOrder(Long orderId);
 }

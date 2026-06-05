@@ -26,6 +26,11 @@ public interface CategoryService {
     PageResult<CategoryDTO> page(CategoryQueryDTO query);
 
     /**
+     * Get enabled category list for current merchant
+     */
+    List<CategoryDTO> list();
+
+    /**
      * Update category
      */
     void update(CategoryUpdateDTO dto);

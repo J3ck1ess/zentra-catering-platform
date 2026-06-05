@@ -105,6 +105,29 @@
     </select>
 
     <!-- ========================================= -->
+    <!-- Query enabled category list -->
+    <!-- ========================================= -->
+    <select id="findEnabledCategories"
+            resultMap="CategoryResultMap">
+
+        SELECT
+            id,
+            merchant_id,
+            name,
+            type,
+            sort,
+            status,
+            created_at,
+            updated_at
+        FROM category
+        WHERE merchant_id = #{merchantId}
+          AND status = #{status}
+        ORDER BY sort ASC,
+                 id ASC
+
+    </select>
+
+    <!-- ========================================= -->
     <!-- Find category by id -->
     <!-- ========================================= -->
     <select id="findById"

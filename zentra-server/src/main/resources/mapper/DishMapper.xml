@@ -133,6 +133,36 @@
     </select>
 
     <!-- ========================================= -->
+    <!-- Query enabled dishes by category -->
+    <!-- ========================================= -->
+    <select id="findEnabledDishes"
+            resultMap="DishResultMap">
+
+        SELECT
+            d.id,
+            d.name,
+            d.price,
+            d.category_id,
+            d.status,
+            d.merchant_id,
+            d.created_at,
+            d.updated_at,
+            c.name AS category_name
+        FROM dish d
+
+        LEFT JOIN category c
+        ON d.category_id = c.id
+        AND c.merchant_id = d.merchant_id
+
+        WHERE d.merchant_id = #{merchantId}
+          AND d.category_id = #{categoryId}
+          AND d.status = #{status}
+
+        ORDER BY d.id ASC
+
+    </select>
+
+    <!-- ========================================= -->
     <!-- Count dishes by category id -->
     <!-- ========================================= -->
     <select id="countByCategoryId"

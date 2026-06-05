@@ -36,6 +36,13 @@ public final class RedisTtlConstants {
             Duration.ofMinutes(30);
 
     /**
+     * Dish detail cache TTL
+     */
+    public static final Duration
+            DISH_DETAIL_CACHE_TTL =
+            Duration.ofMinutes(30);
+
+    /**
      * Distributed lock TTL
      */
     public static final Duration

@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * Controller for Dish APIs
  */
@@ -81,6 +83,45 @@ public class DishController {
 
         return Result.success(
                 dishService.page(query)
+        );
+    }
+
+    /**
+     * Get enabled dish list by category
+     */
+    @Operation(
+            summary = "Get enabled dish list",
+            description = "Retrieve enabled dishes for the specified category"
+    )
+    @SuccessApiResponse
+    @AuthApiResponses
+    @GetMapping("/list")
+    public Result<List<DishDTO>> list(
+            @RequestParam Long categoryId
+    ) {
+
+        return Result.success(
+                dishService.list(categoryId)
+        );
+    }
+
+    /**
+     * Get dish detail by id
+     */
+    @Operation(
+            summary = "Get dish detail",
+            description = "Retrieve dish detail by dish id"
+    )
+    @SuccessApiResponse
+    @NotFoundApiResponse
+    @AuthApiResponses
+    @GetMapping("/{id}")
+    public Result<DishDTO> getById(
+            @PathVariable Long id
+    ) {
+
+        return Result.success(
+                dishService.getById(id)
         );
     }
 

@@ -13,6 +13,7 @@ import com.zentra.server.entity.Dish;
 import com.zentra.server.mapper.CategoryMapper;
 import com.zentra.server.mapper.DishMapper;
 import com.zentra.server.service.DishService;
+import com.zentra.server.service.RedisService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -29,10 +30,16 @@ public class DishServiceImpl implements DishService {
 
     private final DishMapper dishMapper;
     private final CategoryMapper categoryMapper;
+    private final RedisService redisService;
 
-    public DishServiceImpl(DishMapper dishMapper, CategoryMapper categoryMapper) {
+    public DishServiceImpl(
+            DishMapper dishMapper,
+            CategoryMapper categoryMapper,
+            RedisService redisService
+    ) {
         this.dishMapper = dishMapper;
         this.categoryMapper = categoryMapper;
+        this.redisService = redisService;
     }
 
     /**
@@ -145,6 +152,99 @@ public class DishServiceImpl implements DishService {
                 total
         );
         return new PageResult<>(total, records);
+    }
+
+    /**
+     * Get enabled dish list by category
+     */
+    @Override
+    public List<DishDTO> list(Long categoryId) {
+
+        AssertUtil.notNull(
+                categoryId,
+                ErrorCode.CATEGORY_ID_REQUIRED,
+                ErrorMessage.CATEGORY_ID_REQUIRED
+        );
+
+        Long merchantId = AuthContext.getCurrentMerchantId();
+
+        log.info(
+                "[DISH] Dish list query started. merchantId={}, categoryId={}",
+                merchantId,
+                categoryId
+        );
+        List<Dish> dishes = dishMapper.findEnabledDishes(
+                categoryId,
+                merchantId,
+                DishStatus.ENABLED
+        );
+
+        List<DishDTO> result = dishes.stream().map(dish -> {
+
+            DishDTO dto = new DishDTO();
+            BeanUtils.copyProperties(dish, dto);
+
+            return dto;
+        }).toList();
+
+        log.info(
+                "[DISH] Dish list query completed. merchantId={}, categoryId={}, dishCount={}",
+                merchantId,
+                categoryId,
+                result.size()
+        );
+
+        return result;
+    }
+
+    /**
+     * Get dish detail by id
+     */
+    @Override
+    public DishDTO getById(Long id) {
+
+        AssertUtil.notNull(
+                id,
+                ErrorCode.DISH_ID_REQUIRED,
+                ErrorMessage.DISH_ID_REQUIRED
+        );
+
+        Long merchantId = AuthContext.getCurrentMerchantId();
+
+        log.info(
+                "[DISH] Dish detail query started. merchantId={}, dishId={}",
+                merchantId,
+                id
+        );
+
+        Dish dish = dishMapper.findById(
+                id,
+                merchantId
+        );
+
+        if (dish == null) {
+            log.warn(
+                    "[DISH] Dish not found during detail query. merchantId={}, dishId={}",
+                    merchantId,
+                    id
+            );
+        }
+        AssertUtil.notNull(
+                dish,
+                ErrorCode.DISH_NOT_FOUND,
+                ErrorMessage.DISH_NOT_FOUND
+        );
+
+        DishDTO dto = new DishDTO();
+        BeanUtils.copyProperties(dish, dto);
+
+        log.info(
+                "[DISH] Dish detail query completed. merchantId={}, dishId={}",
+                merchantId,
+                id
+        );
+
+        return dto;
     }
 
     /**

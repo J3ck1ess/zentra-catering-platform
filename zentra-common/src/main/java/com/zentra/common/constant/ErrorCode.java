@@ -93,6 +93,8 @@ public class ErrorCode {
 
     public static final Integer CATEGORY_STATUS_INVALID = 50007;
 
+    public static final Integer CATEGORY_ID_REQUIRED = 50008;
+
     /**
      * Dish Errors
      */
@@ -107,6 +109,8 @@ public class ErrorCode {
     public static final Integer DISH_STATUS_INVALID = 51005;
 
     public static final Integer DISH_DISABLED = 51006;
+
+    public static final Integer DISH_ID_REQUIRED = 51007;
 
     /**
      * Order Errors

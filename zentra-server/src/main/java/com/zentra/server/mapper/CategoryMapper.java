@@ -38,6 +38,14 @@ public interface CategoryMapper {
     );
 
     /**
+     * Find enabled categories by merchant
+     */
+    List<Category> findEnabledCategories(
+            @Param("merchantId") Long merchantId,
+            @Param("status") Integer status
+    );
+
+    /**
      * Delete category by id
      */
     int deleteById(

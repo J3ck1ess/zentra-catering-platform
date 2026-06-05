@@ -6,6 +6,8 @@ import com.zentra.server.dto.DishDTO;
 import com.zentra.server.dto.DishQueryDTO;
 import com.zentra.server.dto.DishUpdateDTO;
 
+import java.util.List;
+
 /**
  * Service interface for Dish entity
  */
@@ -25,6 +27,16 @@ public interface DishService {
      * Update dish
      */
     void update(DishUpdateDTO dto);
+
+    /**
+     * Get enabled dish list by category
+     */
+    List<DishDTO> list(Long categoryId);
+
+    /**
+     * Get dish detail by id
+     */
+    DishDTO getById(Long id);
 
     /**
      * Delete dish by id

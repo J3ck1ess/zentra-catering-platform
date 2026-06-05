@@ -84,6 +84,8 @@ public class ErrorMessage {
 
     public static final String CATEGORY_STATUS_INVALID = "Invalid category status";
 
+    public static final String CATEGORY_ID_REQUIRED = "Category id is required";
+
     /**
      * Dish messages
      */
@@ -98,6 +100,8 @@ public class ErrorMessage {
     public static final String DISH_STATUS_INVALID = "Invalid dish status";
 
     public static final String DISH_DISABLED = "Dish is disabled";
+
+    public static final String DISH_ID_REQUIRED = "Dish id is required";
 
     /**
      * Order messages

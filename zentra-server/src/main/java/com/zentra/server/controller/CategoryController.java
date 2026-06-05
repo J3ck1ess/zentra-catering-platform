@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * Controller for category APIs
  */
@@ -82,6 +84,23 @@ public class CategoryController {
 
         return Result.success(
                 categoryService.page(query)
+        );
+    }
+
+    /**
+     * Get enabled category list
+     */
+    @Operation(
+            summary = "Get enabled category list",
+            description = "Retrieve enabled category list for the current merchant"
+    )
+    @SuccessApiResponse
+    @AuthApiResponses
+    @GetMapping("/list")
+    public Result<List<CategoryDTO>> list() {
+
+        return Result.success(
+                categoryService.list()
         );
     }
 

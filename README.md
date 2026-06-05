@@ -71,6 +71,7 @@ The system includes multiple enterprise-oriented backend patterns:
 ### Category Module
 - Category CRUD
 - Pagination query
+- Category list runtime
 - Dynamic query filtering
 - Business validation
 - Prevent deleting category when dishes exist
@@ -80,6 +81,8 @@ The system includes multiple enterprise-oriented backend patterns:
 ### Dish Module
 - Dish CRUD
 - Pagination query
+- Dish list runtime
+- Dish detail runtime
 - Category JOIN query
 - Category name mapping
 - Dynamic query filtering

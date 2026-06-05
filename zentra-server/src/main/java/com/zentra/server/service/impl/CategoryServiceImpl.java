@@ -144,6 +144,43 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     /**
+     * Get enabled category list for current merchant
+     */
+    @Override
+    public List<CategoryDTO> list() {
+
+        Long merchantId = AuthContext.getCurrentMerchantId();
+
+        log.info(
+                "[CATEGORY] Category list query started. merchantId={}",
+                merchantId
+        );
+
+        List<Category> categories =
+                categoryMapper.findEnabledCategories(
+                        merchantId,
+                        CategoryStatus.ENABLED
+                );
+
+        List<CategoryDTO> result = categories.stream().map(category -> {
+
+            CategoryDTO dto = new CategoryDTO();
+            BeanUtils.copyProperties(category, dto);
+
+            return dto;
+
+        }).toList();
+
+        log.info(
+                "[CATEGORY] Category list query completed. merchantId={}, categoryCount={}",
+                merchantId,
+                result.size()
+        );
+
+        return result;
+    }
+
+    /**
      * Update category
      */
     @Override

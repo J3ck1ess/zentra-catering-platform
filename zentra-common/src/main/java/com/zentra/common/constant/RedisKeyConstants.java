@@ -36,6 +36,18 @@ public final class RedisKeyConstants {
             "cache:user:profile:";
 
     /**
+     * Category list cache key
+     */
+    public static final String CATEGORY_LIST_CACHE =
+            "cache:category:list:";
+
+    /**
+     * Dish detail cache key
+     */
+    public static final String DISH_DETAIL_CACHE =
+            "cache:dish:detail:";
+
+    /**
      * Distributed lock key
      */
     public static final String DISTRIBUTED_LOCK =

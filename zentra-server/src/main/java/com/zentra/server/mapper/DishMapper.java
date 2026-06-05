@@ -54,6 +54,15 @@ public interface DishMapper {
     );
 
     /**
+     * Find enabled dishes by category
+     */
+    List<Dish> findEnabledDishes(
+            @Param("categoryId") Long categoryId,
+            @Param("merchantId") Long merchantId,
+            @Param("status") Integer status
+    );
+
+    /**
      * Count dishes by category id
      */
     int countByCategoryId(

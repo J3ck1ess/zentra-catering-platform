@@ -1,5 +1,7 @@
 package com.zentra.server.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import java.time.Duration;
 
 /**
@@ -22,6 +24,15 @@ public interface RedisService {
     <T> T get(
             String key,
             Class<T> clazz
+    );
+
+    /**
+     * Get redis value with generic type support
+     */
+    <T> T get(
+            String key,
+            TypeReference<T> typeReference
+
     );
 
     /**

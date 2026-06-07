@@ -2,11 +2,15 @@ package com.zentra.server.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.io.Serializable;
+
 /**
  * DTO for category response
  */
 @Schema(description = "Category response")
-public class CategoryDTO {
+public class CategoryDTO implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Schema(description = "Category ID", example = "1")
     private Long id;

@@ -1,5 +1,7 @@
 package com.zentra.server.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zentra.server.service.RedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,40 @@ public class RedisServiceImpl implements RedisService {
      */
     private final RedisTemplate<String, Object> redisTemplate;
 
+    /**
+     * Jackson object mapper
+     */
+    private final ObjectMapper objectMapper;
+
+    /**
+     * Get cache value and handle cache hit/miss logging
+     */
+    private Object getValue(
+            String key
+    ) {
+
+        Object value =
+                redisTemplate.opsForValue().get(key);
+
+        if (value == null) {
+
+            log.info(
+                    "[CACHE] Cache miss. key={}",
+                    key
+            );
+
+            return null;
+        }
+
+        log.info(
+                "[CACHE] Cache hit. key={}",
+                key
+        );
+
+        return value;
+    }
+
+
     @Override
     public void set(
             String key,
@@ -41,32 +77,39 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T> T get(
             String key,
             Class<T> clazz
     ) {
 
-        Object value =
-                redisTemplate.opsForValue().get(key);
+        Object value = getValue(key);
 
         if (value == null) {
-
-            log.info(
-                    "[CACHE] Cache miss. key={}",
-                    key
-            );
-
             return null;
-        } else {
-
-            log.info(
-                    "[CACHE] Cache hit. key={}",
-                    key
-            );
         }
 
-        return (T) value;
+        return objectMapper.convertValue(
+                value,
+                clazz
+        );
+    }
+
+    @Override
+    public <T> T get(
+            String key,
+            TypeReference<T> typeReference
+    ) {
+
+        Object value = getValue(key);
+
+        if (value == null) {
+            return null;
+        }
+
+        return objectMapper.convertValue(
+                value,
+                typeReference
+        );
     }
 
     @Override

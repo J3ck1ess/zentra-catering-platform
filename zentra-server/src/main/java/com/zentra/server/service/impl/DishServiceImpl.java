@@ -1,8 +1,6 @@
 package com.zentra.server.service.impl;
 
-import com.zentra.common.constant.DishStatus;
-import com.zentra.common.constant.ErrorCode;
-import com.zentra.common.constant.ErrorMessage;
+import com.zentra.common.constant.*;
 import com.zentra.common.context.AuthContext;
 import com.zentra.common.exception.BusinessException;
 import com.zentra.common.result.PageResult;
@@ -18,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,6 +39,12 @@ public class DishServiceImpl implements DishService {
         this.dishMapper = dishMapper;
         this.categoryMapper = categoryMapper;
         this.redisService = redisService;
+    }
+
+    // Build dish detail cache key
+    private String buildDishDetailCacheKey(Long dishId) {
+
+        return RedisKeyConstants.DISH_DETAIL_CACHE + dishId;
     }
 
     /**
@@ -217,6 +222,28 @@ public class DishServiceImpl implements DishService {
                 id
         );
 
+        DishDTO cachedDish =
+                redisService.get(
+                        buildDishDetailCacheKey(id),
+                        DishDTO.class
+                );
+
+        if (cachedDish != null) {
+
+            log.info(
+                    "[DISH_CACHE] Dish detail cache hit. dishId={}",
+                    id
+            );
+
+            return cachedDish;
+        }
+
+        log.info(
+                "[DISH_CACHE] Dish detail cache miss. dishId={}",
+                id
+        );
+
+        // Query database
         Dish dish = dishMapper.findById(
                 id,
                 merchantId
@@ -235,8 +262,21 @@ public class DishServiceImpl implements DishService {
                 ErrorMessage.DISH_NOT_FOUND
         );
 
+        // Convert Entity -> DTO
         DishDTO dto = new DishDTO();
         BeanUtils.copyProperties(dish, dto);
+
+        // Write cache
+        redisService.set(
+                buildDishDetailCacheKey(id),
+                dto,
+                RedisTtlConstants.DISH_DETAIL_CACHE_TTL
+        );
+
+        log.info(
+                "[DISH_CACHE] Dish detail cached. dishId={}",
+                id
+        );
 
         log.info(
                 "[DISH] Dish detail query completed. merchantId={}, dishId={}",
@@ -338,6 +378,14 @@ public class DishServiceImpl implements DishService {
                 ErrorMessage.DISH_UPDATE_FAILED
         );
 
+        // Delete cache
+        redisService.delete(buildDishDetailCacheKey(dto.getId()));
+
+        log.info(
+                "[DISH_CACHE] Dish detail cache evicted after update. dishId={}",
+                dto.getId()
+        );
+
         log.info(
                 "[DISH] Dish updated successfully. merchantId={}, dishId={}",
                 merchantId,
@@ -390,6 +438,14 @@ public class DishServiceImpl implements DishService {
                 rows,
                 ErrorCode.DISH_DELETE_FAILED,
                 ErrorMessage.DISH_DELETE_FAILED
+        );
+
+        // Delete cache
+        redisService.delete(buildDishDetailCacheKey(id));
+
+        log.info(
+                "[DISH_CACHE] Dish detail cache evicted after deletion. dishId={}",
+                id
         );
 
         log.info(

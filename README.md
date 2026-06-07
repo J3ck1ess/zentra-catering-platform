@@ -72,6 +72,8 @@ The system includes multiple enterprise-oriented backend patterns:
 - Category CRUD
 - Pagination query
 - Category list runtime
+- Hot data category cache runtime
+- Cache Aside cache governance
 - Dynamic query filtering
 - Business validation
 - Prevent deleting category when dishes exist
@@ -83,6 +85,8 @@ The system includes multiple enterprise-oriented backend patterns:
 - Pagination query
 - Dish list runtime
 - Dish detail runtime
+- Hot data dish cache runtime
+- Cache Aside cache governance
 - Category JOIN query
 - Category name mapping
 - Dynamic query filtering
@@ -243,6 +247,7 @@ This project implements an enterprise-style Redis-based verification runtime arc
 - Login rate limiting and traffic protection
 - JWT blacklist and token revocation governance
 - Hot data cache runtime architecture
+- Generic Redis cache infrastructure
 - Cache Aside consistency governance
 - Cache penetration protection
 - Distributed lock runtime infrastructure
@@ -313,6 +318,11 @@ JWT Runtime
 Cache Runtime
 - Cache Aside architecture
 - Tenant-aware cache isolation
+- User profile cache runtime
+- Category list cache runtime
+- Dish detail cache runtime
+- Generic collection cache support
+- Redis TypeReference-based cache infrastructure
 - Cache eviction and rebuild governance
 - Cache penetration protection
 

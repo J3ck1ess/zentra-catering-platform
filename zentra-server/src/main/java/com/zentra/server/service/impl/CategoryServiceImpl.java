@@ -1,9 +1,7 @@
 package com.zentra.server.service.impl;
 
-import com.zentra.common.constant.CategoryStatus;
-import com.zentra.common.constant.CategoryType;
-import com.zentra.common.constant.ErrorCode;
-import com.zentra.common.constant.ErrorMessage;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.zentra.common.constant.*;
 import com.zentra.common.context.AuthContext;
 import com.zentra.common.exception.BusinessException;
 import com.zentra.common.result.PageResult;
@@ -16,6 +14,7 @@ import com.zentra.server.entity.Category;
 import com.zentra.server.mapper.CategoryMapper;
 import com.zentra.server.mapper.DishMapper;
 import com.zentra.server.service.CategoryService;
+import com.zentra.server.service.RedisService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -34,9 +33,32 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final DishMapper dishMapper;
 
-    public CategoryServiceImpl(CategoryMapper categoryMapper, DishMapper dishMapper) {
+    private final RedisService redisService;
+
+    /**
+     * Cache type reference for category list
+     */
+    private static final TypeReference<List<CategoryDTO>>
+            CATEGORY_LIST_TYPE =
+            new TypeReference<>() {
+            };
+
+    /**
+     * Build category list cache key
+     */
+    private String buildCategoryListCacheKey(Long merchantId) {
+
+        return RedisKeyConstants.CATEGORY_LIST_CACHE + merchantId;
+    }
+
+    public CategoryServiceImpl(
+            CategoryMapper categoryMapper,
+            DishMapper dishMapper,
+            RedisService redisService
+    ) {
         this.categoryMapper = categoryMapper;
         this.dishMapper = dishMapper;
+        this.redisService = redisService;
     }
 
     /**
@@ -78,6 +100,13 @@ public class CategoryServiceImpl implements CategoryService {
                 rows,
                 ErrorCode.CATEGORY_CREATE_FAILED,
                 ErrorMessage.CATEGORY_CREATE_FAILED
+        );
+
+        redisService.delete(buildCategoryListCacheKey(merchantId));
+
+        log.info(
+                "[CATEGORY_CACHE] Category list cache evicted after creation. merchantId={}",
+                merchantId
         );
 
         log.info(
@@ -156,6 +185,28 @@ public class CategoryServiceImpl implements CategoryService {
                 merchantId
         );
 
+        List<CategoryDTO> cachedCategories =
+                redisService.get(
+                        buildCategoryListCacheKey(merchantId),
+                        CATEGORY_LIST_TYPE
+                );
+
+        if (cachedCategories != null) {
+
+            log.info(
+                    "[CATEGORY_CACHE] Category list cache hit. merchantId={}",
+                    merchantId
+            );
+
+            return cachedCategories;
+        }
+
+        log.info(
+                "[CATEGORY_CACHE] Category list cache miss. merchantId={}",
+                merchantId
+        );
+
+        // Query database
         List<Category> categories =
                 categoryMapper.findEnabledCategories(
                         merchantId,
@@ -170,6 +221,18 @@ public class CategoryServiceImpl implements CategoryService {
             return dto;
 
         }).toList();
+
+        redisService.set(
+                buildCategoryListCacheKey(merchantId),
+                result,
+                RedisTtlConstants.CATEGORY_LIST_CACHE_TTL
+        );
+
+        log.info(
+                "[CATEGORY_CACHE] Category list cached. merchantId={}, categoryCount={}",
+                merchantId,
+                result.size()
+        );
 
         log.info(
                 "[CATEGORY] Category list query completed. merchantId={}, categoryCount={}",
@@ -261,6 +324,13 @@ public class CategoryServiceImpl implements CategoryService {
                 ErrorMessage.CATEGORY_UPDATE_FAILED
         );
 
+        redisService.delete(buildCategoryListCacheKey(merchantId));
+
+        log.info(
+                "[CATEGORY_CACHE] Category list cache evicted after update. merchantId={}",
+                merchantId
+        );
+
         log.info(
                 "[CATEGORY] Category updated successfully. merchantId={}, categoryId={}",
                 merchantId,
@@ -325,6 +395,13 @@ public class CategoryServiceImpl implements CategoryService {
                 rows,
                 ErrorCode.CATEGORY_DELETE_FAILED,
                 ErrorMessage.CATEGORY_DELETE_FAILED
+        );
+
+        redisService.delete(buildCategoryListCacheKey(merchantId));
+
+        log.info(
+                "[CATEGORY_CACHE] Category list cache evicted after deletion. merchantId={}",
+                merchantId
         );
 
         log.info(

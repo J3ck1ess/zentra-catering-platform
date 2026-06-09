@@ -50,6 +50,13 @@ public final class RedisTtlConstants {
             Duration.ofMinutes(30);
 
     /**
+     * Order create idempotency runtime TTL
+     */
+    public static final Duration
+            ORDER_CREATE_IDEMPOTENCY_TTL =
+            Duration.ofSeconds(10);
+
+    /**
      * Distributed lock TTL
      */
     public static final Duration

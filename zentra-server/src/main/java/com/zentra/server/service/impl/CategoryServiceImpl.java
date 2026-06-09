@@ -17,6 +17,7 @@ import com.zentra.server.service.CategoryService;
 import com.zentra.server.service.RedisService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -95,12 +96,29 @@ public class CategoryServiceImpl implements CategoryService {
 
         category.setMerchantId(merchantId);
 
-        int rows = categoryMapper.insert(category);
-        AssertUtil.checkRows(
-                rows,
-                ErrorCode.CATEGORY_CREATE_FAILED,
-                ErrorMessage.CATEGORY_CREATE_FAILED
-        );
+        try {
+
+            int rows = categoryMapper.insert(category);
+
+            AssertUtil.checkRows(
+                    rows,
+                    ErrorCode.CATEGORY_CREATE_FAILED,
+                    ErrorMessage.CATEGORY_CREATE_FAILED
+            );
+
+        } catch (DuplicateKeyException e) {
+
+            log.warn(
+                    "[CATEGORY] Duplicate category name detected. merchantId={}, categoryName={}",
+                    merchantId,
+                    dto.getName()
+            );
+
+            throw new BusinessException(
+                    ErrorCode.CATEGORY_NAME_ALREADY_EXISTS,
+                    ErrorMessage.CATEGORY_NAME_ALREADY_EXISTS
+            );
+        }
 
         redisService.delete(buildCategoryListCacheKey(merchantId));
 
@@ -317,12 +335,29 @@ public class CategoryServiceImpl implements CategoryService {
         // Set merchant ID from current user context
         category.setMerchantId(merchantId);
 
-        int rows = categoryMapper.update(category);
-        AssertUtil.checkRows(
-                rows,
-                ErrorCode.CATEGORY_UPDATE_FAILED,
-                ErrorMessage.CATEGORY_UPDATE_FAILED
-        );
+        try {
+
+            int rows = categoryMapper.update(category);
+
+            AssertUtil.checkRows(
+                    rows,
+                    ErrorCode.CATEGORY_UPDATE_FAILED,
+                    ErrorMessage.CATEGORY_UPDATE_FAILED
+            );
+
+        } catch (DuplicateKeyException e) {
+
+            log.warn(
+                    "[CATEGORY] Duplicate category name detected during update. merchantId={}, categoryName={}",
+                    merchantId,
+                    dto.getName()
+            );
+
+            throw new BusinessException(
+                    ErrorCode.CATEGORY_NAME_ALREADY_EXISTS,
+                    ErrorMessage.CATEGORY_NAME_ALREADY_EXISTS
+            );
+        }
 
         redisService.delete(buildCategoryListCacheKey(merchantId));
 

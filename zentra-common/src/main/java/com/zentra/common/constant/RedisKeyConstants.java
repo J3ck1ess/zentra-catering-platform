@@ -48,6 +48,12 @@ public final class RedisKeyConstants {
             "cache:dish:detail:";
 
     /**
+     * Order create idempotency runtime key
+     */
+    public static final String ORDER_CREATE_IDEMPOTENCY =
+            "idempotency:order:create:";
+
+    /**
      * Distributed lock key
      */
     public static final String DISTRIBUTED_LOCK =

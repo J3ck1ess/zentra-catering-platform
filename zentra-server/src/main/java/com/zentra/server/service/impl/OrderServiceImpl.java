@@ -20,10 +20,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Order service implementation
@@ -57,6 +58,97 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
+     * Build order create idempotency key
+     */
+    private String buildOrderCreateIdempotencyKey(
+            Long merchantId,
+            Long userId,
+            OrderCreateDTO dto
+    ) {
+
+        return RedisKeyConstants.ORDER_CREATE_IDEMPOTENCY
+                + merchantId
+                + ":"
+                + userId
+                + ":"
+                + buildOrderCreateFingerprint(dto);
+    }
+
+    /**
+     * Build order create request fingerprint
+     */
+    private String buildOrderCreateFingerprint(
+            OrderCreateDTO dto
+    ) {
+
+        String fingerprintSource =
+                dto.getItems()
+                        .stream()
+                        .sorted(
+                                Comparator.comparing(
+                                        OrderItemCreateDTO::getDishId
+                                ).thenComparing(
+                                        OrderItemCreateDTO::getQuantity
+                                )
+                        )
+                        .map(item ->
+                                item.getDishId()
+                                        + ":"
+                                        + item.getQuantity()
+                        )
+                        .collect(
+                                Collectors.joining("|")
+                        );
+
+        return sha256(fingerprintSource);
+    }
+
+    /**
+     * Generate SHA-256 hash
+     */
+    private String sha256(
+            String value
+    ) {
+
+        try {
+
+            MessageDigest digest =
+                    MessageDigest.getInstance(
+                            "SHA-256"
+                    );
+
+            byte[] hash =
+                    digest.digest(
+                            value.getBytes(
+                                    StandardCharsets.UTF_8
+                            )
+                    );
+
+            StringBuilder builder =
+                    new StringBuilder();
+
+            for (byte b : hash) {
+
+                builder.append(
+                        String.format(
+                                "%02x",
+                                b
+                        )
+                );
+            }
+
+            return builder.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+
+            throw new IllegalStateException(
+                    "Failed to generate order fingerprint",
+                    e
+            );
+        }
+    }
+
+    /**
      * Build order create lock key
      */
     private String buildOrderCreateLockKey(
@@ -83,6 +175,42 @@ public class OrderServiceImpl implements OrderService {
 
         // Set merchant ID
         Long merchantId = AuthContext.getCurrentMerchantId();
+
+        // Build idempotency key
+        String idempotencyKey =
+                buildOrderCreateIdempotencyKey(
+                        merchantId,
+                        userId,
+                        dto
+                );
+
+        boolean accepted =
+                redisService.setIfAbsent(
+                        idempotencyKey,
+                        System.currentTimeMillis(),
+                        RedisTtlConstants.ORDER_CREATE_IDEMPOTENCY_TTL
+                );
+        if (!accepted) {
+
+            log.warn(
+                    "[IDEMPOTENCY] Duplicate order creation request detected. merchantId={}, userId={}, key={}",
+                    merchantId,
+                    userId,
+                    idempotencyKey
+            );
+
+            throw new BusinessException(
+                    ErrorCode.DUPLICATE_ORDER_REQUEST,
+                    ErrorMessage.DUPLICATE_ORDER_REQUEST
+            );
+        }
+        log.info(
+                "[IDEMPOTENCY] Order create request accepted. merchantId={}, userId={}, key={}",
+                merchantId,
+                userId,
+                idempotencyKey
+        );
+
 
         // Build distributed lock
         String lockKey =

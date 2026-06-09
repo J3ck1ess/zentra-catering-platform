@@ -86,6 +86,8 @@ public class ErrorMessage {
 
     public static final String CATEGORY_ID_REQUIRED = "Category id is required";
 
+    public static final String CATEGORY_NAME_ALREADY_EXISTS = "Category name already exists";
+
     /**
      * Dish messages
      */
@@ -102,6 +104,8 @@ public class ErrorMessage {
     public static final String DISH_DISABLED = "Dish is disabled";
 
     public static final String DISH_ID_REQUIRED = "Dish id is required";
+
+    public static final String DISH_NAME_ALREADY_EXISTS = "Dish name already exists";
 
     /**
      * Order messages

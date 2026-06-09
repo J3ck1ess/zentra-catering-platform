@@ -95,6 +95,8 @@ public class ErrorCode {
 
     public static final Integer CATEGORY_ID_REQUIRED = 50008;
 
+    public static final Integer CATEGORY_NAME_ALREADY_EXISTS = 50009;
+
     /**
      * Dish Errors
      */
@@ -111,6 +113,8 @@ public class ErrorCode {
     public static final Integer DISH_DISABLED = 51006;
 
     public static final Integer DISH_ID_REQUIRED = 51007;
+
+    public static final Integer DISH_NAME_ALREADY_EXISTS = 51008;
 
     /**
      * Order Errors

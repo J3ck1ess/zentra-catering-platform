@@ -113,6 +113,8 @@ The system includes multiple enterprise-oriented backend patterns:
 - Concurrent-safe order creation runtime
 - Redis-based distributed lock governance
 - Lock-aware order submission runtime
+- Redis idempotency runtime
+- Request fingerprint-based duplicate request protection
 - Fast-fail duplicate request interception
 
 ### User Module
@@ -252,6 +254,8 @@ This project implements an enterprise-style Redis-based verification runtime arc
 - Cache penetration protection
 - Distributed lock runtime infrastructure
 - Concurrent-safe order runtime governance
+- Redis idempotency runtime
+- Request fingerprint-based duplicate request protection
 - Fast-fail duplicate request protection
 - Runtime observability governance
 - Structured runtime logging architecture
@@ -328,9 +332,15 @@ Cache Runtime
 
 Lock Runtime
 - Distributed lock infrastructure
-- Duplicate request protection
 - Lock ownership verification
 - Concurrent-safe business execution
+
+Idempotency Runtime
+- Redis SETNX-based request protection
+- Request fingerprint generation
+- SHA-256 fingerprint hashing
+- Order create idempotency governance
+- Fast-fail duplicate request interception
 
 ---
 
@@ -465,6 +475,7 @@ Additional lifecycle automation:
 - User-triggered order cancellation
 - User-triggered payment simulation
 - Automatic cancellation for expired pending orders
+- Idempotent order creation protection
 
 Invalid transitions are rejected at the service layer.
 
@@ -492,6 +503,8 @@ Validation is implemented at multiple layers:
 - DTO validation (`@Valid`)
 - Business validation in Service layer
 - Affected-row validation using `AssertUtil.checkRows()`
+- Database unique constraint governance
+- Redis idempotency validation
 - Status transition validation
 - Ownership validation
 - Password hashing using BCrypt

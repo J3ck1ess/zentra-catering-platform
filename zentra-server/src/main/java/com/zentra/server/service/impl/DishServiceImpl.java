@@ -14,6 +14,7 @@ import com.zentra.server.service.DishService;
 import com.zentra.server.service.RedisService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -90,12 +91,29 @@ public class DishServiceImpl implements DishService {
         // Set merchant ID from current user context
         dish.setMerchantId(merchantId);
 
-        int rows = dishMapper.insert(dish);
-        AssertUtil.checkRows(
-                rows,
-                ErrorCode.DISH_CREATE_FAILED,
-                ErrorMessage.DISH_CREATE_FAILED
-        );
+        try {
+
+            int rows = dishMapper.insert(dish);
+
+            AssertUtil.checkRows(
+                    rows,
+                    ErrorCode.DISH_CREATE_FAILED,
+                    ErrorMessage.DISH_CREATE_FAILED
+            );
+
+        } catch (DuplicateKeyException e) {
+
+            log.warn(
+                    "[DISH] Duplicate dish name detected. merchantId={}, dishName={}",
+                    merchantId,
+                    dto.getName()
+            );
+
+            throw new BusinessException(
+                    ErrorCode.DISH_NAME_ALREADY_EXISTS,
+                    ErrorMessage.DISH_NAME_ALREADY_EXISTS
+            );
+        }
 
         log.info(
                 "[DISH] Dish created successfully. merchantId={}, name={}",
@@ -371,12 +389,29 @@ public class DishServiceImpl implements DishService {
 
         dish.setMerchantId(merchantId);
 
-        int rows = dishMapper.update(dish);
-        AssertUtil.checkRows(
-                rows,
-                ErrorCode.DISH_UPDATE_FAILED,
-                ErrorMessage.DISH_UPDATE_FAILED
-        );
+        try {
+
+            int rows = dishMapper.update(dish);
+
+            AssertUtil.checkRows(
+                    rows,
+                    ErrorCode.DISH_UPDATE_FAILED,
+                    ErrorMessage.DISH_UPDATE_FAILED
+            );
+
+        } catch (DuplicateKeyException e) {
+
+            log.warn(
+                    "[DISH] Duplicate dish name detected during update. merchantId={}, dishName={}",
+                    merchantId,
+                    dto.getName()
+            );
+
+            throw new BusinessException(
+                    ErrorCode.DISH_NAME_ALREADY_EXISTS,
+                    ErrorMessage.DISH_NAME_ALREADY_EXISTS
+            );
+        }
 
         // Delete cache
         redisService.delete(buildDishDetailCacheKey(dto.getId()));

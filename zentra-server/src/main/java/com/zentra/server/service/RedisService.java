@@ -46,6 +46,15 @@ public interface RedisService {
     boolean exists(String key);
 
     /**
+     * Set value if absent
+     */
+    boolean setIfAbsent(
+            String key,
+            Object value,
+            Duration ttl
+    );
+
+    /**
      * Increment redis value atomically
      */
     Long increment(

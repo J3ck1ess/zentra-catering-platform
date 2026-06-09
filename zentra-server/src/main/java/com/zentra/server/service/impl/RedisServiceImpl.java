@@ -56,7 +56,9 @@ public class RedisServiceImpl implements RedisService {
         return value;
     }
 
-
+    /**
+     * Set redis value with TTL
+     */
     @Override
     public void set(
             String key,
@@ -76,6 +78,9 @@ public class RedisServiceImpl implements RedisService {
         );
     }
 
+    /**
+     * Get redis value
+     */
     @Override
     public <T> T get(
             String key,
@@ -94,6 +99,10 @@ public class RedisServiceImpl implements RedisService {
         );
     }
 
+
+    /**
+     * Get redis value with generic type support
+     */
     @Override
     public <T> T get(
             String key,
@@ -112,6 +121,9 @@ public class RedisServiceImpl implements RedisService {
         );
     }
 
+    /**
+     * Delete redis key
+     */
     @Override
     public void delete(String key) {
 
@@ -123,6 +135,9 @@ public class RedisServiceImpl implements RedisService {
         );
     }
 
+    /**
+     * Check redis key exists
+     */
     @Override
     public boolean exists(String key) {
 
@@ -137,6 +152,38 @@ public class RedisServiceImpl implements RedisService {
         return Boolean.TRUE.equals(exists);
     }
 
+    /**
+     * Set value if absent
+     */
+    @Override
+    public boolean setIfAbsent(
+            String key,
+            Object value,
+            Duration ttl
+    ) {
+
+        Boolean success =
+                redisTemplate.opsForValue()
+                        .setIfAbsent(
+                                key,
+                                value,
+                                ttl
+                        );
+
+        boolean result = Boolean.TRUE.equals(success);
+
+        log.info(
+                "[CACHE] Cache set-if-absent executed. key={}, success={}",
+                key,
+                result
+        );
+
+        return result;
+    }
+
+    /**
+     * Increment redis value atomically
+     */
     @Override
     public Long increment(
             String key,
@@ -187,12 +234,14 @@ public class RedisServiceImpl implements RedisService {
                         ttl
                 );
 
+        boolean result = Boolean.TRUE.equals(success);
+
         log.info(
                 "[LOCK] Distributed lock acquisition attempted. key={}, success={}",
                 key,
-                Boolean.TRUE.equals(success)
+                result
         );
-        return Boolean.TRUE.equals(success);
+        return result;
     }
 
     /**

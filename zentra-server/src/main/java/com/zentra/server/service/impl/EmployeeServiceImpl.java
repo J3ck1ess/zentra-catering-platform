@@ -14,6 +14,7 @@ import com.zentra.server.service.EmployeeService;
 import com.zentra.common.util.JwtUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -85,13 +86,29 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setStatus(EmployeeStatus.ACTIVE);
         employee.setMerchantId(merchantId);
 
-        int rows = employeeMapper.insert(employee);
+        try {
 
-        AssertUtil.checkRows(
-                rows,
-                ErrorCode.EMPLOYEE_CREATE_FAILED,
-                ErrorMessage.EMPLOYEE_CREATE_FAILED
-        );
+            int rows = employeeMapper.insert(employee);
+
+            AssertUtil.checkRows(
+                    rows,
+                    ErrorCode.EMPLOYEE_CREATE_FAILED,
+                    ErrorMessage.EMPLOYEE_CREATE_FAILED
+            );
+
+        } catch (DuplicateKeyException e) {
+
+            log.warn(
+                    "[EMPLOYEE] Duplicate employee username detected. merchantId={}, username={}",
+                    merchantId,
+                    employee.getUsername()
+            );
+
+            throw new BusinessException(
+                    ErrorCode.EMPLOYEE_USERNAME_ALREADY_EXISTS,
+                    ErrorMessage.EMPLOYEE_USERNAME_ALREADY_EXISTS
+            );
+        }
 
         log.info(
                 "[EMPLOYEE] Employee persisted successfully. merchantId={}, username={}",

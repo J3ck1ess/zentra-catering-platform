@@ -37,3 +37,11 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Local Development Files ###
+.idea/dataSources.xml
+.idea/db-forest-config.xml
+.idea/misc.xml
+
+build.log
+zentra-schema.sql

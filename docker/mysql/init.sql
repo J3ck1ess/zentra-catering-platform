@@ -68,7 +68,7 @@ CREATE TABLE `employee` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'Employee ID',
   `merchant_id` bigint NOT NULL COMMENT 'Merchant ID',
   `username` varchar(50) NOT NULL COMMENT 'Login username',
-  `password` varchar(255) NOT NULL COMMENT 'Encrypted password (MD5)',
+  `password` varchar(255) NOT NULL COMMENT 'BCrypt encrypted password',
   `name` varchar(100) DEFAULT NULL COMMENT 'Employee name',
   `role` varchar(50) DEFAULT NULL COMMENT 'Employee role',
   `status` tinyint NOT NULL DEFAULT '1' COMMENT 'Employee status: 1-active, 0-disabled',
@@ -168,5 +168,79 @@ CREATE TABLE `user` (
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+/* ========================= */
+/* Initial Seed Data */
+/* ========================= */
+
+/* Merchant */
+
+INSERT INTO merchant
+(
+    id,
+    name,
+    status
+)
+VALUES
+    (
+        1,
+        'Demo Merchant',
+        1
+    );
+
+/* Employee */
+
+INSERT INTO employee
+(
+    id,
+    merchant_id,
+    username,
+    password,
+    name,
+    role,
+    status
+)
+VALUES
+    (
+        1,
+        1,
+        'admin',
+        '$2a$10$Gr.YiQLonZwS7IU0Iaet6ecRVYcCsvyv4BLY3ILb2C1YN8B1mgE5m',
+        'System Administrator',
+        'SUPER_ADMIN',
+        1
+    ),
+    (
+        2,
+        1,
+        'manager',
+        '$2a$10$Gr.YiQLonZwS7IU0Iaet6ecRVYcCsvyv4BLY3ILb2C1YN8B1mgE5m',
+        'Store Manager',
+        'STORE_MANAGER',
+        1
+    );
+
+/* Customer User */
+
+INSERT INTO user
+(
+    id,
+    merchant_id,
+    username,
+    password,
+    nickname,
+    status
+)
+VALUES
+    (
+        1,
+        1,
+        'customer',
+        '$2a$10$Gr.YiQLonZwS7IU0Iaet6ecRVYcCsvyv4BLY3ILb2C1YN8B1mgE5m',
+        'Demo Customer',
+        1
+    );
 
 -- Dump completed on 2026-06-10  9:54:47

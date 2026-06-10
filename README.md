@@ -241,6 +241,24 @@ The project implements fine-grained permission governance using CRUD-based permi
 
 The same governance model is applied across employee, user admin, category, dish, and order management APIs.
 
+### Standardized Role Model
+
+The RBAC system adopts a standardized enterprise role model:
+
+- SUPER_ADMIN
+- STORE_MANAGER
+- CASHIER
+- KITCHEN_STAFF
+
+Legacy role values such as:
+
+- admin
+- staff
+
+have been migrated to the standardized role model to ensure consistent permission governance across development, testing, and containerized deployment environments.
+
+Role-to-permission resolution is handled centrally through the PermissionProvider infrastructure.
+
 ### Security Design
 
 - JWT-based identity authentication

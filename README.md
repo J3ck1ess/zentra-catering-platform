@@ -12,7 +12,10 @@ The project focuses on enterprise-style backend architecture, including DTO laye
 - Spring Boot 3.x
 - Maven (Multi-module)
 - MySQL
+- Redis
 - MyBatis
+- Docker
+- Docker Compose
 - JWT Authentication
 - RBAC Authorization
 - Swagger / OpenAPI 3
@@ -141,6 +144,19 @@ The system includes multiple enterprise-oriented backend patterns:
 - DTO-based admin response architecture
 - JWT-based admin authorization control
 - Multi-domain API access routing
+
+### Deployment Module
+
+- Dockerized Spring Boot runtime
+- Multi-stage Docker image build
+- Docker Compose service orchestration
+- Containerized MySQL infrastructure
+- Containerized Redis infrastructure
+- Environment-specific profile governance
+- Production profile deployment runtime
+- Automated database initialization
+- Service network isolation
+- Portable one-command deployment architecture
 
 ---
 
@@ -551,16 +567,92 @@ zentra-catering-platform
 
 ---
 
+## Docker Deployment
+
+### Deployment Architecture
+
+The project supports containerized deployment using Docker and Docker Compose.
+
+The deployment stack includes:
+
+- Spring Boot Runtime Container
+- MySQL Database Container
+- Redis Cache Container
+- Dedicated Docker Network
+- Persistent Volume Management
+
+### Runtime Topology
+
+```text
+Client Request
+    ↓
+Spring Boot Container
+    ├── MySQL Container
+    └── Redis Container
+```
+
+### Build Image
+
+```bash
+docker build -t zentra-server:1.0 .
+```
+
+### Start Services
+
+```bash
+docker compose up -d
+```
+
+### Stop Services
+
+```bash
+docker compose down
+```
+
+### View Runtime Logs
+
+```bash
+docker logs -f zentra-server
+```
+
+### Service Ports
+
+| Service | Port |
+|----------|------|
+| Zentra Server | 8080 |
+| MySQL | 3307 |
+| Redis | 6380 |
+
+### Environment Profiles
+
+Development Environment:
+
+```text
+application.yml
+```
+
+Containerized Production Environment:
+
+```text
+application-prod.yml
+```
+
+The production profile is activated through Docker Compose runtime variables.
+
+---
+
 ## Future Improvements
 
 - Admin/User frontend implementation
 - Payment workflow integration
-- Docker deployment
 - MyBatis interceptor for automatic tenant injection
 - Employee permission management
 - Redisson-based distributed lock optimization
 - Distributed lock watchdog renewal
-- Idempotency token runtime
+- Idempotency token 
+- CI/CD pipeline integration
+- Container health check governance
+- Production monitoring and observability
 
 ---
 

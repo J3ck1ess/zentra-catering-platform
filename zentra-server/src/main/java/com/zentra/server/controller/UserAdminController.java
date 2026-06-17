@@ -43,7 +43,7 @@ public class UserAdminController {
             summary = "Get users list",
             description =
                     "Retrieve paginated user list with optional filters. " +
-                    "Requires permission: user::view"
+                    "Requires permission: user:view"
     )
     @UserAdminPageApiResponse
     @AuthApiResponses

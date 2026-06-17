@@ -197,6 +197,34 @@ This project implements a stateless authentication system using JSON Web Token (
 
 This project implements an enterprise-style RBAC (Role-Based Access Control) architecture for admin-side authorization governance.
 
+### Role Permission Matrix
+
+The system adopts a centralized role permission matrix model.
+
+Built-in roles:
+
+- SUPER_ADMIN
+- STORE_MANAGER
+- CASHIER
+- KITCHEN_STAFF
+
+Permission resolution flow:
+
+Role
+→ PermissionProvider
+→ PermissionContext
+→ PermissionInterceptor
+→ API Access Decision
+
+The permission matrix is maintained through an immutable role-permission mapping and validated through runtime authorization testing.
+
+Role responsibilities:
+
+- SUPER_ADMIN: Full system permissions.
+- STORE_MANAGER: Store operation and management permissions.
+- CASHIER: Order processing and customer management permissions.
+- KITCHEN_STAFF: Kitchen workflow and order status update permissions.
+
 ### Features
 
 - Role-based permission management
@@ -241,23 +269,19 @@ The project implements fine-grained permission governance using CRUD-based permi
 
 The same governance model is applied across employee, user admin, category, dish, and order management APIs.
 
-### Standardized Role Model
+### Role Migration History
 
-The RBAC system adopts a standardized enterprise role model:
-
-- SUPER_ADMIN
-- STORE_MANAGER
-- CASHIER
-- KITCHEN_STAFF
-
-Legacy role values such as:
+Legacy role values:
 
 - admin
 - staff
 
-have been migrated to the standardized role model to ensure consistent permission governance across development, testing, and containerized deployment environments.
+were migrated to the standardized enterprise role model:
 
-Role-to-permission resolution is handled centrally through the PermissionProvider infrastructure.
+- SUPER_ADMIN
+- STORE_MANAGER
+
+to ensure consistent RBAC governance across development, testing, and containerized deployment environments.
 
 ### Security Design
 

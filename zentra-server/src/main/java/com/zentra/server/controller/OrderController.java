@@ -90,6 +90,9 @@ public class OrderController {
     @OrderDetailApiResponse
     @NotFoundApiResponse
     @AuthApiResponses
+    @RequirePermission(
+            PermissionConstants.ORDER_VIEW
+    )
     @GetMapping("/{id}")
     public Result<OrderDetailDTO> getById(
             @PathVariable Long id

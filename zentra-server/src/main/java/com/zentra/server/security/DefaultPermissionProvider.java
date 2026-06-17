@@ -46,6 +46,7 @@ public class DefaultPermissionProvider implements PermissionProvider {
                     PermissionConstants.ORDER_UPDATE
             ),
 
+            // Store manager permissions
             RoleConstants.STORE_MANAGER,
             Set.of(
 
@@ -65,6 +66,7 @@ public class DefaultPermissionProvider implements PermissionProvider {
                     PermissionConstants.ORDER_UPDATE
             ),
 
+            // Cashier permissions
             RoleConstants.CASHIER,
             Set.of(
 
@@ -74,6 +76,7 @@ public class DefaultPermissionProvider implements PermissionProvider {
                     PermissionConstants.ORDER_UPDATE
             ),
 
+            // Kitchen staff permissions
             RoleConstants.KITCHEN_STAFF,
             Set.of(
 
@@ -82,7 +85,6 @@ public class DefaultPermissionProvider implements PermissionProvider {
             )
     );
 
-    // TODO: need Review
     @Override
     public Set<String> loadPermissions(String role) {
 

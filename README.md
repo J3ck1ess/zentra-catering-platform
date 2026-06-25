@@ -18,6 +18,7 @@ The project focuses on enterprise-style backend architecture, including DTO laye
 - Docker Compose
 - JWT Authentication
 - RBAC Authorization
+- Spring AOP
 - Swagger / OpenAPI 3
 - BCrypt Password Hashing
 - Jakarta Validation
@@ -57,6 +58,8 @@ The system includes multiple enterprise-oriented backend patterns:
 - JWT-based authentication workflow
 - BCrypt password hashing
 - User-order business association
+- Annotation-driven audit runtime
+- Aspect-oriented business auditing
 
 ---
 
@@ -409,6 +412,7 @@ The project implements a structured runtime observability architecture to improv
 ### Runtime Domains
 
 - AUTH Runtime
+- AUDIT Runtime
 - RBAC Runtime
 - CACHE Runtime
 - LOCK Runtime
@@ -442,6 +446,41 @@ All critical runtime events are recorded using structured logging with unified d
 - Cache runtime observability
 - Distributed lock observability
 - Exception governance integration
+- Annotation-driven audit governance
+- Business operation traceability
+
+---
+
+## Enterprise Audit Runtime
+
+This project implements an enterprise-style audit runtime based on Spring AOP for business operation governance.
+
+### Features
+
+- Annotation-driven audit logging (`@AuditLog`)
+- Aspect-oriented audit interception
+- ThreadLocal-based operator resolution
+- Unified audit persistence runtime
+- Business operation traceability
+- Success and failure audit recording
+- Structured audit runtime logging
+- Runtime execution time recording
+
+### Runtime Flow
+
+```text
+Controller
+    ↓
+@AuditLog
+    ↓
+Audit Aspect
+    ↓
+Operator Resolution
+    ↓
+Business Execution
+    ↓
+Audit Persistence
+```
 
 ---
 

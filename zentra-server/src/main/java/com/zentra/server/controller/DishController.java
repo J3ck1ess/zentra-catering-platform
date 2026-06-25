@@ -52,6 +52,10 @@ public class DishController {
     @RequirePermission(
             PermissionConstants.DISH_CREATE
     )
+    @AuditLog(
+            operation = "CREATE_DISH",
+            resourceType = "dish"
+    )
     @PostMapping
     public Result<Void> create(
             @Valid @RequestBody DishCreateDTO dto
@@ -75,6 +79,10 @@ public class DishController {
     @AuthApiResponses
     @RequirePermission(
             PermissionConstants.DISH_VIEW
+    )
+    @AuditLog(
+            operation = "PAGE_DISH",
+            resourceType = "dish"
     )
     @GetMapping
     public Result<PageResult<DishDTO>> page(
@@ -115,6 +123,10 @@ public class DishController {
     @SuccessApiResponse
     @NotFoundApiResponse
     @AuthApiResponses
+    @AuditLog(
+            operation = "GET_DISH",
+            resourceType = "dish"
+    )
     @GetMapping("/{id}")
     public Result<DishDTO> getById(
             @PathVariable Long id
@@ -141,6 +153,10 @@ public class DishController {
     @RequirePermission(
             PermissionConstants.DISH_UPDATE
     )
+    @AuditLog(
+            operation = "UPDATE_DISH",
+            resourceType = "dish"
+    )
     @PatchMapping
     public Result<Void> update(
             @Valid @RequestBody DishUpdateDTO dto
@@ -166,6 +182,10 @@ public class DishController {
     @AuthApiResponses
     @RequirePermission(
             PermissionConstants.DISH_DELETE
+    )
+    @AuditLog(
+            operation = "DELETE_DISH",
+            resourceType = "dish"
     )
     @DeleteMapping("/{id}")
     public Result<Void> delete(

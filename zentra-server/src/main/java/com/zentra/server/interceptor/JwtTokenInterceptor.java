@@ -12,6 +12,7 @@ import com.zentra.server.security.PermissionProvider;
 import com.zentra.server.service.JwtBlacklistService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -23,6 +24,7 @@ import java.util.List;
  */
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class JwtTokenInterceptor implements HandlerInterceptor {
 
     /**
@@ -54,19 +56,6 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
      * JWT blacklist service
      */
     private final JwtBlacklistService jwtBlacklistService;
-
-    /**
-     * Constructor injection
-     */
-    public JwtTokenInterceptor(
-            PermissionProvider permissionProvider,
-            JwtBlacklistService jwtBlacklistService
-    ) {
-
-        this.permissionProvider = permissionProvider;
-
-        this.jwtBlacklistService = jwtBlacklistService;
-    }
 
     /**
      * Execute before controller
@@ -177,6 +166,8 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
         AuthContext.setCurrentMerchantId(authInfo.getMerchantId());
 
         AuthContext.setCurrentUserType(authInfo.getUserType());
+
+        AuthContext.setCurrentRole(authInfo.getRole());
 
         log.info(
                 "[AUTH] Authentication successful. userId={}, merchantId={}, userType={}, uri={}",

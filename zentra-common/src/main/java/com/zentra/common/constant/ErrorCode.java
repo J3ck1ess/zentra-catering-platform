@@ -139,6 +139,11 @@ public class ErrorCode {
 
     public static final Integer ORDER_CANNOT_BE_PAID = 52010;
 
+    /**
+     * Audit Log Errors
+     */
+    public static final Integer AUDIT_LOG_CREATE_FAILED = 53001;
+
     private ErrorCode() {
     }
 }

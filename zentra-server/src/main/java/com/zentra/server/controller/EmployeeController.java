@@ -48,6 +48,10 @@ public class EmployeeController {
     @RequirePermission(
             PermissionConstants.EMPLOYEE_CREATE
     )
+    @AuditLog(
+            operation = "CREATE_EMPLOYEE",
+            resourceType = "employee"
+    )
     @PostMapping
     public Result<Void> createEmployee(
             @Valid @RequestBody EmployeeCreateDTO dto
@@ -71,6 +75,10 @@ public class EmployeeController {
     @AuthApiResponses
     @RequirePermission(
             PermissionConstants.EMPLOYEE_VIEW
+    )
+    @AuditLog(
+            operation = "PAGE_EMPLOYEE",
+            resourceType = "employee"
     )
     @GetMapping
     public Result<PageResult<EmployeeDTO>> page(
@@ -97,6 +105,10 @@ public class EmployeeController {
     @RequirePermission(
             PermissionConstants.EMPLOYEE_VIEW
     )
+    @AuditLog(
+            operation = "GET_EMPLOYEE",
+            resourceType = "employee"
+    )
     @GetMapping("/{id}")
     public Result<EmployeeDTO> getById(
             @PathVariable Long id
@@ -121,6 +133,10 @@ public class EmployeeController {
     @AuthApiResponses
     @RequirePermission(
             PermissionConstants.EMPLOYEE_VIEW
+    )
+    @AuditLog(
+            operation = "SEARCH_EMPLOYEE",
+            resourceType = "employee"
     )
     @GetMapping("/search")
     public Result<EmployeeDTO> getByUsername(
@@ -168,6 +184,10 @@ public class EmployeeController {
     @RequirePermission(
             PermissionConstants.EMPLOYEE_UPDATE
     )
+    @AuditLog(
+            operation = "UPDATE_EMPLOYEE",
+            resourceType = "employee"
+    )
     @PatchMapping
     public Result<Void> update(
             @Valid @RequestBody EmployeeUpdateDTO dto
@@ -192,6 +212,10 @@ public class EmployeeController {
     @AuthApiResponses
     @RequirePermission(
             PermissionConstants.EMPLOYEE_DELETE
+    )
+    @AuditLog(
+            operation = "DELETE_EMPLOYEE",
+            resourceType = "employee"
     )
     @DeleteMapping("/{id}")
     public Result<Void> delete(

@@ -11,6 +11,8 @@ public class AuthContext {
 
     private static final ThreadLocal<String> CURRENT_USER_TYPE = new ThreadLocal<>();
 
+    private static final ThreadLocal<String> CURRENT_ROLE = new ThreadLocal<>();
+
     /**
      * Set current user id
      */
@@ -60,6 +62,22 @@ public class AuthContext {
     }
 
     /**
+     * Set current role
+     */
+    public static void setCurrentRole(String role) {
+
+        CURRENT_ROLE.set(role);
+    }
+
+    /**
+     * Get current role
+     */
+    public static String getCurrentRole() {
+
+        return CURRENT_ROLE.get();
+    }
+
+    /**
      * Clear ThreadLocal
      */
     public static void clear() {
@@ -67,6 +85,7 @@ public class AuthContext {
         CURRENT_USER_ID.remove();
         CURRENT_MERCHANT_ID.remove();
         CURRENT_USER_TYPE.remove();
+        CURRENT_ROLE.remove();
     }
 
     private AuthContext() {

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zentra.server.mapper.AuditLogMapper">
+
+    <!-- ========================================= -->
+    <!-- Result Mapping -->
+    <!-- ========================================= -->
+
+    <resultMap id="AuditLogResultMap"
+               type="com.zentra.server.entity.AuditLog">
+
+        <id property="id" column="id"/>
+
+        <result property="operatorId" column="operator_id"/>
+        <result property="operatorRole" column="operator_role"/>
+        <result property="operation" column="operation"/>
+        <result property="resourceType" column="resource_type"/>
+        <result property="resourceId" column="resource_id"/>
+        <result property="requestUri" column="request_uri"/>
+        <result property="requestMethod" column="request_method"/>
+        <result property="executionTime" column="execution_time"/>
+        <result property="success" column="success"/>
+        <result property="errorMessage" column="error_message"/>
+
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+
+    </resultMap>
+
+    <!-- ========================================= -->
+    <!-- Insert Audit Log -->
+    <!-- ========================================= -->
+
+    <insert id="insert"
+            parameterType="com.zentra.server.entity.AuditLog"
+            useGeneratedKeys="true"
+            keyProperty="id">
+
+        <!-- Persist audit log entity -->
+
+        INSERT INTO audit_log (
+            operator_id,
+            operator_role,
+            operation,
+            resource_type,
+            resource_id,
+            request_uri,
+            request_method,
+            execution_time,
+            success,
+            error_message
+        )
+        VALUES (
+            #{operatorId},
+            #{operatorRole},
+            #{operation},
+            #{resourceType},
+            #{resourceId},
+            #{requestUri},
+            #{requestMethod},
+            #{executionTime},
+            #{success},
+            #{errorMessage}
+        )
+
+    </insert>
+
+</mapper>

@@ -53,6 +53,10 @@ public class CategoryController {
     @RequirePermission(
             PermissionConstants.CATEGORY_CREATE
     )
+    @AuditLog(
+            operation = "CREATE_CATEGORY",
+            resourceType = "category"
+    )
     @PostMapping
     public Result<Void> create(
             @Valid @RequestBody CategoryCreateDTO dto
@@ -76,6 +80,10 @@ public class CategoryController {
     @AuthApiResponses
     @RequirePermission(
             PermissionConstants.CATEGORY_VIEW
+    )
+    @AuditLog(
+            operation = "PAGE_CATEGORY",
+            resourceType = "category"
     )
     @GetMapping
     public Result<PageResult<CategoryDTO>> page(
@@ -120,6 +128,10 @@ public class CategoryController {
     @RequirePermission(
             PermissionConstants.CATEGORY_UPDATE
     )
+    @AuditLog(
+            operation = "UPDATE_CATEGORY",
+            resourceType = "category"
+    )
     @PatchMapping
     public Result<Void> update(
             @Valid @RequestBody CategoryUpdateDTO dto
@@ -145,6 +157,10 @@ public class CategoryController {
     @AuthApiResponses
     @RequirePermission(
             PermissionConstants.CATEGORY_DELETE
+    )
+    @AuditLog(
+            operation = "DELETE_CATEGORY",
+            resourceType = "category"
     )
     @DeleteMapping("/{id}")
     public Result<Void> delete(

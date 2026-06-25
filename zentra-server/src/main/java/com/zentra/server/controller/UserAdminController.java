@@ -50,6 +50,10 @@ public class UserAdminController {
     @RequirePermission(
             PermissionConstants.USER_VIEW
     )
+    @AuditLog(
+            operation = "PAGE_USER",
+            resourceType = "user"
+    )
     @GetMapping
     public Result<PageResult<UserAdminDTO>> page(
             @Valid UserAdminQueryDTO query
@@ -75,6 +79,10 @@ public class UserAdminController {
     @AuthApiResponses
     @RequirePermission(
             PermissionConstants.USER_UPDATE
+    )
+    @AuditLog(
+            operation = "UPDATE_USER_STATUS",
+            resourceType = "user"
     )
     @PatchMapping("/{id}/status")
     public Result<Void> updateStatus(

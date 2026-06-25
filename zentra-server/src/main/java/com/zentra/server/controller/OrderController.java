@@ -46,6 +46,10 @@ public class OrderController {
     @NotFoundApiResponse
     @AuthApiResponses
     @DuplicateRequestApiResponse
+    @AuditLog(
+            operation = "CREATE_ORDER",
+            resourceType = "order"
+    )
     @PostMapping
     public Result<Void> create(
             @Valid @RequestBody OrderCreateDTO dto
@@ -70,6 +74,10 @@ public class OrderController {
     @RequirePermission(
             PermissionConstants.ORDER_VIEW
     )
+    @AuditLog(
+            operation = "PAGE_ORDER",
+            resourceType = "order"
+    )
     @GetMapping
     public Result<PageResult<OrderPageDTO>> page(
             @Valid OrderQueryDTO query
@@ -92,6 +100,10 @@ public class OrderController {
     @AuthApiResponses
     @RequirePermission(
             PermissionConstants.ORDER_VIEW
+    )
+    @AuditLog(
+            operation = "GET_ORDER",
+            resourceType = "order"
     )
     @GetMapping("/{id}")
     public Result<OrderDetailDTO> getById(
@@ -118,6 +130,10 @@ public class OrderController {
     @AuthApiResponses
     @RequirePermission(
             PermissionConstants.ORDER_UPDATE
+    )
+    @AuditLog(
+            operation = "UPDATE_ORDER_STATUS",
+            resourceType = "order"
     )
     @PatchMapping("/{id}/status")
     public Result<Void> updateStatus(

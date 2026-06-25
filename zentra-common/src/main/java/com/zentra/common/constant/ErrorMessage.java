@@ -130,6 +130,11 @@ public class ErrorMessage {
 
     public static final String ORDER_CANNOT_BE_PAID = "Only pending orders can be paid";
 
+    /**
+     * Audit log messages
+     */
+    public static final String AUDIT_LOG_CREATE_FAILED = "Failed to persist audit log";
+
     private ErrorMessage() {
     }
 }

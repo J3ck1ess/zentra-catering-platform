@@ -12,8 +12,6 @@
         <module>zentra-common</module>
         <module>zentra-api</module>
         <module>zentra-server</module>
-        <module>zentra-admin</module>
-        <module>zentra-user</module>
     </modules>
 
     <properties>

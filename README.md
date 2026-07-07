@@ -148,6 +148,17 @@ The system includes multiple enterprise-oriented backend patterns:
 - JWT-based admin authorization control
 - Multi-domain API access routing
 
+### Admin Frontend Module
+
+- React 19 + Vite architecture
+- Tailwind CSS layout system
+- Ant Design component runtime
+- React Router nested routing
+- Shared HTTP client runtime
+- JWT token storage runtime
+- Login authentication workflow
+- Spring Boot API integration
+
 ### Deployment Module
 
 - Dockerized Spring Boot runtime
@@ -642,8 +653,8 @@ Business validation, authentication, authorization, and tenant isolation errors 
 zentra-catering-platform
 ├── zentra-common     # Common utilities, auth, context, constants, Result wrapper
 ├── zentra-server     # Core backend service
-├── zentra-admin      # Admin-side frontend (future)
-├── zentra-user       # User-side frontend (future)
+├── zentra-admin      # React admin frontend
+├── zentra-user       # User-side frontend (planned)
 ```
 
 ---
@@ -724,7 +735,8 @@ The production profile is activated through Docker Compose runtime variables.
 
 ## Future Improvements
 
-- Admin/User frontend implementation
+- Admin frontend feature expansion
+- User frontend implementation
 - Payment workflow integration
 - MyBatis interceptor for automatic tenant injection
 - Employee permission management

@@ -45,3 +45,17 @@ build/
 
 build.log
 zentra-schema.sql
+
+### React / Vite ###
+zentra-admin/node_modules/
+zentra-admin/dist/
+zentra-admin/.vite/
+
+### React Logs ###
+zentra-admin/npm-debug.log*
+zentra-admin/yarn-debug.log*
+zentra-admin/yarn-error.log*
+zentra-admin/pnpm-debug.log*
+
+### Environment ###
+zentra-admin/*.local

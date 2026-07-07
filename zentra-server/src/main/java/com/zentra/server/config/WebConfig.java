@@ -4,6 +4,7 @@ import com.zentra.server.interceptor.JwtTokenInterceptor;
 import com.zentra.server.interceptor.PermissionInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
@@ -23,6 +24,20 @@ public class WebConfig implements WebMvcConfigurer {
 
         this.jwtTokenInterceptor = jwtTokenInterceptor;
         this.permissionInterceptor = permissionInterceptor;
+    }
+
+    /**
+     * Configure cross-origin resource sharing
+     */
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+
+        registry.addMapping("/**")
+                .allowedOriginPatterns("*")
+                .allowedMethods("*")
+                .allowedHeaders("*")
+                .allowCredentials(true);
+
     }
 
     /**

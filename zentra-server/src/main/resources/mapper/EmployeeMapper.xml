@@ -213,6 +213,20 @@
     </update>
 
     <!-- ========================================= -->
+    <!-- Update employee status -->
+    <!-- ========================================= -->
+    <update id="updateStatus">
+
+        UPDATE employee
+        SET
+            status = #{status},
+            updated_at = NOW()
+        WHERE id = #{id}
+          AND merchant_id = #{merchantId}
+
+    </update>
+
+    <!-- ========================================= -->
     <!-- Delete employee by id -->
     <!-- ========================================= -->
     <delete id="deleteById">

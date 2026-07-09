@@ -65,14 +65,27 @@ The system includes multiple enterprise-oriented backend patterns:
 
 ## Current Progress
 
+### Employee Admin Runtime
+- Employee authentication workflow
+- Employee pagination runtime
+- Employee search runtime
+- Employee status management
+- Real-time status switch
+- JWT-protected admin operations
+- Enterprise CRUD workflow
+
 ### Employee Module
 - Employee CRUD
-- Pagination query
+- Employee pagination query
+- Employee search runtime
 - Dynamic PATCH update
+- Independent status update runtime
+- Employee status switch workflow
 - DTO architecture
 - Tenant isolation using `merchant_id`
 - JWT login authentication
-- XML-based dynamic SQL
+- XML-based MyBatis dynamic SQL
+- Enterprise CRUD architecture
 
 ### Category Module
 - Category CRUD
@@ -158,6 +171,13 @@ The system includes multiple enterprise-oriented backend patterns:
 - JWT token storage runtime
 - Login authentication workflow
 - Spring Boot API integration
+- Employee management runtime
+- Employee pagination query
+- Employee status switch runtime
+- Ant Design Table runtime
+- Ant Design Form runtime
+- Server-side pagination integration
+- JWT-protected admin CRUD workflow
 
 ### Deployment Module
 
@@ -195,6 +215,7 @@ This project implements a stateless authentication system using JSON Web Token (
 - Interceptor-based API authorization control
 - API access isolation based on authenticated user type
 - Admin API authorization routing (`/admin/**`)
+- JWT interceptor support for CORS preflight requests
 
 ### Workflow
 

@@ -1,71 +1,94 @@
+import { Button, Space, Switch, Table } from "antd";
+
 /**
  * Employee table
  */
-function EmployeeTable() {
+function EmployeeTable({
+    loading,
+    employeePage,
+    query,
+    onPageChange,
+    onStatusChange,
+}) {
+
+    const columns = [
+
+        {
+            title: "Username",
+            dataIndex: "username",
+            key: "username",
+        },
+
+        {
+            title: "Name",
+            dataIndex: "name",
+            key: "name",
+        },
+
+        {
+            title: "Role",
+            dataIndex: "role",
+            key: "role",
+        },
+
+        {
+            title: "Status",
+            dataIndex: "status",
+            key: "status",
+            render: (_, record) => (
+                <Switch
+                    checked={record.status === 1}
+                    checkedChildren="Active"
+                    unCheckedChildren="Disabled"
+                    onChange={(checked) =>
+                        onStatusChange(record.id, checked)
+                    }
+                />
+            ),
+        },
+
+        {
+            title: "Operation",
+            key: "operation",
+            render: () => (
+                <Space>
+
+                    <Button
+                        type="link"
+                    >
+                        Edit
+                    </Button>
+
+                    <Button
+                        danger
+                        type="link"
+                    >
+                        Delete
+                    </Button>
+
+                </Space>
+            ),
+        },
+
+    ];
+
     return (
-        <div className="overflow-hidden rounded-lg border border-gray-200">
 
-            <table className="min-w-full">
+        <Table
+            rowKey="id"
+            columns={columns}
+            loading={loading}
+            dataSource={employeePage?.records ?? []}
+            pagination={{
+                current: query.page,
+                pageSize: query.pageSize,
+                total: employeePage?.total ?? 0,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                onChange: onPageChange,
+            }}
+        />
 
-                <thead className="bg-gray-50">
-
-                <tr>
-
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                        Username
-                    </th>
-
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                        Name
-                    </th>
-
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                        Role
-                    </th>
-
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                        Status
-                    </th>
-
-                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                        Operation
-                    </th>
-
-                </tr>
-
-                </thead>
-
-                <tbody>
-
-                <tr>
-
-                    <td className="px-4 py-3 text-sm text-gray-700">
-                        admin
-                    </td>
-
-                    <td className="px-4 py-3 text-sm text-gray-700">
-                        System Administrator
-                    </td>
-
-                    <td className="px-4 py-3 text-sm text-gray-700">
-                        SUPER_ADMIN
-                    </td>
-
-                    <td className="px-4 py-3 text-sm text-green-600">
-                        Active
-                    </td>
-
-                    <td className="px-4 py-3 text-sm text-gray-700">
-                        Edit | Delete
-                    </td>
-
-                </tr>
-
-                </tbody>
-
-            </table>
-
-        </div>
     );
 }
 

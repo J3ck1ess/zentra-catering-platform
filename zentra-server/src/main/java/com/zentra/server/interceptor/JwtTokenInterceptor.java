@@ -70,6 +70,17 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
         // Current request URI
         String requestUri = request.getRequestURI();
 
+        // Allow CORS preflight requests
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+
+            log.debug(
+                    "[AUTH] CORS preflight request ignored. uri={}",
+                    requestUri
+            );
+
+            return true;
+        }
+
         // Retrieve Authorization header
         String authHeader = request.getHeader("Authorization");
 

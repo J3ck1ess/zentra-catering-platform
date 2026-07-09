@@ -39,6 +39,11 @@ public interface EmployeeService {
     void update(EmployeeUpdateDTO dto);
 
     /**
+     * Update employee status
+     */
+    void updateStatus(EmployeeStatusDTO dto);
+
+    /**
      * Delete employee by id
      */
     void deleteById(Long id);

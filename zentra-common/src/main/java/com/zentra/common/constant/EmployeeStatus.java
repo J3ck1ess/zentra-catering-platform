@@ -13,7 +13,7 @@ public class EmployeeStatus {
     /**
      * Disabled
      */
-    public static final int DISABLED = 2;
+    public static final int DISABLED = 0;
 
     private EmployeeStatus() {
         // prevent instantiation

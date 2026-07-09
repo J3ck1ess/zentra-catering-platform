@@ -199,6 +199,36 @@ public class EmployeeController {
     }
 
     /**
+     * Update employee status
+     */
+    @Operation(
+            summary = "Update employee status",
+            description =
+                    "Enable or disable employee. " +
+                            "Requires permission: employee:update"
+    )
+    @SuccessApiResponse
+    @ValidationErrorApiResponse
+    @NotFoundApiResponse
+    @AuthApiResponses
+    @RequirePermission(
+            PermissionConstants.EMPLOYEE_UPDATE
+    )
+    @AuditLog(
+            operation = "UPDATE_EMPLOYEE_STATUS",
+            resourceType = "employee"
+    )
+    @PutMapping("/status")
+    public Result<Void> updateStatus(
+            @Valid @RequestBody EmployeeStatusDTO dto
+    ) {
+
+        employeeService.updateStatus(dto);
+
+        return Result.success();
+    }
+
+    /**
      * Delete employee by id
      */
     @Operation(

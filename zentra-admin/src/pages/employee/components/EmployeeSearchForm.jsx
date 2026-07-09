@@ -1,65 +1,90 @@
+import {Button, Form, Input, Select, Space} from "antd";
+
 /**
  * Employee search form
  */
-function EmployeeSearchForm() {
+function EmployeeSearchForm({ onSearch }) {
+
+    const [form] = Form.useForm();
+
+    /**
+     * Handle search
+     */
+    function handleSearch() {
+
+        const values = form.getFieldsValue();
+
+        onSearch?.(values);
+
+    }
+
     return (
         <section className="mb-6">
 
-            <label
-                className="mb-2 block text-sm font-medium text-gray-700"
+            <Form
+                form={form}
+                layout="inline"
             >
-                Username
-            </label>
 
-            <div className="flex items-center gap-3">
-
-                <input
-                    type="text"
-                    placeholder="Enter username"
-                    className="
-                        w-80
-                        rounded-lg
-                        border
-                        border-gray-300
-                        px-3
-                        py-2
-                        text-sm
-                        outline-none
-                        transition-colors
-                        focus:border-gray-900
-                    "
-                />
-
-                <button
-                    className="
-                        rounded-lg
-                        bg-gray-900
-                        px-4
-                        py-2
-                        text-sm
-                        font-medium
-                        text-white
-                    "
+                <Form.Item
+                    label="Username"
+                    name="username"
                 >
-                    Search
-                </button>
+                    <Input
+                        placeholder="Enter username"
+                        allowClear
+                        style={{width: 220}}
+                    />
+                </Form.Item>
 
-                <button
-                    className="
-                        rounded-lg
-                        border
-                        border-gray-300
-                        px-4
-                        py-2
-                        text-sm
-                        font-medium
-                        text-gray-700
-                    "
+                <Form.Item
+                    label="Status"
+                    name="status"
                 >
-                    Reset
-                </button>
+                    <Select
+                        placeholder="All"
+                        allowClear
+                        style={{width: 160}}
+                        options={[
+                            {
+                                label: "Active",
+                                value: 1,
+                            },
+                            {
+                                label: "Disabled",
+                                value: 0,
+                            },
+                        ]}
+                    />
+                </Form.Item>
 
-            </div>
+                <Form.Item>
+
+                    <Space>
+
+                        <Button
+                            type="primary"
+                            onClick={handleSearch}
+                        >
+                            Search
+                        </Button>
+
+                        <Button
+                            onClick={() => {
+
+                                form.resetFields();
+
+                                onSearch?.({});
+                            }}
+                        >
+                            Reset
+                        </Button>
+
+                    </Space>
+
+                </Form.Item>
+
+            </Form>
 
         </section>
     );

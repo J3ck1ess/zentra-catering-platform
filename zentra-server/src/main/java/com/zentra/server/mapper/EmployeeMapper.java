@@ -68,6 +68,15 @@ public interface EmployeeMapper {
     int update(Employee employee);
 
     /**
+     * Update employee status
+     */
+    int updateStatus(
+            @Param("id") Long id,
+            @Param("merchantId") Long merchantId,
+            @Param("status") Integer status
+    );
+
+    /**
      * Delete employee by id
      */
     int deleteById(

@@ -41,9 +41,6 @@ public class EmployeeUpdateDTO {
     )
     private String role;
 
-    @Schema(description = "Employee status (1 = Active, 0 = Disabled)", example = "1")
-    private Integer status;
-
     // Getter and Setter
     public Long getId() {
         return id;
@@ -75,13 +72,5 @@ public class EmployeeUpdateDTO {
 
     public void setRole(String role) {
         this.role = role;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
     }
 }

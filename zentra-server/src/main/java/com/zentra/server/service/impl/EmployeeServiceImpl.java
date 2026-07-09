@@ -338,8 +338,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         if (dto.getUsername() == null
                 && dto.getName() == null
-                && dto.getRole() == null
-                && dto.getStatus() == null) {
+                && dto.getRole() == null) {
 
             throw new BusinessException(
                     ErrorCode.EMPLOYEE_UPDATE_FAILED,
@@ -367,17 +366,6 @@ public class EmployeeServiceImpl implements EmployeeService {
                 ErrorMessage.EMPLOYEE_NOT_FOUND
         );
 
-        // Validate employee status
-        if (dto.getStatus() != null
-                && dbEmployee.getStatus().equals(EmployeeStatus.ACTIVE)
-                && dbEmployee.getStatus().equals(EmployeeStatus.DISABLED)) {
-
-            throw new BusinessException(
-                    ErrorCode.EMPLOYEE_STATUS_INVALID,
-                    ErrorMessage.EMPLOYEE_STATUS_INVALID
-            );
-        }
-
         // Convert DTO -> Entity
         Employee employee = new Employee();
         BeanUtils.copyProperties(dto, employee);
@@ -397,6 +385,55 @@ public class EmployeeServiceImpl implements EmployeeService {
                 "[EMPLOYEE] Employee update successfully. merchantId={}, employeeId={}",
                 merchantId,
                 dto.getId()
+        );
+    }
+
+    /**
+     * Update employee status
+     */
+    @Override
+    public void updateStatus(EmployeeStatusDTO dto) {
+
+        Long merchantId = AuthContext.getCurrentMerchantId();
+
+        log.info(
+                "[EMPLOYEE] Employee status update started. merchantId={}, employeeId={}, status={}",
+                merchantId,
+                dto.getId(),
+                dto.getStatus()
+        );
+
+        // Query employee
+        Employee employee = employeeMapper.findById(
+                dto.getId(),
+                merchantId
+        );
+
+        // Check employee existence
+        AssertUtil.notNull(
+                employee,
+                ErrorCode.EMPLOYEE_NOT_FOUND,
+                ErrorMessage.EMPLOYEE_NOT_FOUND
+        );
+
+        // Execute status update
+        int rows = employeeMapper.updateStatus(
+                dto.getId(),
+                merchantId,
+                dto.getStatus()
+        );
+
+        AssertUtil.checkRows(
+                rows,
+                ErrorCode.EMPLOYEE_UPDATE_FAILED,
+                ErrorMessage.EMPLOYEE_UPDATE_FAILED
+        );
+
+        log.info(
+                "[EMPLOYEE] Employee status updated successfully. merchantId={}, employeeId={}, status={}",
+                merchantId,
+                dto.getId(),
+                dto.getStatus()
         );
     }
 

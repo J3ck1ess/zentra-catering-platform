@@ -10,6 +10,18 @@ export function getEmployeePage(params) {
 }
 
 /**
+ * Update employee status
+ */
+export function updateEmployeeStatus(data) {
+
+    return httpClient.put(
+        "/employee/status",
+        data
+    );
+
+}
+
+/**
  * Get employee by id
  */
 export function getEmployeeById(id) {

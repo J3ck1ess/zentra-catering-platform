@@ -9,6 +9,7 @@ function EmployeeTable({
     query,
     onPageChange,
     onStatusChange,
+    onEdit,
 }) {
 
     const columns = [
@@ -50,11 +51,12 @@ function EmployeeTable({
         {
             title: "Operation",
             key: "operation",
-            render: () => (
+            render: (_, record) => (
                 <Space>
 
                     <Button
                         type="link"
+                        onClick={() => onEdit(record)}
                     >
                         Edit
                     </Button>

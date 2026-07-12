@@ -22,6 +22,18 @@ export function updateEmployeeStatus(data) {
 }
 
 /**
+ * Update employee
+ */
+export function updateEmployee(data) {
+
+    return httpClient.patch(
+        "/employee",
+        data
+    );
+
+}
+
+/**
  * Get employee by id
  */
 export function getEmployeeById(id) {
@@ -33,13 +45,6 @@ export function getEmployeeById(id) {
  */
 export function createEmployee(data) {
     return httpClient.post("/employee", data);
-}
-
-/**
- * Update employee
- */
-export function updateEmployee(data) {
-    return httpClient.patch("/employee", data);
 }
 
 /**

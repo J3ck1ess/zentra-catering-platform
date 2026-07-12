@@ -3,7 +3,9 @@ import {Button, Form, Input, Select, Space} from "antd";
 /**
  * Employee search form
  */
-function EmployeeSearchForm({ onSearch }) {
+function EmployeeSearchForm({
+    onSearch,
+}) {
 
     const [form] = Form.useForm();
 

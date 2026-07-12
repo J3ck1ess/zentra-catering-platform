@@ -2,9 +2,12 @@ import PageContainer from "../../components/page/PageContainer";
 import PageHeader from "../../components/pageHeader/PageHeader";
 import EmployeeSearchForm from "./components/EmployeeSearchForm";
 import EmployeeTable from "./components/EmployeeTable";
+import EmployeeEditModal from "./components/EmployeeEditModal";
 import { useEffect, useState } from "react";
+import { message } from "antd";
 import {
     getEmployeePage,
+    updateEmployee,
     updateEmployeeStatus,
 } from "./api/employeeApi";
 
@@ -21,6 +24,8 @@ function EmployeePage() {
     const [employeePage, setEmployeePage] = useState(null);
 
     const [loading, setLoading] = useState(false);
+
+    const [editingEmployee, setEditingEmployee] = useState(null);
 
     /**
      * Load employee page
@@ -84,12 +89,70 @@ function EmployeePage() {
 
         const status = checked ? 1 : 0;
 
-        await updateEmployeeStatus({
-            id,
-            status,
-        });
+        try {
 
-        await loadEmployeePage(query);
+            await updateEmployeeStatus({
+                id,
+                status,
+            });
+
+            message.success(
+                "Employee status updated successfully."
+            );
+
+            await loadEmployeePage(query);
+
+        } catch (error) {
+
+            message.error(
+                "Failed to update employee status."
+            );
+
+        }
+
+    }
+
+    /**
+     * Handle employee update
+     */
+    async function handleUpdate(employee) {
+
+        try {
+
+            await updateEmployee(employee);
+
+            message.success(
+                "Employee updated successfully."
+            );
+
+            setEditingEmployee(null);
+
+            await loadEmployeePage(query);
+
+        } catch (error) {
+
+            message.error(
+                "Failed to update employee."
+            );
+
+            throw error;
+
+        }
+
+    }
+
+    /**
+     * Open employee edit dialog
+     */
+    function handleEdit(employee) {
+
+        setEditingEmployee(employee);
+
+    }
+
+    function handleCloseEdit() {
+
+        setEditingEmployee(null);
 
     }
 
@@ -122,11 +185,19 @@ function EmployeePage() {
                     query={query}
                     onPageChange={handlePageChange}
                     onStatusChange={handleStatusChange}
+                    onEdit={handleEdit}
                 />
 
                 Pagination
 
             </PageContainer>
+
+            <EmployeeEditModal
+                open={editingEmployee !== null}
+                employee={editingEmployee}
+                onCancel={handleCloseEdit}
+                onSave={handleUpdate}
+            />
 
         </>
     );

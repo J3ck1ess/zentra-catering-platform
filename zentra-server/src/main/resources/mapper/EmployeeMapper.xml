@@ -227,6 +227,20 @@
     </update>
 
     <!-- ========================================= -->
+    <!-- Count active employees by role -->
+    <!-- ========================================= -->
+    <select id="countByRole"
+            resultType="java.lang.Long">
+
+        SELECT COUNT(*)
+        FROM employee
+        WHERE merchant_id = #{merchantId}
+          AND role = #{role}
+          AND status = 1
+
+    </select>
+
+    <!-- ========================================= -->
     <!-- Delete employee by id -->
     <!-- ========================================= -->
     <delete id="deleteById">

@@ -57,6 +57,10 @@ public class ErrorCode {
 
     public static final Integer INVALID_EMPLOYEE_ROLE = 40109;
 
+    public static final Integer EMPLOYEE_SELF_DELETE_NOT_ALLOWED = 40110;
+
+    public static final Integer LAST_SUPER_ADMIN_DELETE_NOT_ALLOWED = 40111;
+
     /**
      * User Errors
      */

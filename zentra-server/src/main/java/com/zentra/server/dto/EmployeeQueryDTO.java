@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * Query DTO for employee list
  */
 @Schema(description = "Employee query request")
-public class EmployeeQueryDTO extends BasePageQueryDTO{
+public class EmployeeQueryDTO extends BasePageQueryDTO {
 
     /**
      * Optional username filter

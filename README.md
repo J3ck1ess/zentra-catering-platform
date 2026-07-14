@@ -86,6 +86,10 @@ The system includes multiple enterprise-oriented backend patterns:
 - JWT login authentication
 - XML-based MyBatis dynamic SQL
 - Enterprise CRUD architecture
+- BCrypt password management
+- Self-delete protection
+- Last SUPER_ADMIN deletion protection
+- Enterprise business validation
 
 ### Category Module
 - Category CRUD
@@ -174,6 +178,11 @@ The system includes multiple enterprise-oriented backend patterns:
 - Employee management runtime
 - Employee pagination query
 - Employee status switch runtime
+- Employee create workflow
+- Employee update workflow
+- Employee delete workflow
+- Unified HTTP response runtime
+- Business exception handling runtime
 - Ant Design Table runtime
 - Ant Design Form runtime
 - Server-side pagination integration

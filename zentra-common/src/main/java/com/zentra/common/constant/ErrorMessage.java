@@ -48,6 +48,10 @@ public class ErrorMessage {
 
     public static final String INVALID_EMPLOYEE_ROLE = "Invalid employee role";
 
+    public static final String EMPLOYEE_SELF_DELETE_NOT_ALLOWED = "Current employee cannot be deleted";
+
+    public static final String LAST_SUPER_ADMIN_DELETE_NOT_ALLOWED = "The last SUPER_ADMIN cannot be deleted";
+
     /**
      * User messages
      */

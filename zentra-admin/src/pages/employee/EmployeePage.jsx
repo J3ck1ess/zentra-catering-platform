@@ -3,9 +3,12 @@ import PageHeader from "../../components/pageHeader/PageHeader";
 import EmployeeSearchForm from "./components/EmployeeSearchForm";
 import EmployeeTable from "./components/EmployeeTable";
 import EmployeeEditModal from "./components/EmployeeEditModal";
+import EmployeeCreateModal from "./components/EmployeeCreateModal";
 import { useEffect, useState } from "react";
 import { message } from "antd";
 import {
+    createEmployee,
+    deleteEmployee,
     getEmployeePage,
     updateEmployee,
     updateEmployeeStatus,
@@ -27,6 +30,8 @@ function EmployeePage() {
 
     const [editingEmployee, setEditingEmployee] = useState(null);
 
+    const [createOpen, setCreateOpen] = useState(false);
+
     /**
      * Load employee page
      */
@@ -36,9 +41,9 @@ function EmployeePage() {
 
             setLoading(true);
 
-            const response = await getEmployeePage(searchQuery);
+            const employeePage = await getEmployeePage(searchQuery);
 
-            setEmployeePage(response.data.data);
+            setEmployeePage(employeePage);
 
         } finally {
 
@@ -142,11 +147,85 @@ function EmployeePage() {
     }
 
     /**
+     * Handle employee deletion
+     */
+    async function handleDelete(id) {
+
+        try {
+
+            await deleteEmployee(id);
+
+            message.success(
+                "Employee deleted successfully."
+            );
+
+            await loadEmployeePage(query);
+
+        } catch (error) {
+
+            message.error(
+                "Failed to delete employee."
+            );
+
+            throw error;
+
+        }
+
+    }
+
+    /**
      * Open employee edit dialog
      */
     function handleEdit(employee) {
 
         setEditingEmployee(employee);
+
+    }
+
+    /**
+     * Open employee create dialog
+     */
+    function handleCreate() {
+
+        setCreateOpen(true);
+
+    }
+
+    /**
+     * Close employee create dialog
+     */
+    function handleCloseCreate() {
+
+        setCreateOpen(false);
+
+    }
+
+    /**
+     * Handle employee creation
+     */
+    async function handleCreateEmployee(employee) {
+
+        try {
+
+            await createEmployee(employee);
+
+            message.success(
+                "Employee created successfully."
+            );
+
+            setCreateOpen(false);
+
+            await loadEmployeePage(query);
+
+        } catch (error) {
+
+            message.error(
+                "Failed to create employee."
+            );
+
+            throw error;
+
+        }
 
     }
 
@@ -161,7 +240,7 @@ function EmployeePage() {
      */
     useEffect(() => {
 
-        loadEmployeePage(query);
+        void loadEmployeePage(query);
 
     }, []);
 
@@ -177,6 +256,7 @@ function EmployeePage() {
 
                 <EmployeeSearchForm
                     onSearch={handleSearch}
+                    onCreate={handleCreate}
                 />
 
                 <EmployeeTable
@@ -186,9 +266,8 @@ function EmployeePage() {
                     onPageChange={handlePageChange}
                     onStatusChange={handleStatusChange}
                     onEdit={handleEdit}
+                    onDelete={handleDelete}
                 />
-
-                Pagination
 
             </PageContainer>
 
@@ -197,6 +276,12 @@ function EmployeePage() {
                 employee={editingEmployee}
                 onCancel={handleCloseEdit}
                 onSave={handleUpdate}
+            />
+
+            <EmployeeCreateModal
+                open={createOpen}
+                onCancel={handleCloseCreate}
+                onSave={handleCreateEmployee}
             />
 
         </>

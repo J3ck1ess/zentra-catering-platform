@@ -111,9 +111,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         log.info(
-                "[EMPLOYEE] Employee persisted successfully. merchantId={}, username={}",
+                "[EMPLOYEE] Employee created successfully. merchantId={}, username={}, role={}",
                 merchantId,
-                employee.getUsername()
+                employee.getUsername(),
+                employee.getRole()
         );
     }
 
@@ -463,6 +464,31 @@ public class EmployeeServiceImpl implements EmployeeService {
                 ErrorMessage.EMPLOYEE_NOT_FOUND
         );
 
+        // Prevent current employee from deleting themselves
+        Long currentUserId = AuthContext.getCurrentUserId();
+
+        AssertUtil.isTrue(
+                !id.equals(currentUserId),
+                ErrorCode.EMPLOYEE_SELF_DELETE_NOT_ALLOWED,
+                ErrorMessage.EMPLOYEE_SELF_DELETE_NOT_ALLOWED
+        );
+
+        // Prevent deleting the last SUPER_ADMIN
+        if (RoleConstants.SUPER_ADMIN.equals(employee.getRole())) {
+
+            Long superAdminCount = employeeMapper.countByRole(
+                    merchantId,
+                    RoleConstants.SUPER_ADMIN
+            );
+
+            AssertUtil.isTrue(
+                    superAdminCount > 1,
+                    ErrorCode.LAST_SUPER_ADMIN_DELETE_NOT_ALLOWED,
+                    ErrorMessage.LAST_SUPER_ADMIN_DELETE_NOT_ALLOWED
+            );
+
+        }
+
         // Execute delete
         int rows = employeeMapper.deleteById(
                 id,
@@ -476,9 +502,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         );
 
         log.info(
-                "[EMPLOYEE] Employee delete successfully. merchantId={}, employeeId={}",
+                "[EMPLOYEE] Employee deleted successfully. merchantId={}, employeeId={}, username={}, role={}",
                 merchantId,
-                id
+                id,
+                employee.getUsername(),
+                employee.getRole()
         );
     }
 }

@@ -5,6 +5,7 @@ import {Button, Form, Input, Select, Space} from "antd";
  */
 function EmployeeSearchForm({
     onSearch,
+    onCreate,
 }) {
 
     const [form] = Form.useForm();
@@ -80,6 +81,13 @@ function EmployeeSearchForm({
                             }}
                         >
                             Reset
+                        </Button>
+
+                        <Button
+                            type="primary"
+                            onClick={onCreate}
+                        >
+                            New Employee
                         </Button>
 
                     </Space>

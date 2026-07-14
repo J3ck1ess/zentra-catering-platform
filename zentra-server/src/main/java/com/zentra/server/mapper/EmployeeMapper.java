@@ -77,6 +77,14 @@ public interface EmployeeMapper {
     );
 
     /**
+     * Count active employees by role
+     */
+    Long countByRole(
+            @Param("merchantId") Long merchantId,
+            @Param("role") String role
+    );
+
+    /**
      * Delete employee by id
      */
     int deleteById(

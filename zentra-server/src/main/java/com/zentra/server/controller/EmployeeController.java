@@ -204,8 +204,8 @@ public class EmployeeController {
     @Operation(
             summary = "Update employee status",
             description =
-                    "Enable or disable employee. " +
-                            "Requires permission: employee:update"
+                    "Enable or disable an employee account. " +
+                    "Requires permission: employee:update"
     )
     @SuccessApiResponse
     @ValidationErrorApiResponse
@@ -234,7 +234,7 @@ public class EmployeeController {
     @Operation(
             summary = "Delete employee",
             description =
-                    "Delete employee by employee id. " +
+                    "Delete an employee account by id. " +
                     "Requires permission: employee:delete"
     )
     @SuccessApiResponse

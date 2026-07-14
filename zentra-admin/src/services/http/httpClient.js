@@ -1,4 +1,5 @@
 import axios from "axios";
+import { message } from "antd";
 import { getToken } from "../auth/tokenService";
 
 /**
@@ -32,14 +33,39 @@ httpClient.interceptors.request.use(
  * Response interceptor
  */
 httpClient.interceptors.response.use(
-    (response) => response,
+
+    (response) => {
+
+        const result = response.data;
+
+        const SUCCESS_CODE = 1;
+
+        if (result.code !== SUCCESS_CODE) {
+
+            return Promise.reject(
+                new Error(result.msg)
+            );
+
+        }
+
+        return result.data;
+
+    },
+
     (error) => {
+
         if (error.response?.status === 401) {
-            console.error("Unauthorized");
+
+            message.error(
+                "Unauthorized. Please login again."
+            );
+
         }
 
         return Promise.reject(error);
+
     }
+
 );
 
 /**

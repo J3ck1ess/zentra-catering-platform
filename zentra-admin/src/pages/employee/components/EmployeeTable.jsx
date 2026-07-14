@@ -1,4 +1,4 @@
-import { Button, Space, Switch, Table } from "antd";
+import { Button, Popconfirm, Space, Switch, Table } from "antd";
 
 /**
  * Employee table
@@ -10,6 +10,7 @@ function EmployeeTable({
     onPageChange,
     onStatusChange,
     onEdit,
+    onDelete,
 }) {
 
     const columns = [
@@ -61,12 +62,22 @@ function EmployeeTable({
                         Edit
                     </Button>
 
-                    <Button
-                        danger
-                        type="link"
+                    <Popconfirm
+                        title="Delete employee"
+                        description="Are you sure you want to delete this employee?"
+                        okText="Delete"
+                        cancelText="Cancel"
+                        onConfirm={() => onDelete(record.id)}
                     >
-                        Delete
-                    </Button>
+
+                        <Button
+                            danger
+                            type="link"
+                        >
+                            Delete
+                        </Button>
+
+                    </Popconfirm>
 
                 </Space>
             ),

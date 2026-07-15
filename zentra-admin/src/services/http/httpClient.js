@@ -1,6 +1,9 @@
 import axios from "axios";
 import { message } from "antd";
-import { getToken } from "../auth/tokenService";
+import {
+    getToken,
+    removeToken,
+} from "../auth/tokenService";
 
 /**
  * Shared HTTP client
@@ -39,7 +42,22 @@ httpClient.interceptors.response.use(
         const result = response.data;
 
         const SUCCESS_CODE = 1;
+        const INVALID_TOKEN_CODE = 40001;
 
+        // Token invalid or expired
+        if (result.code === INVALID_TOKEN_CODE) {
+
+            removeToken();
+
+            window.location.replace("/login");
+
+            return Promise.reject(
+                new Error(result.msg)
+            );
+
+        }
+
+        // Other business errors
         if (result.code !== SUCCESS_CODE) {
 
             return Promise.reject(
@@ -53,14 +71,6 @@ httpClient.interceptors.response.use(
     },
 
     (error) => {
-
-        if (error.response?.status === 401) {
-
-            message.error(
-                "Unauthorized. Please login again."
-            );
-
-        }
 
         return Promise.reject(error);
 

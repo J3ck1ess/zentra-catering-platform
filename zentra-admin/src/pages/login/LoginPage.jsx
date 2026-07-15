@@ -25,20 +25,22 @@ function LoginPage() {
 
             setLoading(true);
 
-            const response = await login(values);
+            const loginResponse = await login(values);
 
-            const token = response.data.data.token;
+            const token = loginResponse.token;
 
             setToken(token);
 
-            messageApi.success("Login successful");
+            messageApi.success("Login successful.");
 
-            navigate("/");
+            navigate("/", {
+                replace: true,
+            });
 
         } catch (error) {
 
             const errorMessage =
-                error.response?.data?.msg ?? "Login failed";
+                error.message ?? "Login failed";
 
             messageApi.error(errorMessage);
 

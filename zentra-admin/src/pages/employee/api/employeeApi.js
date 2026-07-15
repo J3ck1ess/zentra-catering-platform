@@ -41,6 +41,17 @@ export function getEmployeeById(id) {
 }
 
 /**
+ * Get current login employee
+ */
+export function getCurrentEmployee() {
+
+    return httpClient.get(
+        "/employee/me"
+    );
+
+}
+
+/**
  * Create employee
  */
 export function createEmployee(data) {

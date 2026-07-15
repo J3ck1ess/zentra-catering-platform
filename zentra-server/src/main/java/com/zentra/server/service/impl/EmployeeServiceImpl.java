@@ -247,6 +247,44 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     /**
+     * Get current login employee
+     */
+    @Override
+    public EmployeeDTO getCurrentEmployee() {
+
+        Long merchantId = AuthContext.getCurrentMerchantId();
+        Long currentUserId = AuthContext.getCurrentUserId();
+
+        log.info(
+                "[AUTH] Current employee query started. merchantId={}, employeeId={}",
+                merchantId,
+                currentUserId
+        );
+
+        Employee employee = employeeMapper.findById(
+                currentUserId,
+                merchantId
+        );
+
+        AssertUtil.notNull(
+                employee,
+                ErrorCode.EMPLOYEE_NOT_FOUND,
+                ErrorMessage.EMPLOYEE_NOT_FOUND
+        );
+
+        EmployeeDTO dto = new EmployeeDTO();
+        BeanUtils.copyProperties(employee, dto);
+
+        log.info(
+                "[AUTH] Current employee query completed. merchantId={}, employeeId={}",
+                merchantId,
+                currentUserId
+        );
+
+        return dto;
+    }
+
+    /**
      * Login employee
      */
     @Override

@@ -174,6 +174,11 @@ The system includes multiple enterprise-oriented backend patterns:
 - Shared HTTP client runtime
 - JWT token storage runtime
 - Login authentication workflow
+- Current user runtime
+- Admin header runtime
+- Logout runtime
+- Route guard runtime
+- Invalid token auto redirect
 - Spring Boot API integration
 - Employee management runtime
 - Employee pagination query
@@ -225,15 +230,51 @@ This project implements a stateless authentication system using JSON Web Token (
 - API access isolation based on authenticated user type
 - Admin API authorization routing (`/admin/**`)
 - JWT interceptor support for CORS preflight requests
+- Current authenticated employee runtime
+- Protected admin route runtime
+- Admin logout workflow
+- Invalid token auto redirect runtime
 
 ### Workflow
 
 1. User or employee logs in via authentication APIs
 2. Server validates credentials and generates JWT token
-3. Client sends token in `Authorization` header (`Bearer token`)
-4. Interceptor validates token before accessing protected APIs
-5. User identity is stored in ThreadLocal and accessible throughout request lifecycle
-6. API access is restricted based on user identity type
+3. Client stores JWT token locally
+4. Client sends token in Authorization header
+5. JWT interceptor validates the token
+6. User identity is stored in ThreadLocal
+7. Current authenticated user information is retrieved
+8. Protected admin pages become accessible
+9. Logout removes local authentication state
+
+### Admin Authentication Runtime
+
+The admin frontend implements a complete authentication lifecycle:
+
+- JWT-based login
+- Current authenticated employee retrieval (`/employee/me`)
+- Dynamic admin header
+- Protected admin route runtime
+- Logout workflow
+- Invalid token auto redirection
+
+Authentication flow:
+
+```text
+Login
+    ↓
+JWT Storage
+    ↓
+HTTP Interceptor
+    ↓
+Current Employee Runtime
+    ↓
+Admin Header
+    ↓
+Protected Admin Pages
+    ↓
+Logout / Token Expiration
+```
 
 ---
 
@@ -766,6 +807,8 @@ The production profile is activated through Docker Compose runtime variables.
 ## Future Improvements
 
 - Admin frontend feature expansion
+- Admin profile management
+- Password reset runtime
 - User frontend implementation
 - Payment workflow integration
 - MyBatis interceptor for automatic tenant injection

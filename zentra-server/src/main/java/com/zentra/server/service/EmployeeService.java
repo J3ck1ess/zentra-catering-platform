@@ -29,6 +29,11 @@ public interface EmployeeService {
     EmployeeDTO getByUsername(String username);
 
     /**
+     * Get current login employee
+     */
+    EmployeeDTO getCurrentEmployee();
+
+    /**
      * Login
      */
     LoginResponse login(EmployeeLoginDTO dto);

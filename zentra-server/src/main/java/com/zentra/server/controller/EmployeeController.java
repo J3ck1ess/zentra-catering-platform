@@ -149,6 +149,25 @@ public class EmployeeController {
     }
 
     /**
+     * Get current login employee
+     */
+    @Operation(
+            summary = "Get current employee",
+            description =
+                    "Retrieve current login employee information."
+    )
+    @EmployeeApiResponse
+    @AuthApiResponses
+    @GetMapping("/me")
+    public Result<EmployeeDTO> getCurrentEmployee() {
+
+        return Result.success(
+                employeeService.getCurrentEmployee()
+        );
+
+    }
+
+    /**
      * Employee login
      */
     @Operation(

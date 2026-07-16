@@ -27,6 +27,9 @@ public class CategoryDTO implements Serializable {
     @Schema(description = "Category sort order", example = "10")
     private Integer sort;
 
+    @Schema(description = "Category description", example = "Hot dishes")
+    private String description;
+
     // Getter and Setter
     public Long getId() {
         return id;
@@ -49,7 +52,6 @@ public class CategoryDTO implements Serializable {
     }
 
     public void setType(Integer type) {
-
         this.type = type;
     }
 
@@ -69,4 +71,11 @@ public class CategoryDTO implements Serializable {
         this.sort = sort;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

@@ -24,6 +24,9 @@ public class CategoryCreateDTO {
     @Schema(description = "Category sort order", example = "10")
     private Integer sort;
 
+    @Schema(description = "Category description", example = "Hot dishes")
+    private String description;
+
     // Getter and Setter
     public String getName() {
         return name;
@@ -55,5 +58,13 @@ public class CategoryCreateDTO {
 
     public void setSort(Integer sort) {
         this.sort = sort;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

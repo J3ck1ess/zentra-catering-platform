@@ -93,8 +93,11 @@ The system includes multiple enterprise-oriented backend patterns:
 
 ### Category Module
 - Category CRUD
-- Pagination query
+- Category pagination query
+- Category search runtime
 - Category list runtime
+- Category description support
+- Category sort runtime
 - Hot data category cache runtime
 - Cache Aside cache governance
 - Dynamic query filtering
@@ -186,6 +189,12 @@ The system includes multiple enterprise-oriented backend patterns:
 - Employee create workflow
 - Employee update workflow
 - Employee delete workflow
+- Category management runtime
+- Category pagination query
+- Category search workflow
+- Category create workflow
+- Category update workflow
+- Category delete workflow
 - Unified HTTP response runtime
 - Business exception handling runtime
 - Ant Design Table runtime

@@ -21,6 +21,7 @@ public interface CategoryMapper {
      * Query categories with pagination
      */
     List<Category> findPage(
+            @Param("name") String name,
             @Param("type") Integer type,
             @Param("status") Integer status,
             @Param("merchantId") Long merchantId,
@@ -32,6 +33,7 @@ public interface CategoryMapper {
      * Count total categories
      */
     Long count(
+            @Param("name") String name,
             @Param("type") Integer type,
             @Param("status") Integer status,
             @Param("merchantId") Long merchantId

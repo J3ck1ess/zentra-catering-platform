@@ -158,6 +158,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         // Query data
         List<Category> list = categoryMapper.findPage(
+                query.getName(),
                 query.getType(),
                 query.getStatus(),
                 merchantId,
@@ -176,6 +177,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         // Query total count
         Long total = categoryMapper.count(
+                query.getName(),
                 query.getType(),
                 query.getStatus(),
                 merchantId

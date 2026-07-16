@@ -12,6 +12,12 @@ import jakarta.validation.constraints.NotNull;
 public class CategoryQueryDTO extends BasePageQueryDTO{
 
     /**
+     * Optional name filter
+     */
+    @Schema(description = "Category name filter", example = "Chinese Food")
+    private String name;
+
+    /**
      * Optional type filter
      */
     @Schema(description = "Category type filter (1 = Dish, 2 = Set Meal)", example = "1")
@@ -24,6 +30,14 @@ public class CategoryQueryDTO extends BasePageQueryDTO{
     private Integer status;
 
     // Getter and Setter
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Integer getType() {
         return type;
     }

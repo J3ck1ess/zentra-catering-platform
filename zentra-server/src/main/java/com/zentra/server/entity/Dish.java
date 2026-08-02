@@ -16,7 +16,7 @@ public class Dish {
     private BigDecimal price;
     private Long categoryId;
     private String categoryName;
-    private Integer status; // 1. available, 2. unavailable
+    private Integer status;
     private Long merchantId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

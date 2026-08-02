@@ -136,16 +136,18 @@ public class DishServiceImpl implements DishService {
         int offset = (page - 1) * pageSize;
 
         log.info(
-                "[DISH] Dish query started. merchantId={}, page={}, pageSize={}, categoryId={}, status={}",
+                "[DISH] Dish query started. merchantId={}, page={}, pageSize={}, name={}, categoryId={}, status={}",
                 merchantId,
                 page,
                 pageSize,
+                query.getName(),
                 query.getCategoryId(),
                 query.getStatus()
         );
 
         // Query data
         List<Dish> list = dishMapper.findPage(
+                query.getName(),
                 query.getCategoryId(),
                 query.getStatus(),
                 merchantId,
@@ -164,6 +166,7 @@ public class DishServiceImpl implements DishService {
 
         // Query total count
         Long total = dishMapper.count(
+                query.getName(),
                 query.getCategoryId(),
                 query.getStatus(),
                 merchantId

@@ -73,6 +73,11 @@
 
         WHERE d.merchant_id = #{merchantId}
 
+        <!-- Optional dish name filter -->
+        <if test="name != null and name != ''">
+            AND d.name LIKE CONCAT('%', #{name}, '%')
+        </if>
+
         <!-- Optional category filter -->
         <if test="categoryId != null">
             AND d.category_id = #{categoryId}
@@ -98,6 +103,11 @@
         SELECT COUNT(*)
         FROM dish d
         WHERE d.merchant_id = #{merchantId}
+
+        <!-- Optional dish name filter -->
+        <if test="name != null and name != ''">
+            AND d.name LIKE CONCAT('%', #{name}, '%')
+        </if>
 
         <!-- Optional category filter -->
         <if test="categoryId != null">

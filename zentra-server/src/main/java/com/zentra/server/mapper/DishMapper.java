@@ -21,6 +21,7 @@ public interface DishMapper {
      * Query dishes with pagination
      */
     List<Dish> findPage(
+            @Param("name") String name,
             @Param("categoryId") Long categoryId,
             @Param("status") Integer status,
             @Param("merchantId") Long merchantId,
@@ -32,6 +33,7 @@ public interface DishMapper {
      * Count total dishes
      */
     Long count(
+            @Param("name") String name,
             @Param("categoryId") Long categoryId,
             @Param("status") Integer status,
             @Param("merchantId") Long merchantId

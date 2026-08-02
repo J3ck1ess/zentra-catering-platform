@@ -7,7 +7,13 @@ import jakarta.validation.constraints.Min;
  * Query object for dish list
  */
 @Schema(description = "Dish query request")
-public class DishQueryDTO extends BasePageQueryDTO{
+public class DishQueryDTO extends BasePageQueryDTO {
+
+    /**
+     * Optional dish name filter
+     */
+    @Schema(description = "Dish name filter", example = "Pizza")
+    private String name;
 
     /**
      * Optional category filter
@@ -22,6 +28,14 @@ public class DishQueryDTO extends BasePageQueryDTO{
     private Integer status;
 
     // Getter and Setter
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Long getCategoryId() {
         return categoryId;
     }

@@ -1,3 +1,4 @@
+import { message } from "antd";
 import { useEffect, useState } from "react";
 
 import PageContainer from "../../components/page/PageContainer";
@@ -10,6 +11,7 @@ import OrderDetailModal from "./components/OrderDetailModal";
 import {
     getOrderDetail,
     getOrderPage,
+    updateOrderStatus,
 } from "./api/orderApi";
 
 /**
@@ -101,6 +103,49 @@ function OrderPage() {
     }
 
     /**
+     * Update order status
+     */
+    async function handleStatusChange(id, status) {
+
+        try {
+
+            await updateOrderStatus(
+                id,
+                status
+            );
+
+            message.success(
+                "Order status updated successfully."
+            );
+
+            await loadOrderPage(query);
+
+            if (
+                detailOpen &&
+                orderDetail?.id === id
+            ) {
+
+                const detail =
+                    await getOrderDetail(id);
+
+                setOrderDetail(detail);
+
+            }
+
+        } catch (error) {
+
+            message.error(
+                error.message ??
+                "Failed to update order status."
+            );
+
+            throw error;
+
+        }
+
+    }
+
+    /**
      * Close detail dialog
      */
     function handleCloseDetail() {
@@ -138,6 +183,7 @@ function OrderPage() {
                     query={query}
                     onPageChange={handlePageChange}
                     onView={handleView}
+                    onStatusChange={handleStatusChange}
                 />
 
             </PageContainer>

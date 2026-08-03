@@ -98,7 +98,7 @@ function OrderDetailModal({
                             </Descriptions.Item>
 
                             <Descriptions.Item label="Created Time">
-                                {order.createdAt}
+                                {order.createdAt?.replace("T", " ")}
                             </Descriptions.Item>
 
                             <Descriptions.Item label="Total Amount">

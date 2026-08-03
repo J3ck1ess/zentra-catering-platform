@@ -207,6 +207,9 @@ The system includes multiple enterprise-oriented backend patterns:
 - Order pagination query
 - Order detail runtime
 - Order search workflow
+- Order status workflow
+- Order lifecycle management
+- Dynamic order action runtime
 - Unified HTTP response runtime
 - Business exception handling runtime
 - Ant Design Table runtime

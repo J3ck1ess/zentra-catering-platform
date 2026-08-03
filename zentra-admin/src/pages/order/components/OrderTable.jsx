@@ -1,4 +1,4 @@
-import { Button, Table, Tag } from "antd";
+import {Button, Table, Tag} from "antd";
 
 /**
  * Order table
@@ -9,6 +9,7 @@ function OrderTable({
                         query,
                         onPageChange,
                         onView,
+                        onStatusChange,
                     }) {
 
     /**
@@ -66,6 +67,8 @@ function OrderTable({
             title: "Created Time",
             dataIndex: "createdAt",
             key: "createdAt",
+            render: (createdAt) =>
+                createdAt?.replace("T", " "),
         },
 
         {
@@ -73,12 +76,63 @@ function OrderTable({
             key: "operation",
             render: (_, record) => (
 
-                <Button
-                    type="link"
-                    onClick={() => onView(record)}
-                >
-                    View
-                </Button>
+                <>
+
+                    <Button
+                        type="link"
+                        onClick={() => onView(record)}
+                    >
+                        View
+                    </Button>
+
+                    {
+                        record.status === 1 && (
+                            <>
+                                <Button
+                                    type="link"
+                                    onClick={() =>
+                                        onStatusChange(
+                                            record.id,
+                                            2
+                                        )
+                                    }
+                                >
+                                    Pay
+                                </Button>
+
+                                <Button
+                                    type="link"
+                                    danger
+                                    onClick={() =>
+                                        onStatusChange(
+                                            record.id,
+                                            4
+                                        )
+                                    }
+                                >
+                                    Cancel
+                                </Button>
+                            </>
+                        )
+                    }
+
+                    {
+                        record.status === 2 && (
+                            <Button
+                                type="link"
+                                onClick={() =>
+                                    onStatusChange(
+                                        record.id,
+                                        3
+                                    )
+                                }
+                            >
+                                Complete
+                            </Button>
+                        )
+                    }
+
+                </>
 
             ),
         },

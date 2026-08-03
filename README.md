@@ -203,6 +203,10 @@ The system includes multiple enterprise-oriented backend patterns:
 - Dish delete workflow
 - Dish status switch runtime
 - Dynamic category selection runtime
+- Order management runtime
+- Order pagination query
+- Order detail runtime
+- Order search workflow
 - Unified HTTP response runtime
 - Business exception handling runtime
 - Ant Design Table runtime

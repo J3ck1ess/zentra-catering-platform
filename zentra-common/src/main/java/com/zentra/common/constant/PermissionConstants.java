@@ -41,6 +41,11 @@ public final class PermissionConstants {
     public static final String ORDER_VIEW = "order:view";
     public static final String ORDER_UPDATE = "order:update";
 
+    /**
+     * Dashboard permissions
+     */
+    public static final String DASHBOARD_VIEW = "dashboard:view";
+
     private PermissionConstants() {
     }
 }

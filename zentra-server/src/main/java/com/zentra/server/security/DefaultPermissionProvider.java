@@ -43,7 +43,9 @@ public class DefaultPermissionProvider implements PermissionProvider {
                     PermissionConstants.DISH_DELETE,
 
                     PermissionConstants.ORDER_VIEW,
-                    PermissionConstants.ORDER_UPDATE
+                    PermissionConstants.ORDER_UPDATE,
+
+                    PermissionConstants.DASHBOARD_VIEW
             ),
 
             // Store manager permissions
@@ -63,7 +65,9 @@ public class DefaultPermissionProvider implements PermissionProvider {
                     PermissionConstants.DISH_UPDATE,
 
                     PermissionConstants.ORDER_VIEW,
-                    PermissionConstants.ORDER_UPDATE
+                    PermissionConstants.ORDER_UPDATE,
+
+                    PermissionConstants.DASHBOARD_VIEW
             ),
 
             // Cashier permissions
@@ -73,7 +77,9 @@ public class DefaultPermissionProvider implements PermissionProvider {
                     PermissionConstants.USER_VIEW,
 
                     PermissionConstants.ORDER_VIEW,
-                    PermissionConstants.ORDER_UPDATE
+                    PermissionConstants.ORDER_UPDATE,
+
+                    PermissionConstants.DASHBOARD_VIEW
             ),
 
             // Kitchen staff permissions
@@ -81,7 +87,9 @@ public class DefaultPermissionProvider implements PermissionProvider {
             Set.of(
 
                     PermissionConstants.ORDER_VIEW,
-                    PermissionConstants.ORDER_UPDATE
+                    PermissionConstants.ORDER_UPDATE,
+
+                    PermissionConstants.DASHBOARD_VIEW
             )
     );
 

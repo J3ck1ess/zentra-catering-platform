@@ -65,6 +65,14 @@ The system includes multiple enterprise-oriented backend patterns:
 
 ## Current Progress
 
+### Dashboard Runtime
+
+- Dashboard statistics runtime
+- Business overview runtime
+- Order overview runtime
+- Quick action navigation
+- Enterprise admin workbench
+
 ### Employee Admin Runtime
 - Employee authentication workflow
 - Employee pagination runtime
@@ -182,6 +190,11 @@ The system includes multiple enterprise-oriented backend patterns:
 - Logout runtime
 - Route guard runtime
 - Invalid token auto redirect
+- Dashboard workbench
+- Dashboard statistics runtime
+- Business overview runtime
+- Order overview runtime
+- Quick action navigation
 - Spring Boot API integration
 - Employee management runtime
 - Employee pagination query

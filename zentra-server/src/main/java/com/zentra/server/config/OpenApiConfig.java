@@ -284,6 +284,7 @@ public class OpenApiConfig {
                         "/category/**",
                         "/dish/**",
                         "/order/**",
+                        "/dashboard/**",
                         "/admin/users/**"
                 )
                 .build();

@@ -22,6 +22,9 @@ The project focuses on enterprise-style backend architecture, including DTO laye
 - Swagger / OpenAPI 3
 - BCrypt Password Hashing
 - Jakarta Validation
+- JUnit 5
+- Mockito
+- AssertJ
 
 ---
 
@@ -246,6 +249,37 @@ The system includes multiple enterprise-oriented backend patterns:
 - Automated database initialization
 - Service network isolation
 - Portable one-command deployment architecture
+
+---
+
+## Testing & Quality
+
+The project adopts unit testing practices for service-layer business logic to improve regression safety, business rule verification, and maintainability.
+
+### Employee Service Testing
+
+- EmployeeServiceImpl unit test suite
+- JUnit 5 test lifecycle management
+- Mockito-based dependency isolation
+- AssertJ fluent assertions
+- Business exception validation
+- Error code and error message verification
+- Mapper interaction verification
+- Dynamic update behavior verification
+- Pagination query behavior verification
+- Authentication failure scenario testing
+- Employee status transition validation
+- Self-delete protection testing
+- Last SUPER_ADMIN deletion protection testing
+- Database duplicate-key exception handling testing
+- Multi-tenant context isolation testing
+
+### Current Test Status
+
+- EmployeeServiceImpl: 28 unit tests
+- Test result: 28 passed, 0 failed, 0 errors, 0 skipped
+
+The test suite validates both successful business flows and failure paths, including application-level validation and database constraint fallback handling.
 
 ---
 

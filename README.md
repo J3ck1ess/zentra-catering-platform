@@ -274,10 +274,28 @@ The project adopts unit testing practices for service-layer business logic to im
 - Database duplicate-key exception handling testing
 - Multi-tenant context isolation testing
 
+### Category Service Testing
+
+- CategoryServiceImpl unit test suite
+- CRUD business flow testing
+- Pagination query behavior verification
+- Category list cache hit and cache miss testing
+- Cache Aside cache invalidation testing
+- Dynamic update behavior verification
+- Category type and status validation testing
+- Business exception validation
+- Error code and error message verification
+- Mapper interaction verification
+- Database duplicate-key exception handling testing
+- Related dish existence constraint testing
+- Multi-tenant context isolation testing
+
+
 ### Current Test Status
 
 - EmployeeServiceImpl: 28 unit tests
-- Test result: 28 passed, 0 failed, 0 errors, 0 skipped
+- CategoryServiceImpl: 22 unit tests
+- Test result: 50 passed, 0 failed, 0 errors, 0 skipped
 
 The test suite validates both successful business flows and failure paths, including application-level validation and database constraint fallback handling.
 

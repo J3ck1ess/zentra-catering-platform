@@ -290,12 +290,27 @@ The project adopts unit testing practices for service-layer business logic to im
 - Related dish existence constraint testing
 - Multi-tenant context isolation testing
 
+### Dish Service Testing
+
+- DishServiceImpl unit test suite
+- JUnit 5 test lifecycle management
+- Mockito-based dependency isolation
+- AssertJ fluent assertions
+- Business exception validation
+- Error code and error message verification
+- Mapper interaction verification
+- Redis cache interaction verification
+- Cache Aside behavior testing
+- Dynamic PATCH update behavior testing
+- Duplicate-key exception handling testing
+- Multi-tenant context isolation testing
 
 ### Current Test Status
 
 - EmployeeServiceImpl: 28 unit tests
 - CategoryServiceImpl: 22 unit tests
-- Test result: 50 passed, 0 failed, 0 errors, 0 skipped
+- DishServiceImpl: 22 unit tests
+- Test result: 72 passed, 0 failed, 0 errors, 0 skipped
 
 The test suite validates both successful business flows and failure paths, including application-level validation and database constraint fallback handling.
 

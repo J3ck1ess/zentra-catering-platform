@@ -305,12 +305,36 @@ The project adopts unit testing practices for service-layer business logic to im
 - Duplicate-key exception handling testing
 - Multi-tenant context isolation testing
 
+### User Service Testing
+
+- UserServiceImpl unit test suite
+- JUnit 5 test lifecycle management
+- Mockito-based dependency isolation
+- AssertJ fluent assertions
+- Business exception validation
+- Error code and error message verification
+- Mapper interaction verification
+- Redis cache interaction verification
+- Cache Aside behavior testing
+- Negative cache / empty cache testing
+- JWT blacklist interaction testing
+- Authentication failure scenario testing
+- User profile cache hit and cache miss testing
+- User profile cache eviction testing
+- User registration validation testing
+- User login rate limiting testing
+- Verification code retry protection testing
+- User order pagination testing
+- Order cancellation and payment state transition testing
+- Multi-tenant context isolation testing
+
 ### Current Test Status
 
 - EmployeeServiceImpl: 28 unit tests
 - CategoryServiceImpl: 22 unit tests
 - DishServiceImpl: 22 unit tests
-- Test result: 72 passed, 0 failed, 0 errors, 0 skipped
+- UserServiceImpl: 32 unit tests
+- Test result: 104 passed, 0 failed, 0 errors, 0 skipped
 
 The test suite validates both successful business flows and failure paths, including application-level validation and database constraint fallback handling.
 

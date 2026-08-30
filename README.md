@@ -343,6 +343,32 @@ The project adopts unit testing practices for service-layer business logic to im
 - User status update workflow testing
 - Database update failure handling testing
 
+### Order Service Testing
+
+- OrderServiceImpl unit test suite
+- Mockito-based dependency isolation
+- AssertJ fluent assertions
+- Business exception validation
+- Error code and error message verification
+- Mapper interaction verification
+- Transactional order creation testing
+- Redis idempotency behavior testing
+- Distributed lock behavior testing
+- Duplicate order request protection testing
+- Empty order validation testing
+- Dish existence and availability validation testing
+- Server-side order amount calculation testing
+- Multiple order item creation testing
+- Order creation failure handling testing
+- Order item creation failure handling testing
+- Order pagination query behavior verification
+- Order detail query and DTO assembly testing
+- Order status validation testing
+- Order status transition testing
+- Database status update failure handling testing
+- Automatic expired order cancellation testing
+- Multi-tenant context isolation testing
+
 ### Current Test Status
 
 - EmployeeServiceImpl: 28 unit tests
@@ -350,7 +376,8 @@ The project adopts unit testing practices for service-layer business logic to im
 - DishServiceImpl: 22 unit tests
 - UserServiceImpl: 32 unit tests
 - UserAdminServiceImpl: 7 unit tests
-- Test result: 111 passed, 0 failed, 0 errors, 0 skipped
+- OrderServiceImpl: 21 unit tests
+- Test result: 132 passed, 0 failed, 0 errors, 0 skipped
 
 The test suite validates both successful business flows and failure paths, including application-level validation and database constraint fallback handling.
 

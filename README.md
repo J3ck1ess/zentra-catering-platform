@@ -380,6 +380,30 @@ The project adopts unit testing practices for service-layer business logic to im
 - Order cancellation and payment state transition testing
 - Multi-tenant context isolation testing
 
+### User Controller Testing
+
+- UserController web-layer test suite
+- JUnit 5 test lifecycle management
+- Mockito-based service isolation
+- MockMvc HTTP request testing
+- JSON request and response validation
+- DTO request binding verification
+- Jakarta Bean Validation testing
+- Controller-to-Service interaction verification
+- Representative business exception response testing
+- Unified API response contract verification
+- User registration endpoint testing
+- User login endpoint testing
+- User logout endpoint testing
+- User profile endpoint testing
+- User detail endpoint testing
+- User order pagination endpoint testing
+- User order cancellation endpoint testing
+- User order payment endpoint testing
+- Authorization header token extraction testing
+- Query parameter binding testing
+- Path variable binding testing
+
 ### User Admin Service Testing
 
 - UserAdminServiceImpl unit test suite
@@ -430,9 +454,10 @@ The project adopts unit testing practices for service-layer business logic to im
 - DishServiceImpl: 22 unit tests
 - DishController: 17 web-layer tests
 - UserServiceImpl: 32 unit tests
+- UserController: 22 web-layer tests
 - UserAdminServiceImpl: 7 unit tests
 - OrderServiceImpl: 21 unit tests
-- Test result: 185 passed, 0 failed, 0 errors, 0 skipped
+- Test result: 207 passed, 0 failed, 0 errors, 0 skipped
 
 The test suite validates both successful business flows and failure paths, including application-level validation and database constraint fallback handling.
 

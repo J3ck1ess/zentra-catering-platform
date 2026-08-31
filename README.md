@@ -25,6 +25,7 @@ The project focuses on enterprise-style backend architecture, including DTO laye
 - JUnit 5
 - Mockito
 - AssertJ
+- Spring MockMvc
 
 ---
 
@@ -274,6 +275,24 @@ The project adopts unit testing practices for service-layer business logic to im
 - Database duplicate-key exception handling testing
 - Multi-tenant context isolation testing
 
+### Employee Controller Testing
+
+- EmployeeController web-layer test suite
+- JUnit 5 test lifecycle management
+- Mockito-based service isolation
+- MockMvc HTTP request testing
+- JSON request and response validation
+- DTO request binding verification
+- Jakarta Bean Validation testing
+- Controller-to-Service interaction verification
+- Representative business exception response testing
+- Unified API response contract verification
+- Employee CRUD endpoint testing
+- Employee pagination request binding testing
+- Employee authentication endpoint testing
+- Employee status update endpoint testing
+- Employee deletion endpoint testing
+
 ### Category Service Testing
 
 - CategoryServiceImpl unit test suite
@@ -372,12 +391,13 @@ The project adopts unit testing practices for service-layer business logic to im
 ### Current Test Status
 
 - EmployeeServiceImpl: 28 unit tests
+- EmployeeController: 25 web-layer tests
 - CategoryServiceImpl: 22 unit tests
 - DishServiceImpl: 22 unit tests
 - UserServiceImpl: 32 unit tests
 - UserAdminServiceImpl: 7 unit tests
 - OrderServiceImpl: 21 unit tests
-- Test result: 132 passed, 0 failed, 0 errors, 0 skipped
+- Test result: 157 passed, 0 failed, 0 errors, 0 skipped
 
 The test suite validates both successful business flows and failure paths, including application-level validation and database constraint fallback handling.
 

@@ -340,6 +340,23 @@ The project adopts unit testing practices for service-layer business logic to im
 - Duplicate-key exception handling testing
 - Multi-tenant context isolation testing
 
+### Dish Controller Testing
+
+- DishController web-layer test suite
+- JUnit 5 test lifecycle management
+- Mockito-based service isolation
+- MockMvc HTTP request testing
+- JSON request and response validation
+- DTO request binding verification
+- Jakarta Bean Validation testing
+- Controller-to-Service interaction verification
+- Representative business exception response testing
+- Unified API response contract verification
+- Dish CRUD endpoint testing
+- Dish pagination request binding testing
+- Dish list endpoint testing
+- Dish detail endpoint testing
+
 ### User Service Testing
 
 - UserServiceImpl unit test suite
@@ -411,10 +428,11 @@ The project adopts unit testing practices for service-layer business logic to im
 - CategoryServiceImpl: 22 unit tests
 - CategoryController: 11 web-layer tests
 - DishServiceImpl: 22 unit tests
+- DishController: 17 web-layer tests
 - UserServiceImpl: 32 unit tests
 - UserAdminServiceImpl: 7 unit tests
 - OrderServiceImpl: 21 unit tests
-- Test result: 168 passed, 0 failed, 0 errors, 0 skipped
+- Test result: 185 passed, 0 failed, 0 errors, 0 skipped
 
 The test suite validates both successful business flows and failure paths, including application-level validation and database constraint fallback handling.
 

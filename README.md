@@ -419,6 +419,24 @@ The project adopts unit testing practices for service-layer business logic to im
 - User status update workflow testing
 - Database update failure handling testing
 
+### User Admin Controller Testing
+
+- UserAdminController web-layer test suite
+- JUnit 5 test lifecycle management
+- Mockito-based service isolation
+- MockMvc HTTP request testing
+- JSON request and response validation
+- DTO request binding verification
+- Jakarta Bean Validation testing
+- Controller-to-Service interaction verification
+- Representative business exception response testing
+- Unified API response contract verification
+- User pagination endpoint testing
+- User status update endpoint testing
+- Query parameter binding testing
+- Path variable binding testing
+- Request body validation testing
+
 ### Order Service Testing
 
 - OrderServiceImpl unit test suite
@@ -456,8 +474,9 @@ The project adopts unit testing practices for service-layer business logic to im
 - UserServiceImpl: 32 unit tests
 - UserController: 22 web-layer tests
 - UserAdminServiceImpl: 7 unit tests
+- UserAdminController: 4 web-layer tests
 - OrderServiceImpl: 21 unit tests
-- Test result: 207 passed, 0 failed, 0 errors, 0 skipped
+- Test result: 211 passed, 0 failed, 0 errors, 0 skipped
 
 The test suite validates both successful business flows and failure paths, including application-level validation and database constraint fallback handling.
 

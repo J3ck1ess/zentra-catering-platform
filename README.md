@@ -463,6 +463,28 @@ The project adopts unit testing practices for service-layer business logic to im
 - Automatic expired order cancellation testing
 - Multi-tenant context isolation testing
 
+### Order Controller Testing
+
+- OrderController web-layer test suite
+- JUnit 5 test lifecycle management
+- Mockito-based service isolation
+- MockMvc HTTP request testing
+- JSON request and response validation
+- DTO request binding verification
+- Nested DTO validation testing
+- Jakarta Bean Validation testing
+- Controller-to-Service interaction verification
+- Representative business exception response testing
+- Unified API response contract verification
+- Order creation endpoint testing
+- Order pagination endpoint testing
+- Order detail endpoint testing
+- Order status update endpoint testing
+- Query parameter binding testing
+- Path variable binding testing
+- Request body validation testing
+- Nested order item validation testing
+
 ### Current Test Status
 
 - EmployeeServiceImpl: 28 unit tests
@@ -476,7 +498,8 @@ The project adopts unit testing practices for service-layer business logic to im
 - UserAdminServiceImpl: 7 unit tests
 - UserAdminController: 4 web-layer tests
 - OrderServiceImpl: 21 unit tests
-- Test result: 211 passed, 0 failed, 0 errors, 0 skipped
+- OrderController: 11 web-layer tests
+- Test result: 222 passed, 0 failed, 0 errors, 0 skipped
 
 The test suite validates both successful business flows and failure paths, including application-level validation and database constraint fallback handling.
 

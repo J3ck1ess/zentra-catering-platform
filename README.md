@@ -526,6 +526,17 @@ and containerized infrastructure to validate cross-layer runtime behavior.
 - Expired JWT rejection
 - RBAC permission rejection for unauthorized employee operations
 
+#### Category Integration Testing
+
+- Real category creation flow
+- Category persistence verification
+- Category list retrieval with Redis cache
+- Category update persistence verification
+- Category deletion constraint verification
+- Category deletion and cache eviction verification
+- Real Controller → Service → Mapper → MySQL execution
+- Real Redis cache interaction
+
 ### Current Test Status
 
 #### Unit & Web-layer Tests
@@ -547,6 +558,7 @@ and containerized infrastructure to validate cross-layer runtime behavior.
 
 - IntegrationContextTest: 2 integration tests
 - EmployeeIntegrationTest: 9 integration tests
+- CategoryIntegrationTest: 5 integration tests
 
 The integration test suite currently validates:
 
@@ -557,6 +569,10 @@ The integration test suite currently validates:
 - JWT authentication
 - JWT failure and expiration handling
 - RBAC authorization
+- Category CRUD runtime behavior
+- Category Redis cache behavior
+- Category deletion constraints
+- Category cache eviction
 - Real Controller → Service → Mapper → MySQL execution
 
 The previously completed unit and web-layer test suite passed:

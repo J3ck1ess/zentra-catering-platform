@@ -2,7 +2,9 @@
 
 Zentra is a web-based catering SaaS platform designed with a scalable multi-module architecture using Spring Boot.
 
-The project focuses on enterprise-style backend architecture, including DTO layering, dynamic SQL, transaction management, multi-tenant isolation, business validation, and unified CRUD design.
+The project adopts a layered testing strategy covering service-layer unit tests,
+web-layer controller tests, and integration tests to improve regression safety,
+business rule verification, API contract validation, and cross-layer runtime reliability.
 
 ---
 
@@ -250,6 +252,7 @@ The system includes multiple enterprise-oriented backend patterns:
 - Automated database initialization
 - Service network isolation
 - Portable one-command deployment architecture
+- Dedicated deterministic MySQL test database initialization for integration testing
 
 ---
 
@@ -485,7 +488,47 @@ The project adopts unit testing practices for service-layer business logic to im
 - Request body validation testing
 - Nested order item validation testing
 
+### Integration Testing
+
+The project implements integration testing using the real Spring application context
+and containerized infrastructure to validate cross-layer runtime behavior.
+
+#### Integration Test Infrastructure
+
+- Spring Boot integration test context
+- Test profile isolation
+- Dockerized MySQL integration
+- Dockerized Redis integration
+- MockMvc HTTP integration testing
+- Real Controller → Service → Mapper execution
+- Real MySQL persistence
+- Real Redis connectivity
+- JWT authentication integration
+- RBAC authorization integration
+- Deterministic integration test database initialization
+
+#### Integration Context Testing
+
+- Spring application context startup verification
+- MySQL connectivity verification
+- Redis connectivity verification
+
+#### Employee Integration Testing
+
+- Real employee authentication flow
+- Successful JWT login verification
+- Invalid password authentication failure
+- Nonexistent employee authentication failure
+- Disabled employee authentication failure
+- JWT-protected current employee retrieval
+- Missing JWT rejection
+- Invalid JWT rejection
+- Expired JWT rejection
+- RBAC permission rejection for unauthorized employee operations
+
 ### Current Test Status
+
+#### Unit & Web-layer Tests
 
 - EmployeeServiceImpl: 28 unit tests
 - EmployeeController: 25 web-layer tests
@@ -499,9 +542,27 @@ The project adopts unit testing practices for service-layer business logic to im
 - UserAdminController: 4 web-layer tests
 - OrderServiceImpl: 21 unit tests
 - OrderController: 11 web-layer tests
-- Test result: 222 passed, 0 failed, 0 errors, 0 skipped
 
-The test suite validates both successful business flows and failure paths, including application-level validation and database constraint fallback handling.
+#### Integration Tests
+
+- IntegrationContextTest: 2 integration tests
+- EmployeeIntegrationTest: 9 integration tests
+
+The integration test suite currently validates:
+
+- Spring application context startup
+- MySQL connectivity
+- Redis connectivity
+- Employee authentication
+- JWT authentication
+- JWT failure and expiration handling
+- RBAC authorization
+- Real Controller → Service → Mapper → MySQL execution
+
+The previously completed unit and web-layer test suite passed:
+222 passed, 0 failed, 0 errors, 0 skipped.
+
+All currently implemented integration test scenarios pass individually.
 
 ---
 

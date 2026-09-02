@@ -562,6 +562,17 @@ and containerized infrastructure to validate cross-layer runtime behavior.
 - Real Controller → Service → Mapper → MySQL execution
 - Real Redis cache interaction
 
+#### UserAdmin Integration Testing
+
+- User administration pagination
+- Username fuzzy filtering
+- User status filtering
+- User status persistence verification
+- Invalid user status validation
+- User view permission enforcement
+- User update permission enforcement
+- Real Controller → Service → Mapper → MySQL execution
+
 ### Current Test Status
 
 #### Unit & Web-layer Tests
@@ -586,6 +597,7 @@ and containerized infrastructure to validate cross-layer runtime behavior.
 - CategoryIntegrationTest: 5 integration tests
 - DishIntegrationTest: 4 integration tests
 - UserIntegrationTest: 5 integration tests
+- UserAdminIntegrationTest: 7 integration tests
 
 The integration test suite currently validates:
 
@@ -607,6 +619,9 @@ The integration test suite currently validates:
 - User profile Redis cache behavior
 - User profile cache eviction
 - User detail cache penetration protection
+- User administration pagination and filtering
+- User status update persistence
+- User administration RBAC enforcement
 - Real Controller → Service → Mapper → MySQL execution
 - Real Redis cache interaction
 

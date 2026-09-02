@@ -537,6 +537,18 @@ and containerized infrastructure to validate cross-layer runtime behavior.
 - Real Controller → Service → Mapper → MySQL execution
 - Real Redis cache interaction
 
+#### Dish Integration Testing
+
+- Real dish creation flow
+- Dish persistence verification
+- Dish detail retrieval with Redis cache
+- Dish update persistence verification
+- Dish detail cache eviction after update
+- Dish deletion verification
+- Dish detail cache eviction after deletion
+- Real Controller → Service → Mapper → MySQL execution
+- Real Redis cache interaction
+
 ### Current Test Status
 
 #### Unit & Web-layer Tests
@@ -559,6 +571,7 @@ and containerized infrastructure to validate cross-layer runtime behavior.
 - IntegrationContextTest: 2 integration tests
 - EmployeeIntegrationTest: 9 integration tests
 - CategoryIntegrationTest: 5 integration tests
+- DishIntegrationTest: 4 integration tests
 
 The integration test suite currently validates:
 

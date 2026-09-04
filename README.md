@@ -573,6 +573,14 @@ and containerized infrastructure to validate cross-layer runtime behavior.
 - User update permission enforcement
 - Real Controller → Service → Mapper → MySQL execution
 
+Order Integration Tests
+- Order creation and persistence
+- Order detail retrieval
+- Order pagination
+- Valid order status transition
+- Duplicate order request protection through Redis idempotency
+- Redis state isolation between integration test cases
+
 ### Current Test Status
 
 #### Unit & Web-layer Tests
@@ -598,6 +606,7 @@ and containerized infrastructure to validate cross-layer runtime behavior.
 - DishIntegrationTest: 4 integration tests
 - UserIntegrationTest: 5 integration tests
 - UserAdminIntegrationTest: 7 integration tests
+- OrderIntegrationTest: 5 integration tests
 
 The integration test suite currently validates:
 

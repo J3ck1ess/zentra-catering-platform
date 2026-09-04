@@ -525,6 +525,7 @@ and containerized infrastructure to validate cross-layer runtime behavior.
 - Invalid JWT rejection
 - Expired JWT rejection
 - RBAC permission rejection for unauthorized employee operations
+- Employee JWT rejection for user-only API access
 
 #### Category Integration Testing
 
@@ -561,6 +562,7 @@ and containerized infrastructure to validate cross-layer runtime behavior.
 - User detail retrieval with Redis cache
 - Real Controller → Service → Mapper → MySQL execution
 - Real Redis cache interaction
+- User JWT rejection for employee-only API access
 
 #### UserAdmin Integration Testing
 
@@ -601,10 +603,10 @@ Order Integration Tests
 #### Integration Tests
 
 - IntegrationContextTest: 2 integration tests
-- EmployeeIntegrationTest: 9 integration tests
+- EmployeeIntegrationTest: 10 integration tests
 - CategoryIntegrationTest: 5 integration tests
 - DishIntegrationTest: 4 integration tests
-- UserIntegrationTest: 5 integration tests
+- UserIntegrationTest: 6 integration tests
 - UserAdminIntegrationTest: 7 integration tests
 - OrderIntegrationTest: 5 integration tests
 
@@ -617,6 +619,7 @@ The integration test suite currently validates:
 - JWT authentication
 - JWT failure and expiration handling
 - RBAC authorization
+- Bidirectional USER / EMPLOYEE API identity isolation
 - Category CRUD runtime behavior
 - Category Redis cache behavior
 - Category deletion constraints

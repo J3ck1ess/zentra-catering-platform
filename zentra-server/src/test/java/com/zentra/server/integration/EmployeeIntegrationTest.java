@@ -2,7 +2,10 @@ package com.zentra.server.integration;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zentra.common.auth.AuthInfo;
 import com.zentra.common.constant.ErrorCode;
+import com.zentra.common.constant.UserType;
+import com.zentra.common.util.JwtUtil;
 import com.zentra.server.dto.EmployeeLoginDTO;
 import com.zentra.server.entity.Employee;
 import com.zentra.server.mapper.EmployeeMapper;
@@ -34,6 +37,26 @@ class EmployeeIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private EmployeeMapper employeeMapper;
+
+    // ==================== Permission ====================
+    @Test
+    void employeeToken_shouldRejectUserApiAccess() throws Exception {
+        AuthInfo authInfo = new AuthInfo(
+                1L,
+                1L,
+                UserType.EMPLOYEE,
+                "SUPER_ADMIN"
+        );
+
+        String jwt = JwtUtil.generateToken(authInfo);
+
+        mockMvc.perform(
+                        get("/user/profile")
+                                .header("Authorization", "Bearer " + jwt)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(ErrorCode.NO_PERMISSION));
+    }
 
     // ==================== Login ====================
     @Test

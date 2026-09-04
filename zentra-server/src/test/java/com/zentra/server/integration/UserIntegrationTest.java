@@ -2,6 +2,7 @@ package com.zentra.server.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zentra.common.auth.AuthInfo;
+import com.zentra.common.constant.ErrorCode;
 import com.zentra.common.constant.RedisKeyConstants;
 import com.zentra.common.constant.UserType;
 import com.zentra.common.util.JwtUtil;
@@ -35,6 +36,26 @@ public class UserIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private RedisService redisService;
+
+    // ==================== Permission ====================
+    @Test
+    void userToken_shouldRejectEmployeeApiAccess() throws Exception {
+        AuthInfo authInfo = new AuthInfo(
+                2L,
+                1L,
+                UserType.USER,
+                null
+        );
+
+        String jwt = JwtUtil.generateToken(authInfo);
+
+        mockMvc.perform(
+                        get("/employee/me")
+                                .header("Authorization", "Bearer " + jwt)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(ErrorCode.NO_PERMISSION));
+    }
 
     // ==================== Register ====================
     @Test

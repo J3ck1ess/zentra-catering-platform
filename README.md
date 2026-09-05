@@ -1,1271 +1,227 @@
-# Zentra - Catering SaaS Management Platform
+# Zentra — Catering SaaS Management Platform
 
-Zentra is a web-based catering SaaS platform designed with a scalable multi-module architecture using Spring Boot.
+[![Backend CI](https://github.com/J3ck1ess/zentra-catering-platform/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/J3ck1ess/zentra-catering-platform/actions/workflows/ci.yml)
+[![Java 21](https://img.shields.io/badge/Java-21-007396?logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/21/)
+[![Spring Boot 3](https://img.shields.io/badge/Spring%20Boot-3.x-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![GHCR](https://img.shields.io/badge/GHCR-published-181717?logo=github&logoColor=white)](https://github.com/J3ck1ess/zentra-catering-platform/pkgs/container/zentra-catering-platform)
 
-The project adopts a layered testing strategy covering service-layer unit tests,
-web-layer controller tests, and integration tests to improve regression safety,
-business rule verification, API contract validation, and cross-layer runtime reliability.
+Zentra is a multi-module catering SaaS platform built with Spring Boot. It focuses on the backend concerns expected in a production-oriented business system: tenant isolation, JWT and RBAC authorization, transactional ordering, Redis-backed reliability controls, automated testing, and a CI/CD delivery pipeline.
 
----
+## Highlights
+
+| Area | What Zentra provides |
+| --- | --- |
+| SaaS design | Merchant-scoped data isolation, DTO-based APIs, dynamic queries, and layered Controller → Service → Mapper architecture |
+| Business modules | Employee administration, categories, dishes, users, user administration, and a full order lifecycle |
+| Security | Separate `USER` / `EMPLOYEE` identities, JWT authentication, RBAC permissions, request-scoped contexts, and BCrypt passwords |
+| Reliability | Transactions, server-side pricing, Redis cache-aside, cache-penetration protection, distributed locking, idempotency, and scheduled order expiry handling |
+| Quality | 261 automated tests across unit, web, and integration layers; real MySQL and Redis are used by integration tests |
+| Delivery | GitHub Actions quality gate, Docker image build validation, published GHCR images, and environment-ready Staging / Production Compose files |
+
+## Architecture
+
+```text
+Client
+  ↓
+Controller ── validation / OpenAPI / audit annotations
+  ↓
+Service ───── business rules / transactions / cache governance
+  ↓
+Mapper ────── MyBatis dynamic SQL
+  ↓
+MySQL                 Redis
+```
+
+Cross-cutting request processing:
+
+```text
+JWT interceptor → AuthContext → RBAC permission interceptor → Controller
+```
+
+## Functional Modules
+
+| Module | Key capabilities |
+| --- | --- |
+| Employee & Admin | Employee login, CRUD, status management, self-protection, last-super-admin protection, and permission-based administration |
+| Category & Dish | Tenant-aware CRUD, dynamic filtering, category/dish cache-aside, cache eviction, and category deletion constraints |
+| User | Registration, login, verification-code and rate-limit safeguards, profile caching, logout / token blacklist, and order history |
+| User Administration | User pagination, fuzzy search, status governance, and protected admin APIs |
+| Order | Transactional multi-item creation, price snapshots, server-side amounts, state transitions, payment/cancellation, expiry scheduling, locks, and idempotency |
+| Admin Frontend | React + Vite administrative UI with JWT storage, route guards, dashboard, and management screens |
+
+## Security and Runtime Governance
+
+### Authentication and authorization
+
+- JWT-based authentication supports independent `USER` and `EMPLOYEE` identities.
+- `JwtTokenInterceptor` validates tokens and establishes request-scoped authentication context.
+- Annotation-driven RBAC resolves permissions through a centralized role-permission matrix.
+- USER and EMPLOYEE API domains are isolated in both directions and verified by integration tests.
+- BCrypt protects stored passwords; Redis supports login rate limiting, verification retries, and JWT blacklist checks.
+
+### Redis-backed safeguards
+
+- Cache-aside caching for categories, dishes, and user profiles, including targeted eviction after mutations.
+- Empty-value protection for user detail cache penetration.
+- Distributed lock protection for concurrent order submission.
+- Redis `SETNX` idempotency based on request fingerprints to reject duplicate order creation.
+
+### Order lifecycle
+
+```text
+PENDING ── pay ──▶ PAID ── complete ──▶ COMPLETED
+   │
+   └── cancel / expire ──▶ CANCELLED
+```
+
+Orders use a transaction for order and order-item persistence, validate dish availability and tenant ownership, and calculate all amounts on the server.
 
 ## Tech Stack
 
-- Java 21
-- Spring Boot 3.x
-- Maven (Multi-module)
-- MySQL
-- Redis
-- MyBatis
-- Docker
-- Docker Compose
-- JWT Authentication
-- RBAC Authorization
-- Spring AOP
-- Swagger / OpenAPI 3
-- BCrypt Password Hashing
-- Jakarta Validation
-- JUnit 5
-- Mockito
-- AssertJ
-- Spring MockMvc
-
----
-
-## Core Architecture
-
-This project follows a unified enterprise-style backend architecture across all modules.
-
-### Unified CRUD Architecture
-
-All business modules follow the same layered design:
-
-- Controller → Service → Mapper
-- DTO-based request and response design
-- Entity and DTO separation
-- XML-based MyBatis dynamic SQL
-- Unified pagination structure
-- PATCH-based dynamic update APIs
-- Centralized validation and exception handling
-- Multi-tenant data isolation using `merchant_id`
-
-### Enterprise Backend Design
-
-The system includes multiple enterprise-oriented backend patterns:
-
-- Transaction management
-- Order status flow control
-- Snapshot design for order items
-- One-to-many DTO nesting
-- Dynamic query filtering
-- Server-side amount calculation
-- Business constraint validation
-- Affected-row validation (`checkRows`)
-- Constant-based status management 
-- JWT-based authentication workflow
-- BCrypt password hashing
-- User-order business association
-- Annotation-driven audit runtime
-- Aspect-oriented business auditing
-
----
-
-## Current Progress
-
-### Dashboard Runtime
-
-- Dashboard statistics runtime
-- Business overview runtime
-- Order overview runtime
-- Quick action navigation
-- Enterprise admin workbench
-
-### Employee Admin Runtime
-- Employee authentication workflow
-- Employee pagination runtime
-- Employee search runtime
-- Employee status management
-- Real-time status switch
-- JWT-protected admin operations
-- Enterprise CRUD workflow
-
-### Employee Module
-- Employee CRUD
-- Employee pagination query
-- Employee search runtime
-- Dynamic PATCH update
-- Independent status update runtime
-- Employee status switch workflow
-- DTO architecture
-- Tenant isolation using `merchant_id`
-- JWT login authentication
-- XML-based MyBatis dynamic SQL
-- Enterprise CRUD architecture
-- BCrypt password management
-- Self-delete protection
-- Last SUPER_ADMIN deletion protection
-- Enterprise business validation
-
-### Category Module
-- Category CRUD
-- Category pagination query
-- Category search runtime
-- Category list runtime
-- Category description support
-- Category sort runtime
-- Hot data category cache runtime
-- Cache Aside cache governance
-- Dynamic query filtering
-- Business validation
-- Prevent deleting category when dishes exist
-- Dynamic PATCH update
-- Tenant isolation
-
-### Dish Module
-- Dish CRUD
-- Pagination query
-- Dish list runtime
-- Dish detail runtime
-- Hot data dish cache runtime
-- Cache Aside cache governance
-- Category JOIN query
-- Category name mapping
-- Dynamic query filtering
-- Category existence validation
-- Dynamic PATCH update
-- Tenant isolation
-
-### Order Module
-- Transactional order creation
-- Order pagination query
-- Order detail query
-- One-to-many DTO nesting
-- Snapshot design for order items
-- Server-side total amount calculation
-- Order status flow control
-- State transition validation
-- User-driven order cancellation runtime
-- Payment simulation runtime
-- Scheduled expired order cancellation
-- Order lifecycle automation governance
-- Tenant isolation
-- Order item tenant isolation
-- Distributed duplicate order protection
-- Concurrent-safe order creation runtime
-- Redis-based distributed lock governance
-- Lock-aware order submission runtime
-- Redis idempotency runtime
-- Request fingerprint-based duplicate request protection
-- Fast-fail duplicate request interception
-
-### User Module
-- User registration
-- User login authentication
-- BCrypt password hashing
-- JWT token generation
-- User profile query
-- User order history query
-- User-order association
-- Protected API access control
-- ThreadLocal-based authentication context
-- Hot data profile cache runtime
-- Tenant-aware user cache governance
-- Profile cache eviction runtime
-- Distributed cache consistency protection
-
-### User Admin Module
-- Admin user pagination query
-- User account status management
-- Admin-level user governance APIs
-- Status validation and update workflow
-- Swagger/OpenAPI integration
-- DTO-based admin response architecture
-- JWT-based admin authorization control
-- Multi-domain API access routing
-
-### Admin Frontend Module
-
-- React 19 + Vite architecture
-- Tailwind CSS layout system
-- Ant Design component runtime
-- React Router nested routing
-- Shared HTTP client runtime
-- JWT token storage runtime
-- Login authentication workflow
-- Current user runtime
-- Admin header runtime
-- Logout runtime
-- Route guard runtime
-- Invalid token auto redirect
-- Dashboard workbench
-- Dashboard statistics runtime
-- Business overview runtime
-- Order overview runtime
-- Quick action navigation
-- Spring Boot API integration
-- Employee management runtime
-- Employee pagination query
-- Employee status switch runtime
-- Employee create workflow
-- Employee update workflow
-- Employee delete workflow
-- Category management runtime
-- Category pagination query
-- Category search workflow
-- Category create workflow
-- Category update workflow
-- Category delete workflow
-- Dish management runtime
-- Dish pagination query
-- Dish search workflow
-- Dish create workflow
-- Dish update workflow
-- Dish delete workflow
-- Dish status switch runtime
-- Dynamic category selection runtime
-- Order management runtime
-- Order pagination query
-- Order detail runtime
-- Order search workflow
-- Order status workflow
-- Order lifecycle management
-- Dynamic order action runtime
-- User management runtime
-- User pagination query
-- User search workflow
-- User status switch runtime
-- Unified HTTP response runtime
-- Business exception handling runtime
-- Ant Design Table runtime
-- Ant Design Form runtime
-- Server-side pagination integration
-- JWT-protected admin CRUD workflow
-
-### Deployment Module
-
-- Dockerized Spring Boot runtime
-- Multi-stage Docker image build
-- Docker Compose service orchestration
-- Containerized MySQL infrastructure
-- Containerized Redis infrastructure
-- Environment-specific profile governance
-- Production profile deployment runtime
-- Automated database initialization
-- Service network isolation
-- Portable one-command deployment architecture
-- Dedicated deterministic MySQL test database initialization for integration testing
-
----
-
-## Testing & Quality
-
-The project adopts unit testing practices for service-layer business logic to improve regression safety, business rule verification, and maintainability.
-
-### Employee Service Testing
-
-- EmployeeServiceImpl unit test suite
-- JUnit 5 test lifecycle management
-- Mockito-based dependency isolation
-- AssertJ fluent assertions
-- Business exception validation
-- Error code and error message verification
-- Mapper interaction verification
-- Dynamic update behavior verification
-- Pagination query behavior verification
-- Authentication failure scenario testing
-- Employee status transition validation
-- Self-delete protection testing
-- Last SUPER_ADMIN deletion protection testing
-- Database duplicate-key exception handling testing
-- Multi-tenant context isolation testing
-
-### Employee Controller Testing
-
-- EmployeeController web-layer test suite
-- JUnit 5 test lifecycle management
-- Mockito-based service isolation
-- MockMvc HTTP request testing
-- JSON request and response validation
-- DTO request binding verification
-- Jakarta Bean Validation testing
-- Controller-to-Service interaction verification
-- Representative business exception response testing
-- Unified API response contract verification
-- Employee CRUD endpoint testing
-- Employee pagination request binding testing
-- Employee authentication endpoint testing
-- Employee status update endpoint testing
-- Employee deletion endpoint testing
-
-### Category Service Testing
-
-- CategoryServiceImpl unit test suite
-- CRUD business flow testing
-- Pagination query behavior verification
-- Category list cache hit and cache miss testing
-- Cache Aside cache invalidation testing
-- Dynamic update behavior verification
-- Category type and status validation testing
-- Business exception validation
-- Error code and error message verification
-- Mapper interaction verification
-- Database duplicate-key exception handling testing
-- Related dish existence constraint testing
-- Multi-tenant context isolation testing
-
-### Category Controller Testing
-
-- CategoryController web-layer test suite
-- JUnit 5 test lifecycle management
-- Mockito-based service isolation
-- MockMvc HTTP request testing
-- JSON request and response validation
-- DTO request binding verification
-- Jakarta Bean Validation testing
-- Controller-to-Service interaction verification
-- Representative business exception response testing
-- Unified API response contract verification
-- Category CRUD endpoint testing
-- Category pagination request binding testing
-- Category list endpoint testing
-
-### Dish Service Testing
-
-- DishServiceImpl unit test suite
-- JUnit 5 test lifecycle management
-- Mockito-based dependency isolation
-- AssertJ fluent assertions
-- Business exception validation
-- Error code and error message verification
-- Mapper interaction verification
-- Redis cache interaction verification
-- Cache Aside behavior testing
-- Dynamic PATCH update behavior testing
-- Duplicate-key exception handling testing
-- Multi-tenant context isolation testing
-
-### Dish Controller Testing
-
-- DishController web-layer test suite
-- JUnit 5 test lifecycle management
-- Mockito-based service isolation
-- MockMvc HTTP request testing
-- JSON request and response validation
-- DTO request binding verification
-- Jakarta Bean Validation testing
-- Controller-to-Service interaction verification
-- Representative business exception response testing
-- Unified API response contract verification
-- Dish CRUD endpoint testing
-- Dish pagination request binding testing
-- Dish list endpoint testing
-- Dish detail endpoint testing
-
-### User Service Testing
-
-- UserServiceImpl unit test suite
-- JUnit 5 test lifecycle management
-- Mockito-based dependency isolation
-- AssertJ fluent assertions
-- Business exception validation
-- Error code and error message verification
-- Mapper interaction verification
-- Redis cache interaction verification
-- Cache Aside behavior testing
-- Negative cache / empty cache testing
-- JWT blacklist interaction testing
-- Authentication failure scenario testing
-- User profile cache hit and cache miss testing
-- User profile cache eviction testing
-- User registration validation testing
-- User login rate limiting testing
-- Verification code retry protection testing
-- User order pagination testing
-- Order cancellation and payment state transition testing
-- Multi-tenant context isolation testing
-
-### User Controller Testing
-
-- UserController web-layer test suite
-- JUnit 5 test lifecycle management
-- Mockito-based service isolation
-- MockMvc HTTP request testing
-- JSON request and response validation
-- DTO request binding verification
-- Jakarta Bean Validation testing
-- Controller-to-Service interaction verification
-- Representative business exception response testing
-- Unified API response contract verification
-- User registration endpoint testing
-- User login endpoint testing
-- User logout endpoint testing
-- User profile endpoint testing
-- User detail endpoint testing
-- User order pagination endpoint testing
-- User order cancellation endpoint testing
-- User order payment endpoint testing
-- Authorization header token extraction testing
-- Query parameter binding testing
-- Path variable binding testing
-
-### User Admin Service Testing
-
-- UserAdminServiceImpl unit test suite
-- Mockito-based dependency isolation
-- AssertJ fluent assertions
-- Business exception validation
-- Error code and error message verification
-- Mapper interaction verification
-- User pagination query behavior verification
-- Username and status filter behavior testing
-- Empty result pagination testing
-- User status validation testing
-- User status update workflow testing
-- Database update failure handling testing
-
-### User Admin Controller Testing
-
-- UserAdminController web-layer test suite
-- JUnit 5 test lifecycle management
-- Mockito-based service isolation
-- MockMvc HTTP request testing
-- JSON request and response validation
-- DTO request binding verification
-- Jakarta Bean Validation testing
-- Controller-to-Service interaction verification
-- Representative business exception response testing
-- Unified API response contract verification
-- User pagination endpoint testing
-- User status update endpoint testing
-- Query parameter binding testing
-- Path variable binding testing
-- Request body validation testing
-
-### Order Service Testing
-
-- OrderServiceImpl unit test suite
-- Mockito-based dependency isolation
-- AssertJ fluent assertions
-- Business exception validation
-- Error code and error message verification
-- Mapper interaction verification
-- Transactional order creation testing
-- Redis idempotency behavior testing
-- Distributed lock behavior testing
-- Duplicate order request protection testing
-- Empty order validation testing
-- Dish existence and availability validation testing
-- Server-side order amount calculation testing
-- Multiple order item creation testing
-- Order creation failure handling testing
-- Order item creation failure handling testing
-- Order pagination query behavior verification
-- Order detail query and DTO assembly testing
-- Order status validation testing
-- Order status transition testing
-- Database status update failure handling testing
-- Automatic expired order cancellation testing
-- Multi-tenant context isolation testing
-
-### Order Controller Testing
-
-- OrderController web-layer test suite
-- JUnit 5 test lifecycle management
-- Mockito-based service isolation
-- MockMvc HTTP request testing
-- JSON request and response validation
-- DTO request binding verification
-- Nested DTO validation testing
-- Jakarta Bean Validation testing
-- Controller-to-Service interaction verification
-- Representative business exception response testing
-- Unified API response contract verification
-- Order creation endpoint testing
-- Order pagination endpoint testing
-- Order detail endpoint testing
-- Order status update endpoint testing
-- Query parameter binding testing
-- Path variable binding testing
-- Request body validation testing
-- Nested order item validation testing
-
-### Integration Testing
-
-The project implements integration testing using the real Spring application context
-and containerized infrastructure to validate cross-layer runtime behavior.
-
-#### Integration Test Infrastructure
-
-- Spring Boot integration test context
-- Test profile isolation
-- Dockerized MySQL integration
-- Dockerized Redis integration
-- MockMvc HTTP integration testing
-- Real Controller → Service → Mapper execution
-- Real MySQL persistence
-- Real Redis connectivity
-- JWT authentication integration
-- RBAC authorization integration
-- Deterministic integration test database initialization
-
-#### Integration Context Testing
-
-- Spring application context startup verification
-- MySQL connectivity verification
-- Redis connectivity verification
-
-#### Employee Integration Testing
-
-- Real employee authentication flow
-- Successful JWT login verification
-- Invalid password authentication failure
-- Nonexistent employee authentication failure
-- Disabled employee authentication failure
-- JWT-protected current employee retrieval
-- Missing JWT rejection
-- Invalid JWT rejection
-- Expired JWT rejection
-- RBAC permission rejection for unauthorized employee operations
-- Employee JWT rejection for user-only API access
-
-#### Category Integration Testing
-
-- Real category creation flow
-- Category persistence verification
-- Category list retrieval with Redis cache
-- Category update persistence verification
-- Category deletion constraint verification
-- Category deletion and cache eviction verification
-- Real Controller → Service → Mapper → MySQL execution
-- Real Redis cache interaction
-
-#### Dish Integration Testing
-
-- Real dish creation flow
-- Dish persistence verification
-- Dish detail retrieval with Redis cache
-- Dish update persistence verification
-- Dish detail cache eviction after update
-- Dish deletion verification
-- Dish detail cache eviction after deletion
-- Real Controller → Service → Mapper → MySQL execution
-- Real Redis cache interaction
-
-#### User Integration Testing
-
-- Real user registration flow
-- User persistence verification
-- User profile retrieval with Redis cache
-- User profile cache hit and cache miss verification
-- User detail cache penetration protection
-- User profile update persistence verification
-- User profile cache eviction after update
-- User detail retrieval with Redis cache
-- Real Controller → Service → Mapper → MySQL execution
-- Real Redis cache interaction
-- User JWT rejection for employee-only API access
-
-#### UserAdmin Integration Testing
-
-- User administration pagination
-- Username fuzzy filtering
-- User status filtering
-- User status persistence verification
-- Invalid user status validation
-- User view permission enforcement
-- User update permission enforcement
-- Real Controller → Service → Mapper → MySQL execution
-
-Order Integration Tests
-- Order creation and persistence
-- Order detail retrieval
-- Order pagination
-- Valid order status transition
-- Duplicate order request protection through Redis idempotency
-- Redis state isolation between integration test cases
-
-### Current Test Status
-
-#### Unit & Web-layer Tests
-
-- EmployeeServiceImpl: 28 unit tests
-- EmployeeController: 25 web-layer tests
-- CategoryServiceImpl: 22 unit tests
-- CategoryController: 11 web-layer tests
-- DishServiceImpl: 22 unit tests
-- DishController: 17 web-layer tests
-- UserServiceImpl: 32 unit tests
-- UserController: 22 web-layer tests
-- UserAdminServiceImpl: 7 unit tests
-- UserAdminController: 4 web-layer tests
-- OrderServiceImpl: 21 unit tests
-- OrderController: 11 web-layer tests
-
-#### Integration Tests
-
-- IntegrationContextTest: 2 integration tests
-- EmployeeIntegrationTest: 10 integration tests
-- CategoryIntegrationTest: 5 integration tests
-- DishIntegrationTest: 4 integration tests
-- UserIntegrationTest: 6 integration tests
-- UserAdminIntegrationTest: 7 integration tests
-- OrderIntegrationTest: 5 integration tests
-
-The integration test suite currently validates:
-
-- Spring application context startup
-- MySQL connectivity
-- Redis connectivity
-- Employee authentication
-- JWT authentication
-- JWT failure and expiration handling
-- RBAC authorization
-- Bidirectional USER / EMPLOYEE API identity isolation
-- Category CRUD runtime behavior
-- Category Redis cache behavior
-- Category deletion constraints
-- Category cache eviction
-- Dish CRUD runtime behavior
-- Dish Redis detail cache behavior
-- Dish cache eviction
-- User registration runtime behavior
-- User profile Redis cache behavior
-- User profile cache eviction
-- User detail cache penetration protection
-- User administration pagination and filtering
-- User status update persistence
-- User administration RBAC enforcement
-- Real Controller → Service → Mapper → MySQL execution
-- Real Redis cache interaction
-
-The previously completed unit and web-layer test suite passed:
-222 passed, 0 failed, 0 errors, 0 skipped.
-
-All currently implemented integration test scenarios pass individually.
-
----
-
-## Authentication Module (JWT)
-
-This project implements a stateless authentication system using JSON Web Token (JWT).
-
-### Features
-
-- User login with username and password
-- JWT token generation upon successful authentication
-- Token validation via interceptor
-- Global request authentication control
-- ThreadLocal-based user context
-- Unified exception handling
-- Structured API response with DTO
-- BCrypt password hashing
-- User and employee authentication support
-- Multi-user authentication architecture
-- AuthContext-based authentication architecture
-- Multi-user identity support (`USER` / `EMPLOYEE`)
-- Interceptor-based API authorization control
-- API access isolation based on authenticated user type
-- Admin API authorization routing (`/admin/**`)
-- JWT interceptor support for CORS preflight requests
-- Current authenticated employee runtime
-- Protected admin route runtime
-- Admin logout workflow
-- Invalid token auto redirect runtime
-
-### Workflow
-
-1. User or employee logs in via authentication APIs
-2. Server validates credentials and generates JWT token
-3. Client stores JWT token locally
-4. Client sends token in Authorization header
-5. JWT interceptor validates the token
-6. User identity is stored in ThreadLocal
-7. Current authenticated user information is retrieved
-8. Protected admin pages become accessible
-9. Logout removes local authentication state
-
-### Admin Authentication Runtime
-
-The admin frontend implements a complete authentication lifecycle:
-
-- JWT-based login
-- Current authenticated employee retrieval (`/employee/me`)
-- Dynamic admin header
-- Protected admin route runtime
-- Logout workflow
-- Invalid token auto redirection
-
-Authentication flow:
+| Layer | Technology |
+| --- | --- |
+| Backend | Java 21, Spring Boot 3.x, Maven multi-module build |
+| Persistence | MySQL, MyBatis, XML dynamic SQL |
+| Distributed runtime | Redis, Docker, Docker Compose |
+| Security | JWT, RBAC, Spring AOP, BCrypt, Jakarta Validation |
+| API documentation | SpringDoc / Swagger OpenAPI 3 |
+| Testing | JUnit 5, Mockito, AssertJ, Spring MockMvc |
+| Delivery | GitHub Actions, GitHub Container Registry (GHCR) |
+| Frontend | React 19, Vite, Tailwind CSS, Ant Design |
+
+## Testing and Quality
+
+| Test layer | Scope | Tests |
+| --- | --- | ---: |
+| Unit | Service business rules, mapper interactions, cache behavior, validation, and error handling | 132 |
+| Web | Controller contracts, request binding, validation, JSON responses, and service delegation | 90 |
+| Integration | Real Spring context, MySQL, Redis, MockMvc, JWT, RBAC, caching, and order flows | 39 |
+| **Total** | **Latest full Maven suite** | **261** |
+
+The integration suite validates:
+
+- Spring context startup plus MySQL and Redis connectivity.
+- Employee and user authentication, expired/invalid token handling, RBAC, and bidirectional USER / EMPLOYEE API identity isolation.
+- Category, dish, user, and order persistence flows with real database and Redis interactions.
+- Cache hits, misses, eviction, cache-penetration protection, distributed duplicate-order protection, and order status transitions.
+
+Run the full suite locally:
+
+```bash
+mvn clean test
+```
+
+## CI/CD
+
+Zentra uses a production-oriented CI/CD pipeline that protects `master` and produces versioned, deployable container images.
 
 ```text
-Login
-    ↓
-JWT Storage
-    ↓
-HTTP Interceptor
-    ↓
-Current Employee Runtime
-    ↓
-Admin Header
-    ↓
-Protected Admin Pages
-    ↓
-Logout / Token Expiration
+Feature branch
+  ↓
+Pull request
+  ↓
+Backend CI
+  ├── Java 21 + Maven dependency cache
+  ├── MySQL 8.4 + Redis 7.4 service containers
+  ├── Deterministic zentra_test initialization
+  ├── Full Maven test suite
+  ├── Maven package
+  └── Docker image build validation
+  ↓
+Required PR quality gate
+  ↓
+Merge to master
+  ↓
+Publish Container Image → GitHub Container Registry
 ```
 
----
+The required `Build, test, and validate container image` check must pass before a pull request can merge into `master`. CI initializes its own `zentra_test` database from `docker/mysql/init.sql`, so results do not depend on a developer machine.
 
-## Enterprise RBAC Architecture
-
-This project implements an enterprise-style RBAC (Role-Based Access Control) architecture for admin-side authorization governance.
-
-### Role Permission Matrix
-
-The system adopts a centralized role permission matrix model.
-
-Built-in roles:
-
-- SUPER_ADMIN
-- STORE_MANAGER
-- CASHIER
-- KITCHEN_STAFF
-
-Permission resolution flow:
-
-Role
-→ PermissionProvider
-→ PermissionContext
-→ PermissionInterceptor
-→ API Access Decision
-
-The permission matrix is maintained through an immutable role-permission mapping and validated through runtime authorization testing.
-
-Role responsibilities:
-
-- SUPER_ADMIN: Full system permissions.
-- STORE_MANAGER: Store operation and management permissions.
-- CASHIER: Order processing and customer management permissions.
-- KITCHEN_STAFF: Kitchen workflow and order status update permissions.
-
-### Features
-
-- Role-based permission management
-- Annotation-driven authorization (`@RequirePermission`)
-- Interceptor-based permission validation
-- ThreadLocal-based permission context
-- JWT + RBAC integration
-- Role-permission mapping infrastructure
-- CRUD permission matrix governance
-- Permission-aware Swagger/OpenAPI documentation
-- Admin API authorization isolation
-- Multi-domain authentication and authorization architecture
-
-### RBAC Architecture
-
-The RBAC system follows a layered enterprise authorization architecture:
+After successful CI on `master`, the release workflow publishes:
 
 ```text
-JWT Authentication
-    ↓
-Role Resolution
-    ↓
-Permission Provider
-    ↓
-Permission Context
-    ↓
-Permission Interceptor
-    ↓
-Annotation-driven Authorization
-    ↓
-Controller Access Control
+ghcr.io/j3ck1ess/zentra-catering-platform:sha-<commit-sha>
+ghcr.io/j3ck1ess/zentra-catering-platform:latest
 ```
 
-### Permission Governance
+Use the immutable SHA tag for deployment and rollback; `latest` is a convenient current-build reference. The project currently implements Continuous Integration and Continuous Delivery: approved changes are validated and published automatically. Automatic deployment is intentionally deferred until a real target server and credentials are available.
 
-The project implements fine-grained permission governance using CRUD-based permission design:
+## Local Development
 
-- employee:create
-- employee:view
-- employee:update
-- employee:delete
+### Prerequisites
 
-The same governance model is applied across employee, user admin, category, dish, and order management APIs.
+- JDK 21
+- Maven 3.9+
+- Docker Desktop (for local infrastructure and integration tests)
 
-### Role Migration History
-
-Legacy role values:
-
-- admin
-- staff
-
-were migrated to the standardized enterprise role model:
-
-- SUPER_ADMIN
-- STORE_MANAGER
-
-to ensure consistent RBAC governance across development, testing, and containerized deployment environments.
-
-### Security Design
-
-- JWT-based identity authentication
-- RBAC-based authorization control
-- ThreadLocal request-scoped permission context
-- Role-to-permission mapping infrastructure
-- Annotation-driven permission validation
-- Centralized authorization interception
-- Permission-aware API documentation
-
----
-
-## Enterprise Redis Verification Architecture
-
-This project implements an enterprise-style Redis-based verification runtime architecture for authentication security governance.
-
-### Features
-
-- Redis infrastructure integration
-- Redis namespace and TTL governance
-- Verification runtime and retry governance
-- Login rate limiting and traffic protection
-- JWT blacklist and token revocation governance
-- Hot data cache runtime architecture
-- Generic Redis cache infrastructure
-- Cache Aside consistency governance
-- Cache penetration protection
-- Distributed lock runtime infrastructure
-- Concurrent-safe order runtime governance
-- Redis idempotency runtime
-- Request fingerprint-based duplicate request protection
-- Fast-fail duplicate request protection
-- Runtime observability governance
-- Structured runtime logging architecture
-- Swagger/OpenAPI verification integration
-
-### Distributed Runtime Flow
-
-The verification system follows a distributed runtime security architecture:
-
-```text
-Client Request
-    ↓
-Authentication Runtime
-    ↓
-Login Rate Limiting
-    ↓
-Verification Runtime
-    ↓
-JWT Generation
-    ↓
-Authenticated Request
-    ↓
-JWT Blacklist Validation
-    ↓
-RBAC Authorization
-    ↓
-Hot Data Cache Runtime
-    ↓
-Cache Hit → Return
-    ↓
-Cache Miss
-    ↓
-Database Query
-    ↓
-Cache Writeback
-    ↓
-Distributed Lock Runtime
-    ↓
-Duplicate Request Protection
-    ↓
-Concurrent-safe Business Runtime
-    ↓
-Business Response
-```
-  
-### Runtime Domains
-
-Verification Runtime
-- Redis-based verification storage
-- TTL-based expiration governance
-- Verification retry protection
-- Anti-bruteforce validation strategy
-
-Rate Limit Runtime
-- Redis atomic request counter
-- Fixed-window login rate limiting
-- Authentication traffic protection
-
-JWT Runtime
-- Distributed JWT blacklist validation
-- Token revocation governance
-- Logout lifecycle synchronization
-
-Cache Runtime
-- Cache Aside architecture
-- Tenant-aware cache isolation
-- User profile cache runtime
-- Category list cache runtime
-- Dish detail cache runtime
-- Generic collection cache support
-- Redis TypeReference-based cache infrastructure
-- Cache eviction and rebuild governance
-- Cache penetration protection
-
-Lock Runtime
-- Distributed lock infrastructure
-- Lock ownership verification
-- Concurrent-safe business execution
-
-Idempotency Runtime
-- Redis SETNX-based request protection
-- Request fingerprint generation
-- SHA-256 fingerprint hashing
-- Order create idempotency governance
-- Fast-fail duplicate request interception
-
----
-
-## Runtime Observability Architecture
-
-The project implements a structured runtime observability architecture to improve traceability, troubleshooting efficiency, and operational governance.
-
-### Runtime Domains
-
-- AUTH Runtime
-- AUDIT Runtime
-- RBAC Runtime
-- CACHE Runtime
-- LOCK Runtime
-- ORDER Runtime
-- VALIDATION Runtime
-- BUSINESS Runtime
-- SYSTEM Runtime
-
-### Observability Design
-
-The runtime logging system follows a lifecycle-oriented design:
-
-Request Start
-↓
-Business Validation
-↓
-Runtime Execution
-↓
-Persistence Validation
-↓
-Runtime Completion
-
-All critical runtime events are recorded using structured logging with unified domain prefixes.
-
-### Governance Principles
-
-- Structured log format
-- Domain-based log classification
-- Runtime lifecycle tracing
-- Security event auditing
-- Cache runtime observability
-- Distributed lock observability
-- Exception governance integration
-- Annotation-driven audit governance
-- Business operation traceability
-
----
-
-## Enterprise Audit Runtime
-
-This project implements an enterprise-style audit runtime based on Spring AOP for business operation governance.
-
-### Features
-
-- Annotation-driven audit logging (`@AuditLog`)
-- Aspect-oriented audit interception
-- ThreadLocal-based operator resolution
-- Unified audit persistence runtime
-- Business operation traceability
-- Success and failure audit recording
-- Structured audit runtime logging
-- Runtime execution time recording
-
-### Runtime Flow
-
-```text
-Controller
-    ↓
-@AuditLog
-    ↓
-Audit Aspect
-    ↓
-Operator Resolution
-    ↓
-Business Execution
-    ↓
-Audit Persistence
-```
-
----
-
-## Enterprise OpenAPI Architecture
-
-This project implements an enterprise-style OpenAPI architecture using SpringDoc and Swagger UI.
-
-### Features
-
-- Grouped OpenAPI documentation (`user-api` / `admin-api`)
-- Reusable global response components
-- Unified validation error documentation
-- Centralized error response governance
-- Generic API response schema documentation
-- DTO-based request and response documentation
-- Global OpenAPI component registry
-- Tag governance and API grouping
-- Admin user API documentation governance
-- Query parameter governance
-- Reusable pagination query infrastructure
-- JWT authentication integration in Swagger UI
-- Enterprise-style API metadata management and documentation portal
-- Distributed concurrency runtime documentation
-- Duplicate request API governance
-- Concurrent-safe order runtime documentation
-
-### API Documentation Access
-
-```text
-http://localhost:8080/swagger-ui/index.html
-```
-
-### OpenAPI Architecture
-
-The project follows a layered enterprise-style OpenAPI governance architecture:
-
-```text
-Controller Layer
-    ↓
-Business Semantic Annotations
-    ↓
-OpenAPI Infrastructure Layer
-    ↓
-Reusable OpenAPI Components
-```
-
-The API documentation system includes reusable response schemas, centralized examples, grouped APIs, global metadata management, and enterprise-oriented documentation governance.
-
----
-
-## Order Module Design
-
-The Order module supports full order lifecycle including creation, querying, detailed retrieval, and state transition control.
-
-### Features
-
-- Create orders with multiple dishes
-- Transactional operation (`orders + order_item`)
-- Snapshot storage for dish name and price
-- Server-side amount calculation
-- Pagination query support
-- One-to-many DTO assembly
-- State flow validation
-- Multi-tenant isolation
-- User order cancellation support
-- Payment simulation workflow
-- Automatic expiration cancellation
-- Scheduler-driven order lifecycle governance
-
-### Workflow
-
-1. Client submits order items (`dishId + quantity`)
-2. Server validates dish ownership and availability
-3. Server calculates total amount
-4. Order is inserted into `orders`
-5. Order items are inserted into `order_item`
-6. All operations are executed within a transaction
-
-### Status Flow
-
-Allowed transitions:
-
-- PENDING → PAID
-- PENDING → CANCELLED
-- PAID → COMPLETED
-  
-Additional lifecycle automation:
-
-- User-triggered order cancellation
-- User-triggered payment simulation
-- Automatic cancellation for expired pending orders
-- Idempotent order creation protection
-
-Invalid transitions are rejected at the service layer.
-
-The flow is implemented using a centralized transition map to ensure maintainability and consistency.
-
-### Query Design
-
-- Pagination query using `LIMIT + OFFSET`
-- Order detail retrieval using two-step query (`order + order_item`)
-- One-to-many DTO assembly in Service layer
-
----
-
-## Security & Validation
-
-### Multi-Tenant Isolation
-
-All business queries include `merchant_id` restrictions to ensure tenant-level data isolation.  
-User-level order ownership is enforced using `user_id` association.
-
-### Validation Strategy
-
-Validation is implemented at multiple layers:
-
-- DTO validation (`@Valid`)
-- Business validation in Service layer
-- Affected-row validation using `AssertUtil.checkRows()`
-- Database unique constraint governance
-- Redis idempotency validation
-- Status transition validation
-- Ownership validation
-- Password hashing using BCrypt
-
-### Exception Handling
-
-Global exception handling is implemented via `GlobalExceptionHandler`.
-
-### Global Response Code System
-
-The project implements a unified business exception architecture based on:
-
-- Global business error codes (`ErrorCode`)
-- Centralized error messages (`ErrorMessage`)
-- Custom business exceptions (`BusinessException`)
-- Unified API response wrapper (`Result<T>`)
-- Global exception interception (`GlobalExceptionHandler`)
-- Validation and business exception separation
-- Consistent error response structure across all modules
-
-All business exceptions are standardized into unified JSON responses:
-
-```json
-{
-  "code": 50001,
-  "msg": "Category not found"
-}
-```
-
-Business validation, authentication, authorization, and tenant isolation errors are all integrated into the same response architecture.
-
-
----
-
-## Project Structure
-
-```text
-zentra-catering-platform
-├── zentra-common     # Common utilities, auth, context, constants, Result wrapper
-├── zentra-server     # Core backend service
-├── zentra-admin      # React admin frontend
-├── zentra-user       # User-side frontend (planned)
-```
-
----
-
-## Docker Deployment
-
-### Deployment Architecture
-
-The project supports containerized deployment using Docker and Docker Compose.
-
-The deployment stack includes:
-
-- Spring Boot Runtime Container
-- MySQL Database Container
-- Redis Cache Container
-- Dedicated Docker Network
-- Persistent Volume Management
-
-### Runtime Topology
-
-```text
-Client Request
-    ↓
-Spring Boot Container
-    ├── MySQL Container
-    └── Redis Container
-```
-
-### Build Image
+### Run with Docker Compose
 
 ```bash
 docker build -t zentra-server:1.0 .
-```
-
-### Start Services
-
-```bash
 docker compose up -d
 ```
 
-### Stop Services
+| Service | Address |
+| --- | --- |
+| Zentra API | `http://localhost:8080` |
+| Swagger UI | `http://localhost:8080/swagger-ui/index.html` |
+| MySQL | `localhost:3307` |
+| Redis | `localhost:6380` |
+
+Stop the local stack:
 
 ```bash
 docker compose down
 ```
 
-### View Runtime Logs
+## Staging and Production Configuration
+
+Separate Compose definitions keep environment data, volumes, and runtime configuration isolated:
+
+| Environment | Compose file | Spring profile | Default API port |
+| --- | --- | --- | ---: |
+| Staging | `docker-compose.staging.yml` | `staging` | 8081 |
+| Production | `docker-compose.prod.yml` | `prod` | 8080 |
+
+Real credentials remain outside Git. Copy the appropriate committed template, supply a strong database password, and point `ZENTRA_IMAGE` to an immutable published SHA tag:
 
 ```bash
-docker logs -f zentra-server
+cp .env.staging.example .env.staging
+# Edit .env.staging before use.
+docker compose --env-file .env.staging -f docker-compose.staging.yml pull
+docker compose --env-file .env.staging -f docker-compose.staging.yml up -d
 ```
 
-### Service Ports
+Production follows the same process with `.env.prod` and `docker-compose.prod.yml` after an explicitly approved release image has been chosen.
 
-| Service | Port |
-|----------|------|
-| Zentra Server | 8080 |
-| MySQL | 3307 |
-| Redis | 6380 |
+## Observability and API Documentation
 
-### Environment Profiles
+- Structured runtime logs use domain prefixes such as `AUTH`, `RBAC`, `CACHE`, `LOCK`, `ORDER`, `VALIDATION`, and `BUSINESS`.
+- `@AuditLog` and Spring AOP record business-operation success, failure, operator context, and elapsed time.
+- Swagger UI exposes grouped `user-api` and `admin-api` documentation with reusable response schemas and JWT support.
 
-Development Environment:
+## Project Structure
 
 ```text
-application.yml
+zentra-catering-platform
+├── zentra-common    # Shared auth, context, constants, and Result wrapper
+├── zentra-api       # API contracts and DTOs
+├── zentra-server    # Spring Boot application, business modules, and tests
+├── zentra-admin     # React administrative frontend
+├── docker            # MySQL initialization and container support
+└── .github/workflows
+    ├── ci.yml        # Pull-request and master quality gate
+    └── release.yml   # GHCR image publishing
 ```
 
-Containerized Production Environment:
+## Roadmap
 
-```text
-application-prod.yml
-```
-
-The production profile is activated through Docker Compose runtime variables.
-
----
-
-## Future Improvements
-
-- Admin frontend feature expansion
-- Admin profile management
-- Password reset runtime
-- User frontend implementation
-- Payment workflow integration
-- MyBatis interceptor for automatic tenant injection
-- Employee permission management
-- Redisson-based distributed lock optimization
-- Distributed lock watchdog renewal
-- Idempotency token 
-- CI/CD pipeline integration
-- Container health check governance
-- Production monitoring and observability
-
----
+- Deploy the existing environment-ready Compose stack to a real server.
+- Add user-facing frontend workflows and password-reset support.
+- Expand payment integration and operational monitoring.
+- Evaluate Redisson watchdog renewal and automated tenant injection as the system grows.
 
 ## Project Goals
 
-This project is designed not only as a CRUD practice project, but also as a backend architecture practice focused on:
-
-- Enterprise backend design
-- SaaS multi-tenant architecture
-- Business-oriented service design
-- Maintainable layered architecture
-- Transactional business workflows
-- Secure API development
-- Real-world authentication and authorization architecture
+Zentra is a backend architecture practice project designed to demonstrate maintainable SaaS development: clear layers, secure identity boundaries, transactional business behavior, distributed-runtime safeguards, automated quality checks, and a delivery path that is ready for real infrastructure.

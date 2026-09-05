@@ -59,3 +59,5 @@ zentra-admin/pnpm-debug.log*
 
 ### Environment ###
 zentra-admin/*.local
+.env.staging
+.env.prod

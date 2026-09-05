@@ -1,0 +1,53 @@
+name: zentra-production
+
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env.prod}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-zentra}
+    volumes:
+      - zentra_production_mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7.4
+    restart: unless-stopped
+    volumes:
+      - zentra_production_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  zentra-server:
+    image: ${ZENTRA_IMAGE:?Set ZENTRA_IMAGE to a published GHCR image tag}
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "${ZENTRA_SERVER_PORT:-8080}:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-zentra}?useSSL=false&serverTimezone=UTC
+      DB_USERNAME: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env.prod}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+
+volumes:
+  zentra_production_mysql_data:
+  zentra_production_redis_data:

@@ -10,3 +10,8 @@ spring:
       port: 6379
       database: 0
       timeout: 3000ms
+
+  kafka:
+    bootstrap-servers: localhost:9094
+    consumer:
+      group-id: zentra-default

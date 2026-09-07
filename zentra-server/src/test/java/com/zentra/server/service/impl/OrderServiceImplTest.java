@@ -11,6 +11,7 @@ import com.zentra.server.dto.*;
 import com.zentra.server.entity.Dish;
 import com.zentra.server.entity.Order;
 import com.zentra.server.entity.OrderItem;
+import com.zentra.server.event.OrderEventPublisher;
 import com.zentra.server.mapper.DishMapper;
 import com.zentra.server.mapper.OrderItemMapper;
 import com.zentra.server.mapper.OrderMapper;
@@ -46,8 +47,12 @@ class OrderServiceImplTest {
     @Mock
     private RedisService redisService;
 
+    @Mock
+    private OrderEventPublisher orderEventPublisher;
+
     @InjectMocks
     private OrderServiceImpl orderService;
+
 
     // ==================== Create ====================
     @Test

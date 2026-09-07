@@ -6,6 +6,8 @@ import com.zentra.common.exception.BusinessException;
 import com.zentra.common.result.PageResult;
 import com.zentra.common.util.AssertUtil;
 import com.zentra.server.dto.*;
+import com.zentra.server.event.OrderCreatedEvent;
+import com.zentra.server.event.OrderEventPublisher;
 import com.zentra.server.entity.Dish;
 import com.zentra.server.entity.Order;
 import com.zentra.server.entity.OrderItem;
@@ -44,17 +46,24 @@ public class OrderServiceImpl implements OrderService {
      */
     private final RedisService redisService;
 
+    /**
+     * Order event publisher
+     */
+    private final OrderEventPublisher orderEventPublisher;
+
     public OrderServiceImpl(
             OrderMapper orderMapper,
             OrderItemMapper orderItemMapper,
             DishMapper dishMapper,
-            RedisService redisService
-    ) {
+            RedisService redisService,
+            OrderEventPublisher orderEventPublisher
 
+    ) {
         this.orderMapper = orderMapper;
         this.orderItemMapper = orderItemMapper;
         this.dishMapper = dishMapper;
         this.redisService = redisService;
+        this.orderEventPublisher = orderEventPublisher;
     }
 
     /**
@@ -384,6 +393,15 @@ public class OrderServiceImpl implements OrderService {
                         item.getQuantity()
                 );
             }
+
+            // Publish order created event
+            OrderCreatedEvent event = new OrderCreatedEvent(
+                    order.getId(),
+                    merchantId,
+                    userId
+            );
+
+            orderEventPublisher.publishOrderCreated(event);
 
             log.info(
                     "[ORDER] Order creation completed. orderId={}, merchantId={}, userId={}",

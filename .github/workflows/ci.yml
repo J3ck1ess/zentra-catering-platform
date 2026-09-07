@@ -38,6 +38,35 @@ jobs:
           --health-timeout=5s
           --health-retries=10
 
+      kafka:
+        image: apache/kafka:4.3.1
+        ports:
+          - 9094:9094
+        env:
+          KAFKA_NODE_ID: 1
+          KAFKA_PROCESS_ROLES: broker,controller
+
+          KAFKA_LISTENERS: INTERNAL://:9092,EXTERNAL://:9094,CONTROLLER://:9093
+          KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:9094
+          KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+          KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+          KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+          KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+          KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+          KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+          KAFKA_NUM_PARTITIONS: 3
+        options: >-
+          --health-cmd="/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+          --health-start-period=15s
+
     steps:
       - name: Check out source
         uses: actions/checkout@v4
@@ -58,6 +87,19 @@ jobs:
         run: |
           mysql --protocol=TCP --host=127.0.0.1 --port=3307 --user=root \
             zentra_test < docker/mysql/init.sql
+
+      - name: Initialize Kafka topics
+        run: |
+          docker run --rm \
+            --network host \
+            apache/kafka:4.3.1 \
+            /opt/kafka/bin/kafka-topics.sh \
+            --create \
+            --if-not-exists \
+            --topic zentra.order.created \
+            --bootstrap-server localhost:9094 \
+            --partitions 3 \
+            --replication-factor 1
 
       - name: Run automated tests
         run: mvn --batch-mode --no-transfer-progress clean test

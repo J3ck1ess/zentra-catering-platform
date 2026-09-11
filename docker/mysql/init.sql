@@ -177,6 +177,19 @@ CREATE TABLE `audit_log` (
 
 SET FOREIGN_KEY_CHECKS = 1;
 
+
+-- Processed Kafka events for consumer idempotency
+CREATE TABLE `processed_event` (
+                                   `id` bigint NOT NULL AUTO_INCREMENT,
+                                   `event_id` varchar(64) NOT NULL COMMENT 'Kafka event ID',
+                                   `processed_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Processing completion time',
+                                   PRIMARY KEY (`id`),
+                                   UNIQUE KEY `uk_processed_event_event_id` (`event_id`)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_0900_ai_ci
+  COMMENT='Processed Kafka events for consumer idempotency';
+
 -- =========================
 -- Deterministic Seed Data
 -- =========================

@@ -396,6 +396,7 @@ public class OrderServiceImpl implements OrderService {
 
             // Publish order created event
             OrderCreatedEvent event = new OrderCreatedEvent(
+                    UUID.randomUUID().toString(),
                     order.getId(),
                     merchantId,
                     userId

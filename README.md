@@ -15,8 +15,8 @@ Zentra is a multi-module catering SaaS platform built with Spring Boot. It focus
 | SaaS design | Merchant-scoped data isolation, DTO-based APIs, dynamic queries, and layered Controller → Service → Mapper architecture |
 | Business modules | Employee administration, categories, dishes, users, user administration, and a full order lifecycle |
 | Security | Separate `USER` / `EMPLOYEE` identities, JWT authentication, RBAC permissions, request-scoped contexts, and BCrypt passwords |
-| Reliability | Transactions, server-side pricing, Redis cache-aside, cache-penetration protection, distributed locking, idempotency, and scheduled order expiry handling |
-| Quality | 261 automated tests across unit, web, and integration layers; real MySQL and Redis are used by integration tests |
+| Reliability | Transactions, server-side pricing, Redis cache-aside, cache-penetration protection, distributed locking, Redis request idempotency, Kafka event idempotency, and scheduled order expiry handling |
+| Quality | 271 automated tests across unit, web, and integration layers; real MySQL, Redis, and Kafka are used by integration tests |
 | Delivery | GitHub Actions quality gate, Docker image build validation, published GHCR images, and environment-ready Staging / Production Compose files |
 
 ## Architecture
@@ -83,7 +83,7 @@ Orders use a transaction for order and order-item persistence, validate dish ava
 | --- | --- |
 | Backend | Java 21, Spring Boot 3.x, Maven multi-module build |
 | Persistence | MySQL, MyBatis, XML dynamic SQL |
-| Distributed runtime | Redis, Docker, Docker Compose |
+| Distributed runtime | Redis, Kafka, Docker, Docker Compose |
 | Security | JWT, RBAC, Spring AOP, BCrypt, Jakarta Validation |
 | API documentation | SpringDoc / Swagger OpenAPI 3 |
 | Testing | JUnit 5, Mockito, AssertJ, Spring MockMvc |
@@ -96,8 +96,8 @@ Orders use a transaction for order and order-item persistence, validate dish ava
 | --- | --- | ---: |
 | Unit | Service business rules, mapper interactions, cache behavior, validation, and error handling | 132 |
 | Web | Controller contracts, request binding, validation, JSON responses, and service delegation | 90 |
-| Integration | Real Spring context, MySQL, Redis, MockMvc, JWT, RBAC, caching, and order flows | 39 |
-| **Total** | **Latest full Maven suite** | **261** |
+| Integration | Real Spring context, MySQL, Redis, Kafka, MockMvc, JWT, RBAC, caching, and order flows | 49 |
+| **Total** | **Latest full Maven suite** | **271** |
 
 The integration suite validates:
 
@@ -105,6 +105,7 @@ The integration suite validates:
 - Employee and user authentication, expired/invalid token handling, RBAC, and bidirectional USER / EMPLOYEE API identity isolation.
 - Category, dish, user, and order persistence flows with real database and Redis interactions.
 - Cache hits, misses, eviction, cache-penetration protection, distributed duplicate-order protection, and order status transitions.
+- Kafka event consumption, consumer retry behavior, persistent event idempotency, duplicate-event handling, and consumer offset commit behavior. Kafka integration tests use isolated consumer groups and explicitly enable Kafka listener startup, while general integration tests keep Kafka listeners disabled to prevent cross-test message consumption.
 
 Run the full suite locally:
 
@@ -123,8 +124,9 @@ Pull request
   ↓
 Backend CI
   ├── Java 21 + Maven dependency cache
-  ├── MySQL 8.4 + Redis 7.4 service containers
+  ├── MySQL 8.4 + Redis 7.4 + Kafka 4.3.1 service containers
   ├── Deterministic zentra_test initialization
+  ├── Kafka topic initialization
   ├── Full Maven test suite
   ├── Maven package
   └── Docker image build validation
@@ -168,6 +170,7 @@ docker compose up -d
 | Swagger UI | `http://localhost:8080/swagger-ui/index.html` |
 | MySQL | `localhost:3307` |
 | Redis | `localhost:6380` |
+| Kafka | `localhost:9094` |
 
 Stop the local stack:
 

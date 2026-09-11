@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zentra.server.mapper.ProcessedEventMapper">
+
+    <resultMap id="ProcessedEventResultMap"
+               type="com.zentra.server.entity.ProcessedEvent">
+
+        <id property="id"
+            column="id"/>
+
+        <result property="eventId"
+                column="event_id"/>
+
+        <result property="processedAt"
+                column="processed_at"/>
+
+    </resultMap>
+
+    <insert id="insert"
+            parameterType="com.zentra.server.entity.ProcessedEvent"
+            useGeneratedKeys="true"
+            keyProperty="id">
+
+        INSERT INTO processed_event (
+        event_id
+        )
+        VALUES (
+        #{eventId}
+        )
+
+    </insert>
+
+</mapper>

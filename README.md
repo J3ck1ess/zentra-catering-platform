@@ -101,7 +101,7 @@ Orders use a transaction for order and order-item persistence, validate dish ava
 
 The integration suite validates:
 
-- Spring context startup plus MySQL and Redis connectivity.
+- Spring context startup plus MySQL, Redis, and Kafka connectivity.
 - Employee and user authentication, expired/invalid token handling, RBAC, and bidirectional USER / EMPLOYEE API identity isolation.
 - Category, dish, user, and order persistence flows with real database and Redis interactions.
 - Cache hits, misses, eviction, cache-penetration protection, distributed duplicate-order protection, and order status transitions.

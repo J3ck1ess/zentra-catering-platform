@@ -5,18 +5,27 @@ import com.zentra.server.event.OrderCreatedEventHandler;
 import com.zentra.server.service.KafkaIdempotencyService;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -30,6 +39,8 @@ import static org.mockito.Mockito.*;
 class KafkaIdempotencyIntegrationTest extends IntegrationTestBase {
 
     private static final String TOPIC = "zentra.order.created";
+
+    private static final String DLT_TOPIC = TOPIC + ".DLT";
 
     private static final String GROUP_ID =
             "zentra-idempotency-test-" + UUID.randomUUID();
@@ -207,9 +218,6 @@ class KafkaIdempotencyIntegrationTest extends IntegrationTestBase {
         assertThat(count).isEqualTo(1);
     }
 
-    // TODO: Current DefaultErrorHandler uses the default logging recoverer.
-    //  After retry exhaustion, the failed record is recovered and its offset is committed without creating a persistent idempotency record.
-    //  This behavior will be replaced by DLT/DLQ handling
     @Test
     void shouldCommitOffsetAfterRetriesAreExhausted() throws Exception {
         String eventId =
@@ -272,6 +280,123 @@ class KafkaIdempotencyIntegrationTest extends IntegrationTestBase {
         assertThat(count).isEqualTo(0);
     }
 
+    @Test
+    void shouldPublishFailedEventToDlt() throws Exception {
+        String eventId =
+                "kafka-dlt-" + UUID.randomUUID();
+
+        OrderCreatedEvent event =
+                new OrderCreatedEvent(
+                        eventId,
+                        111111L,
+                        1L,
+                        1L
+                );
+
+        doThrow(new RuntimeException("permanent business failure"))
+                .when(eventHandler)
+                .handle(any(OrderCreatedEvent.class));
+
+        var result =
+                kafkaTemplate
+                        .send(TOPIC, eventId, event)
+                        .get(10, TimeUnit.SECONDS);
+
+        TopicPartition topicPartition =
+                new TopicPartition(
+                        TOPIC,
+                        result.getRecordMetadata().partition()
+                );
+
+        waitForCommittedOffset(
+                topicPartition,
+                result.getRecordMetadata().offset() + 1
+        );
+
+        try (var consumer =
+                     createKafkaConsumer(
+                             "zentra-dlt-test-" + UUID.randomUUID())) {
+
+            consumer.subscribe(java.util.List.of(DLT_TOPIC));
+
+            var deadline =
+                    System.currentTimeMillis() + 10_000;
+
+            ConsumerRecord<String, OrderCreatedEvent>
+                    dltRecord = null;
+
+            while (System.currentTimeMillis() < deadline) {
+
+                var records =
+                        consumer.poll(Duration.ofMillis(500));
+
+                for (ConsumerRecord<String, OrderCreatedEvent> record : records) {
+
+                    if (eventId.equals(record.value().eventId())) {
+                        dltRecord = record;
+                        break;
+                    }
+                }
+
+                if (dltRecord != null) {
+                    break;
+                }
+            }
+
+            assertThat(dltRecord).isNotNull();
+
+            OrderCreatedEvent dltEvent =
+                    dltRecord.value();
+
+            assertThat(dltEvent.eventId())
+                    .isEqualTo(eventId);
+
+            assertThat(dltEvent.orderId())
+                    .isEqualTo(111111L);
+
+            assertThat(dltEvent.merchantId())
+                    .isEqualTo(1L);
+
+            assertThat(dltEvent.userId())
+                    .isEqualTo(1L);
+
+            assertThat(dltRecord.headers()
+                    .lastHeader(KafkaHeaders.DLT_ORIGINAL_TOPIC))
+                    .isNotNull();
+
+            assertThat(new String(
+                    dltRecord.headers()
+                            .lastHeader(KafkaHeaders.DLT_ORIGINAL_TOPIC)
+                            .value(),
+                    StandardCharsets.UTF_8
+            )).isEqualTo(TOPIC);
+
+            assertThat(dltRecord.headers()
+                    .lastHeader(KafkaHeaders.DLT_ORIGINAL_PARTITION))
+                    .isNotNull();
+
+            assertThat(ByteBuffer.wrap(
+                    dltRecord.headers()
+                            .lastHeader(KafkaHeaders.DLT_ORIGINAL_PARTITION)
+                            .value()
+            ).getInt()).isEqualTo(
+                    result.getRecordMetadata().partition()
+            );
+
+            assertThat(dltRecord.headers()
+                    .lastHeader(KafkaHeaders.DLT_ORIGINAL_OFFSET))
+                    .isNotNull();
+
+            assertThat(ByteBuffer.wrap(
+                    dltRecord.headers()
+                            .lastHeader(KafkaHeaders.DLT_ORIGINAL_OFFSET)
+                            .value()
+            ).getLong()).isEqualTo(
+                    result.getRecordMetadata().offset()
+            );
+        }
+    }
+
     private void waitForCommittedOffset(
             TopicPartition topicPartition,
             long expectedOffset
@@ -308,6 +433,50 @@ class KafkaIdempotencyIntegrationTest extends IntegrationTestBase {
                 "Kafka consumer did not commit expected offset: "
                         + expectedOffset
         );
+    }
+
+    private KafkaConsumer<String, OrderCreatedEvent>
+    createKafkaConsumer(String groupId) {
+
+        Properties properties =
+                new Properties();
+
+        properties.put(
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                bootstrapServers
+        );
+
+        properties.put(
+                ConsumerConfig.GROUP_ID_CONFIG,
+                groupId
+        );
+
+        properties.put(
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer.class
+        );
+
+        properties.put(
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                JsonDeserializer.class
+        );
+
+        properties.put(
+                JsonDeserializer.VALUE_DEFAULT_TYPE,
+                OrderCreatedEvent.class.getName()
+        );
+
+        properties.put(
+                JsonDeserializer.TRUSTED_PACKAGES,
+                "com.zentra.server.event"
+        );
+
+        properties.put(
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+                "earliest"
+        );
+
+        return new KafkaConsumer<>(properties);
     }
 
     private AdminClient createAdminClient() {
